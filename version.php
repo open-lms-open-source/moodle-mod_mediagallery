@@ -28,7 +28,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$module->version   = 2014042801;
-$module->requires  = 2013051400;
-$module->cron      = 0;
-$module->component = 'mod_mediagallery';
+$plugin->version   = 2014042801;
+$plugin->requires  = 2013051400;
+$plugin->cron      = 0;
+$plugin->component = 'mod_mediagallery';
+$plugin->maturity  = MATURITY_STABLE;
