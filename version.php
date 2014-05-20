@@ -33,3 +33,4 @@ $plugin->requires  = 2013051400;
 $plugin->cron      = 0;
 $plugin->component = 'mod_mediagallery';
 $plugin->maturity  = MATURITY_STABLE;
+$plugin->release   = '2.5.1.0';
