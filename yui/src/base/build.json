@@ -1,0 +1,11 @@
+{
+  "name": "moodle-mod_mediagallery-base",
+  "builds": {
+    "moodle-mod_mediagallery-base": {
+      "jsfiles": [
+        "base.js",
+        "dragdrop.js"
+      ]
+    }
+  }
+}

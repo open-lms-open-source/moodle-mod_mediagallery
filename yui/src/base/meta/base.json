@@ -1,0 +1,14 @@
+{
+  "moodle-mod_mediagallery-base": {
+    "requires": [
+        "base",
+        "node",
+        "selector-css3",
+        "dd-constrain",
+        "dd-proxy",
+        "dd-drop",
+        "dd-plugin",
+        "moodle-core-notification"
+    ]
+  }
+}

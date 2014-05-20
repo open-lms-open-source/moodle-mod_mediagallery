@@ -1,0 +1,10 @@
+{
+  "name": "moodle-mod_mediagallery-mediabox",
+  "builds": {
+    "moodle-mod_mediagallery-mediabox": {
+      "jsfiles": [
+        "mediabox.js"
+      ]
+    }
+  }
+}
