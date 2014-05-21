@@ -54,12 +54,12 @@ class backup_mediagallery_activity_task extends backup_activity_task {
         $base = preg_quote($CFG->wwwroot, "/");
 
         // Link to the list of pages.
-        $search="/(".$base."\/mod\/mediagallery\/index.php\?id\=)([0-9]+)/";
-        $content= preg_replace($search, '$@MEDIAGALLERYINDEX*$2@$', $content);
+        $search = "/(".$base."\/mod\/mediagallery\/index.php\?id\=)([0-9]+)/";
+        $content = preg_replace($search, '$@MEDIAGALLERYINDEX*$2@$', $content);
 
         // Link to page view by moduleid.
-        $search="/(".$base."\/mod\/mediagallery\/view.php\?id\=)([0-9]+)/";
-        $content= preg_replace($search, '$@MEDIAGALLERYVIEWBYID*$2@$', $content);
+        $search = "/(".$base."\/mod\/mediagallery\/view.php\?id\=)([0-9]+)/";
+        $content = preg_replace($search, '$@MEDIAGALLERYVIEWBYID*$2@$', $content);
 
         return $content;
     }

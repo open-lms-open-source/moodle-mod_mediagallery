@@ -61,7 +61,7 @@ class gallery extends base {
         $newgalleryrecord->userid = $USER->id;
         $newgalleryrecord->groupid = 0;
 
-        $newgallery = gallery::create($newgalleryrecord);
+        $newgallery = self::create($newgalleryrecord);
 
         $thumbnail = 0;
         foreach ($this->get_items() as $item) {
@@ -173,7 +173,6 @@ class gallery extends base {
             $filelist[$file->get_itemid()]['lowres'] = $file;
         }
 
-
         $items = array();
         if ($records = $DB->get_records_sql($sql, array('galleryid' => $this->record->id))) {
             foreach ($records as $record) {
@@ -240,7 +239,8 @@ class gallery extends base {
     public function moral_rights_asserted() {
         global $DB;
 
-        return $DB->count_records('mediagallery_item', array('galleryid' => $this->record->id, 'moralrights' => 1)) > 0 ? true : false;
+        $count = $DB->count_records('mediagallery_item', array('galleryid' => $this->record->id, 'moralrights' => 1));
+        return $count > 0;
     }
 
     /**
@@ -264,7 +264,7 @@ class gallery extends base {
         }
 
         // TODO: Optimize this.
-        foreach($flipped as $id => $order) {
+        foreach ($flipped as $id => $order) {
             $DB->set_field('mediagallery_item', 'sortorder', $order, array('id' => $id));
         }
         return true;

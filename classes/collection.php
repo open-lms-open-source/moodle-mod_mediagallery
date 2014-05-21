@@ -102,7 +102,8 @@ class collection extends base {
                 JOIN {assign_plugin_config} apc ON apc.assignment = asub.assignment
                 JOIN {assign} a ON a.id = asub.assignment
                 WHERE apc.plugin = 'mediagallery' AND apc.subtype = 'assignsubmission' AND apc.name = 'mediagallery'
-                    AND apc.value = :collection AND asub.status IN ('".ASSIGN_SUBMISSION_STATUS_SUBMITTED."', '".ASSIGN_SUBMISSION_STATUS_REOPENED."')
+                    AND apc.value = :collection
+                    AND asub.status IN ('".ASSIGN_SUBMISSION_STATUS_SUBMITTED."', '".ASSIGN_SUBMISSION_STATUS_REOPENED."')
                     AND (a.duedate = 0 OR a.duedate < :time)
                 GROUP BY asub.id, asm.galleryid, asub.assignment, asub.status, asub.attemptnumber, asub.userid
                 ORDER BY asub.assignment ASC, asub.userid, asub.attemptnumber ASC";

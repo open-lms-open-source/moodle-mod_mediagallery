@@ -35,20 +35,32 @@ defined('MOODLE_INTERNAL') || die();
  */
 function mediagallery_supports($feature) {
     switch($feature) {
-        case FEATURE_GROUPS:                  return true;
-        case FEATURE_GROUPINGS:               return true;
-        case FEATURE_GROUPMEMBERSONLY:        return true;
-        case FEATURE_MOD_INTRO:               return true;
-        case FEATURE_COMPLETION_TRACKS_VIEWS: return true;
-        case FEATURE_COMPLETION_HAS_RULES:    return false;
-        case FEATURE_GRADE_HAS_GRADE:         return false;
-        case FEATURE_GRADE_OUTCOMES:          return false;
-        case FEATURE_RATE:                    return false;
-        case FEATURE_BACKUP_MOODLE2:          return true;
-        case FEATURE_SHOW_DESCRIPTION:        return true;
-        case FEATURE_PLAGIARISM:              return false;
-
-        default:                        return null;
+        case FEATURE_GROUPS:
+            return true;
+        case FEATURE_GROUPINGS:
+            return true;
+        case FEATURE_GROUPMEMBERSONLY:
+            return true;
+        case FEATURE_MOD_INTRO:
+            return true;
+        case FEATURE_COMPLETION_TRACKS_VIEWS:
+            return true;
+        case FEATURE_COMPLETION_HAS_RULES:
+            return false;
+        case FEATURE_GRADE_HAS_GRADE:
+            return false;
+        case FEATURE_GRADE_OUTCOMES:
+            return false;
+        case FEATURE_RATE:
+            return false;
+        case FEATURE_BACKUP_MOODLE2:
+            return true;
+        case FEATURE_SHOW_DESCRIPTION:
+            return true;
+        case FEATURE_PLAGIARISM:
+            return false;
+        default:
+            return null;
     }
 }
 
@@ -414,11 +426,11 @@ function mediagallery_extend_settings_navigation(settings_navigation $settingsna
  * }
  * @return boolean
  */
-function mediagallery_comment_validate($comment_param) {
-    if ($comment_param->commentarea != 'gallery' && $comment_param->commentarea != 'item') {
+function mediagallery_comment_validate($commentparam) {
+    if ($commentparam->commentarea != 'gallery' && $commentparam->commentarea != 'item') {
         throw new comment_exception('invalidcommentarea');
     }
-    if ($comment_param->itemid == 0) {
+    if ($commentparam->itemid == 0) {
         throw new comment_exception('invalidcommentitemid');
     }
     return true;

@@ -33,7 +33,7 @@ Feature: Social interactions with items
     And I follow "View gallery"
     And I click on ".jcarousel a[title=\"Test item\"]" "css_element"
     And I wait "2" seconds
-    And I click on "#lightbox a.like" "css_element"
+    And I click on "#mediabox a.like" "css_element"
     And I wait "1" seconds
     Then I should see "Unlike"
     When I log out

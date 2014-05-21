@@ -80,8 +80,8 @@ if ($mform->is_cancelled()) {
         $fs = get_file_storage();
         $draftid = file_get_submitted_draft_itemid('content');
         $files = $fs->get_area_files(context_user::instance($USER->id)->id, 'user', 'draft', $draftid, 'id DESC', false);
-        $stored_file = reset($files);
-        \mod_mediagallery\item::create_from_archive($gallery, $stored_file, $data);
+        $storedfile = reset($files);
+        \mod_mediagallery\item::create_from_archive($gallery, $storedfile, $data);
     } else {
         $data->description = $data->description['text'];
         $data->galleryid = $gallery->id;
@@ -96,17 +96,17 @@ if ($mform->is_cancelled()) {
         $info = file_get_draft_area_info($data->content);
         file_save_draft_area_files($data->content, $context->id, 'mod_mediagallery', 'item', $item->id, $fmoptions);
 
-        $stored_file = null;
+        $storedfile = null;
         if ($gallery->gallerytype != MEDIAGALLERY_TYPE_IMAGE) {
             $draftid = file_get_submitted_draft_itemid('customthumbnail');
             $fs = get_file_storage();
             if ($files = $fs->get_area_files(
                 context_user::instance($USER->id)->id, 'user', 'draft', $draftid, 'id DESC', false)) {
-                $stored_file = reset($files);
+                $storedfile = reset($files);
             }
         }
-        $item->generate_image_by_type('lowres', false, $stored_file);
-        $item->generate_image_by_type('thumbnail', false, $stored_file);
+        $item->generate_image_by_type('lowres', false, $storedfile);
+        $item->generate_image_by_type('thumbnail', false, $storedfile);
     }
 
     redirect(new moodle_url('/mod/mediagallery/view.php', array('g' => $gallery->id, 'editing' => 1)));
@@ -121,15 +121,15 @@ if ($mform->is_cancelled()) {
         $data->customthumbnail = $draftitemidthumb;
     }
 
-    $draftid_editor = file_get_submitted_draft_itemid('description');
-    $currenttext = file_prepare_draft_area($draftid_editor, $context->id, 'mod_mediagallery',
+    $draftideditor = file_get_submitted_draft_itemid('description');
+    $currenttext = file_prepare_draft_area($draftideditor, $context->id, 'mod_mediagallery',
             'description', empty($data->id) ? null : $data->id,
             array('subdirs' => 0), empty($data->description) ? '' : $data->description);
 
     $data->content = $draftitemid;
     $data->description = array('text' => $currenttext,
                            'format' => editors_get_preferred_format(),
-                           'itemid' => $draftid_editor);
+                           'itemid' => $draftideditor);
 
     $mform->set_data($data);
 }

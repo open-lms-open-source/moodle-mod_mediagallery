@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -33,8 +32,8 @@ defined('MOODLE_INTERNAL') || die();
 global $DB;
 
 $logs = array(
-    array('module'=>'mediagallery', 'action'=>'add', 'mtable'=>'mediagallery', 'field'=>'name'),
-    array('module'=>'mediagallery', 'action'=>'update', 'mtable'=>'mediagallery', 'field'=>'name'),
-    array('module'=>'mediagallery', 'action'=>'view', 'mtable'=>'mediagallery', 'field'=>'name'),
-    array('module'=>'mediagallery', 'action'=>'view all', 'mtable'=>'mediagallery', 'field'=>'name')
+    array('module' => 'mediagallery', 'action' => 'add', 'mtable' => 'mediagallery', 'field' => 'name'),
+    array('module' => 'mediagallery', 'action' => 'update', 'mtable' => 'mediagallery', 'field' => 'name'),
+    array('module' => 'mediagallery', 'action' => 'view', 'mtable' => 'mediagallery', 'field' => 'name'),
+    array('module' => 'mediagallery', 'action' => 'view all', 'mtable' => 'mediagallery', 'field' => 'name')
 );

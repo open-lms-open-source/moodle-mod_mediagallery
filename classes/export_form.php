@@ -43,7 +43,7 @@ class export_form extends \moodleform {
         // General settings.
         $mform->addElement('header', 'general', get_string('export', 'mediagallery'));
 
-        $mform->addElement('checkbox', 'completegallery', get_string('completegallery','mediagallery'));
+        $mform->addElement('checkbox', 'completegallery', get_string('completegallery', 'mediagallery'));
 
         foreach ($gallery->get_items() as $item) {
             if (!empty($item->externalurl)) {

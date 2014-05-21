@@ -41,7 +41,8 @@ use Behat\Behat\Context\Step\Given as Given,
 class behat_mod_mediagallery extends behat_base {
 
     /**
-     * Adds a gallery to the mediagallery specified by it's name with the provided table data. The step begins from the mediagallery's course page.
+     * Adds a gallery to the mediagallery specified by it's name with the provided table data.
+     * The step begins from the mediagallery's course page.
      *
      * @Given /^I add a new gallery to "(?P<mediagallery_name_string>(?:[^"]|\\")*)" media gallery with:$/
      * @param string $name
@@ -80,7 +81,7 @@ class behat_mod_mediagallery extends behat_base {
     /**
      * @Given /^I go to view with all groups$/
      */
-    public function iGoToViewWithAllGroups() {
+    public function i_goto_view_with_all_groups() {
         $s = $this->getSession();
         $s->visit($s->getCurrentUrl()."&group=0");
     }

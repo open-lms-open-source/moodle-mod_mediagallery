@@ -81,7 +81,7 @@ function mediagallery_get_sample_targets($course) {
  */
 function mediagallery_appears_valid_url($url) {
     if (preg_match('/^(\/|https?:|ftp:)/i', $url)) {
-        // note: this is not exact validation, we look for severely malformed URLs only
+        // Note: this is not exact validation, we look for severely malformed URLs only.
         return (bool)preg_match('/^[a-z]+:\/\/([^:@\s]+:[^@\s]+@)?[a-z0-9_\.\-]+(:[0-9]+)?(\/[^#]*)?(#.*)?$/i', $url);
     } else {
         return (bool)preg_match('/^[a-z]+:\/\/...*$/i', $url);
@@ -164,9 +164,10 @@ function mediagallery_search_items($searchterms, $courses, $limitfrom = 0, $limi
         $context = $collection->context;
 
         if (!empty($collection->onlygroups)) {
-            list($groupid_sql, $groupid_params) = $DB->get_in_or_equal($collection->onlygroups, SQL_PARAMS_NAMED, 'grps'.$collectionid.'_');
-            $params = array_merge($params, $groupid_params);
-            $select[] = "g.groupid $groupid_sql";
+            list($groupidsql, $groupidparams) = $DB->get_in_or_equal($collection->onlygroups, SQL_PARAMS_NAMED,
+                'grps'.$collectionid.'_');
+            $params = array_merge($params, $groupidparams);
+            $select[] = "g.groupid $groupidsql";
         }
 
         if ($select) {
@@ -179,9 +180,9 @@ function mediagallery_search_items($searchterms, $courses, $limitfrom = 0, $limi
     }
 
     if ($fullaccess) {
-        list($fullid_sql, $fullid_params) = $DB->get_in_or_equal($fullaccess, SQL_PARAMS_NAMED, 'fula');
-        $params = array_merge($params, $fullid_params);
-        $where[] = "(g.instanceid $fullid_sql)";
+        list($fullidsql, $fullidparams) = $DB->get_in_or_equal($fullaccess, SQL_PARAMS_NAMED, 'fula');
+        $params = array_merge($params, $fullidparams);
+        $where[] = "(g.instanceid $fullidsql)";
     }
 
     $selectgallery = "(".implode(" OR ", $where).")";
@@ -189,7 +190,7 @@ function mediagallery_search_items($searchterms, $courses, $limitfrom = 0, $limi
     $searchstring = '';
 
     // Need to concat these back together for parser to work.
-    foreach($searchterms as $searchterm){
+    foreach ($searchterms as $searchterm) {
         if ($searchstring != '') {
             $searchstring .= ' ';
         }
@@ -198,7 +199,7 @@ function mediagallery_search_items($searchterms, $courses, $limitfrom = 0, $limi
 
     // We need to allow quoted strings for the search. The quotes *should* be stripped
     // by the parser, but this should be examined carefully for security implications.
-    $searchstring = str_replace("\\\"","\"",$searchstring);
+    $searchstring = str_replace("\\\"", "\"", $searchstring);
     $parser = new search_parser();
     $lexer = new search_lexer($parser);
 
@@ -238,8 +239,8 @@ function mediagallery_generate_search_sql($parsetree) {
     static $p = 0;
 
     if ($DB->sql_regex_supported()) {
-        $REGEXP    = $DB->sql_regex(true);
-        $NOTREGEXP = $DB->sql_regex(false);
+        $regexp    = $DB->sql_regex(true);
+        $notregexp = $DB->sql_regex(false);
     }
 
     $params = array();
@@ -253,7 +254,7 @@ function mediagallery_generate_search_sql($parsetree) {
 
     $fields = array('caption', 'originalauthor', 'moralrights', 'medium', 'publisher', 'collection', 'name');
 
-    for ($i=0; $i < $ntokens; $i++){
+    for ($i = 0; $i < $ntokens; $i++) {
         if ($i > 0) { // We have more than one clause, need to tack on AND.
             $sqlstring .= ' AND ';
         }
@@ -289,14 +290,14 @@ function mediagallery_generate_search_sql($parsetree) {
         $sqlstring .= '(';
         if ($datafield == 'i.moralrights') {
             $sqlstring .= "(i.moralrights = :$name1)";
-            $params[$name1] =  "$value";
+            $params[$name1] = "$value";
         } else {
             $sqlstring .= "(".$DB->sql_like($datafield, ":$name1", false).")";
-            $params[$name1] =  "%$value%";
+            $params[$name1] = "%$value%";
         }
         if (!is_null($metafield)) {
             $sqlstring .= "OR (".$DB->sql_like($metafield, ":$name2", false).")";
-            $params[$name2] =  "%$value%";
+            $params[$name2] = "%$value%";
         }
         if (!$specific) {
             $sqlstring .= "OR (".$DB->sql_like('name', ":$name3", false).")";

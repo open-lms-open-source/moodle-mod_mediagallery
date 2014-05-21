@@ -68,7 +68,8 @@ class mod_mediagallery_item_form extends moodleform {
 
         $mform->addElement('static', 'filecheck', '', get_string('choosecontent', 'mediagallery'));
 
-        $mform->addElement('filepicker', 'content', get_string('content', 'mediagallery'), '0', mediagallery_filepicker_options($gallery));
+        $mform->addElement('filepicker', 'content', get_string('content', 'mediagallery'), '0',
+            mediagallery_filepicker_options($gallery));
         $mform->addHelpButton('content', 'content', 'mediagallery');
 
         $mform->addElement('url', 'externalurl', get_string('externalurl', 'mediagallery'), array('size' => '60'),
@@ -107,21 +108,19 @@ class mod_mediagallery_item_form extends moodleform {
             $errors['filecheck'] = get_string('required');
         } else if (!empty($url)) {
             if (preg_match('|^/|', $url)) {
-                // links relative to server root are ok - no validation necessary
-
+                // Links relative to server root are ok - no validation necessary.
             } else if (preg_match('|^[a-z]+://|i', $url) or preg_match('|^https?:|i', $url) or preg_match('|^ftp:|i', $url)) {
-                // normal URL
+                // Normal URL.
                 if (!mediagallery_appears_valid_url($url)) {
                     $errors['externalurl'] = get_string('invalidurl', 'url');
                 }
 
             } else if (preg_match('|^[a-z]+:|i', $url)) {
-                // general URI such as teamspeak, mailto, etc. - it may or may not work in all browsers,
-                // we do not validate these at all, sorry
-
+                // General URI such as teamspeak, mailto, etc. - it may or may not work in all browsers.
+                // We do not validate these at all, sorry.
             } else {
-                // invalid URI, we try to fix it by adding 'http://' prefix,
-                // relative links are NOT allowed because we display the link on different pages!
+                // Invalid URI, we try to fix it by adding 'http://' prefix.
+                // Relative links are NOT allowed because we display the link on different pages!
                 require_once($CFG->dirroot."/mod/url/locallib.php");
                 if (!url_appears_valid_url('http://'.$url)) {
                     $errors['externalurl'] = get_string('invalidurl', 'url');

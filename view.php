@@ -87,7 +87,8 @@ $PAGE->set_url($pageurl);
 $PAGE->set_title(format_string($mediagallery->name));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->requires->js('/mod/mediagallery/js/screenfull.min.js');
-$PAGE->requires->yui_module('moodle-mod_mediagallery-base', 'M.mod_mediagallery.base.init', array($mediagallery->id, $viewcontrols, $editing, $g, $jsoptions));
+$PAGE->requires->yui_module('moodle-mod_mediagallery-base', 'M.mod_mediagallery.base.init',
+    array($mediagallery->id, $viewcontrols, $editing, $g, $jsoptions));
 
 $mediaboxparams = array(
     'metainfouri' => $CFG->wwwroot.'/mod/mediagallery/rest.php',
@@ -111,7 +112,9 @@ $jsstrs = array('confirmgallerydelete', 'confirmitemdelete', 'deletegallery',
     'publisher', 'galleryname', 'creator', 'filename', 'filesize', 'datecreated',
     'viewfullsize', 'you', 'togglesidebar', 'close', 'togglefullscreen');
 $PAGE->requires->strings_for_js($jsstrs, 'mod_mediagallery');
-$PAGE->requires->strings_for_js(array('move', 'add', 'description', 'no', 'yes', 'group', 'fullnameuser', 'username', 'next', 'previous'), 'moodle');
+$PAGE->requires->strings_for_js(array(
+    'move', 'add', 'description', 'no', 'yes', 'group', 'fullnameuser', 'username', 'next', 'previous'
+), 'moodle');
 
 if ($gallery && $canedit) {
     if (!$editing) {
@@ -130,7 +133,8 @@ if (!$gallery) {
     add_to_log($course->id, 'mediagallery', 'view', "view.php?id={$cm->id}", $mediagallery->name, $cm->id);
     groups_print_activity_menu($cm, $pageurl);
     if ($mediagallery->intro) {
-        echo $OUTPUT->box(format_module_intro('mediagallery', $mediagallery, $cm->id), 'generalbox mod_introbox', 'mediagalleryintro');
+        echo $OUTPUT->box(format_module_intro('mediagallery', $mediagallery, $cm->id),
+            'generalbox mod_introbox', 'mediagalleryintro');
     }
 
     $galleries = $mediagallery->get_visible_galleries();

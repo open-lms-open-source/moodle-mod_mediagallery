@@ -122,7 +122,7 @@ if (empty($searchstring)) {
     $items = false;
 } else {
     $courses = array($course->id => $course);
-    list($items, $totalcount) = mediagallery_search_items($searchterms, $courses, $page*$perpage, $perpage);
+    list($items, $totalcount) = mediagallery_search_items($searchterms, $courses, $page * $perpage, $perpage);
 }
 if (!$items) {
     echo $OUTPUT->heading(get_string("noitemsfound", "mediagallery"));

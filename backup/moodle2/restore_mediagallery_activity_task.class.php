@@ -19,7 +19,6 @@
  * @copyright  2014 NetSpot Pty Ltd
  * @author     Adam Olley <adam.olley@netspot.com.au>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
-
  */
 
 defined('MOODLE_INTERNAL') || die();

@@ -86,13 +86,16 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
 
         $o .= html_writer::start_tag('div', array('class' => 'controls'));
 
-        $this->page->requires->yui_module('moodle-mod_mediagallery-base', 'M.mod_mediagallery.base.add_gallery_info_modal', array($COURSE->id, $gallery->get_metainfo()), null, true);
+        $this->page->requires->yui_module('moodle-mod_mediagallery-base', 'M.mod_mediagallery.base.add_gallery_info_modal',
+            array($COURSE->id, $gallery->get_metainfo()), null, true);
         $url = new moodle_url('/mod/mediagallery/gallery.php', array('g' => $gallery->id, 'action' => 'info'));
-        $o .= $this->output->action_icon($url, new pix_icon('i/info', get_string('information', 'mediagallery')), null, array('class' => 'action-icon info'));
+        $o .= $this->output->action_icon($url, new pix_icon('i/info', get_string('information', 'mediagallery')), null,
+            array('class' => 'action-icon info'));
 
         if ($gallery->user_can_edit()) {
             $url = new moodle_url('/mod/mediagallery/gallery.php', array('g' => $gallery->id, 'action' => 'delete'));
-            $o .= $this->output->action_icon($url, new pix_icon('t/delete', get_string('delete')), null, array('class' => 'action-icon delete'));
+            $o .= $this->output->action_icon($url, new pix_icon('t/delete', get_string('delete')), null,
+                array('class' => 'action-icon delete'));
 
             $url = new moodle_url('/mod/mediagallery/view.php', array('g' => $gallery->id, 'editing' => 1));
             $o .= $this->output->action_icon($url, new pix_icon('t/edit', get_string('edit')));
@@ -208,12 +211,15 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
 
         $o .= html_writer::start_tag('div', array('class' => 'controls'));
 
-        $this->page->requires->yui_module('moodle-mod_mediagallery-base', 'M.mod_mediagallery.base.add_item_info_modal', array($item->get_metainfo()), null, true);
+        $this->page->requires->yui_module('moodle-mod_mediagallery-base', 'M.mod_mediagallery.base.add_item_info_modal',
+            array($item->get_metainfo()), null, true);
         $url = new moodle_url('/mod/mediagallery/item.php', array('i' => $item->id, 'action' => 'info'));
-        $o .= $this->output->action_icon($url, new pix_icon('i/info', get_string('information', 'mediagallery')), null, array('class' => 'action-icon info'));
+        $o .= $this->output->action_icon($url, new pix_icon('i/info', get_string('information', 'mediagallery')), null,
+            array('class' => 'action-icon info'));
 
         $url = new moodle_url('/mod/mediagallery/item.php', array('i' => $item->id, 'action' => 'delete'));
-        $o .= $this->output->action_icon($url, new pix_icon('t/delete', get_string('delete')), null, array('class' => 'action-icon delete'));
+        $o .= $this->output->action_icon($url, new pix_icon('t/delete', get_string('delete')), null,
+            array('class' => 'action-icon delete'));
 
         $url = new moodle_url('/mod/mediagallery/item.php', array('i' => $item->id));
         $o .= $this->output->action_icon($url, new pix_icon('t/edit', get_string('edit')));
@@ -227,7 +233,7 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
     protected function list_other_items($items) {
         $o = html_writer::start_tag('ul');
         foreach ($items as $item) {
-            $image = $this->output->pix_icon($item->file_icon(), $item->caption, 'moodle', array('class'=>'icon'));
+            $image = $this->output->pix_icon($item->file_icon(), $item->caption, 'moodle', array('class' => 'icon'));
             $entry = html_writer::link($item->get_embed_url(), $image.$item->caption);
             $o .= html_writer::tag('li', $entry);
         }
@@ -237,7 +243,8 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
 
     public function view_carousel(gallery $gallery, array $options = array()) {
         $o = html_writer::start_tag('div', array('class' => 'jcarousel-wrapper'));
-        $o .= html_writer::start_tag('div', array('class' => 'jcarousel type_'.$gallery->type(true), 'data-jcarousel' => 'true', 'data-wrap' => 'circular'));
+        $o .= html_writer::start_tag('div',
+            array('class' => 'jcarousel type_'.$gallery->type(true), 'data-jcarousel' => 'true', 'data-wrap' => 'circular'));
 
         $o .= html_writer::start_tag('ul');
         foreach ($gallery->get_items_by_type() as $item) {
@@ -285,7 +292,6 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
         $player = $type == MEDIAGALLERY_TYPE_AUDIO || ($type == MEDIAGALLERY_TYPE_VIDEO && $item->externalurl == '') ? $type : 1;
         $attribs = array(
             'data-mediabox' => 'gallery_'.$gallery->id,
-            'data-lightbox' => 'gallery_'.$gallery->id,
             'title' => $item->caption,
             'data-id' => $item->id,
             'data-type' => $item->externalurl != '' ? 'external' : 'internal',
@@ -349,15 +355,16 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
             }
             $url = new moodle_url('/mod/mediagallery/item.php', array('i' => $item->id, 'action' => 'info'));
             $itemframe .= html_writer::tag('div',
-                $this->output->action_icon($url, new pix_icon('i/info', get_string('information', 'mediagallery')), null, array('class' => 'action-icon info')),
+                $this->output->action_icon($url, new pix_icon('i/info', get_string('information', 'mediagallery')), null,
+                    array('class' => 'action-icon info')),
                 array('class' => 'info')
             );
             $itemframe = html_writer::tag('div', $itemframe, array('class' => 'item-wrapper'));
 
             $o .= html_writer::tag('div', $itemframe, array('class' => 'item grid_item', 'data-id' => $item->id,
                 'data-title' => $item->caption, 'id' => 'gallery_item_'.$item->id));
-            $this->page->requires->yui_module('moodle-mod_mediagallery-base', 'M.mod_mediagallery.base.add_item_info_modal', array($item->get_metainfo()), null, true);
-
+            $this->page->requires->yui_module('moodle-mod_mediagallery-base', 'M.mod_mediagallery.base.add_item_info_modal',
+                array($item->get_metainfo()), null, true);
 
             $column++;
         }
@@ -376,8 +383,8 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
     public function search_results($items, $totalcount, $page, $perpage) {
         $counts = new stdClass();
         $counts->total = $totalcount;
-        $counts->from = $page*$perpage + 1;
-        $counts->to = ($page+1)*$perpage;
+        $counts->from = $page * $perpage + 1;
+        $counts->to = ($page + 1) * $perpage;
         if ($counts->to > $totalcount) {
             $counts->to = $totalcount;
         }
@@ -411,7 +418,8 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
             $o .= $catname;
             $o .= html_writer::start_tag('ul');
             foreach ($usagedata['category'][$catid] as $courseid) {
-                $link = html_writer::link(new moodle_url('/course/view.php', array('id' => $courseid)), $usagedata['course'][$courseid]->fullname);
+                $link = html_writer::link(new moodle_url('/course/view.php', array('id' => $courseid)),
+                    $usagedata['course'][$courseid]->fullname);
                 $entry = $link.' : '.$this->convert_size($usagedata['course'][$courseid]->sum);
                 $o .= html_writer::tag('li', $entry);
             }

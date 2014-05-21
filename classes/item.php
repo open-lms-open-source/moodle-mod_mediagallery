@@ -54,7 +54,7 @@ class item extends base {
         unset($newitemrecord->id);
         $newitemrecord->galleryid = $targetid;
 
-        $newitem = item::create($newitemrecord);
+        $newitem = self::create($newitemrecord);
 
         $fs = get_file_storage();
         if ($file = $this->get_file()) { // Item.
@@ -98,7 +98,7 @@ class item extends base {
         return $result;
     }
 
-    public static function create_from_archive(gallery $gallery, \stored_file $stored_file, $formdata = array()) {
+    public static function create_from_archive(gallery $gallery, \stored_file $storedfile, $formdata = array()) {
         global $DB;
         $context = $gallery->get_collection()->context;
 
@@ -111,18 +111,18 @@ class item extends base {
         $fs = get_file_storage();
         $packer = get_file_packer('application/zip');
         $fs->delete_area_files($context->id, 'mod_mediagallery', 'unpacktemp', 0);
-        $stored_file->extract_to_storage($packer, $context->id, 'mod_mediagallery', 'unpacktemp', 0, '/');
+        $storedfile->extract_to_storage($packer, $context->id, 'mod_mediagallery', 'unpacktemp', 0, '/');
         $itemfiles = $fs->get_area_files($context->id, 'mod_mediagallery', 'unpacktemp', 0);
-        $stored_file->delete();
+        $storedfile->delete();
 
-        foreach ($itemfiles as $stored_file) {
-            if ($stored_file->get_filesize() == 0 || preg_match('#^/.DS_Store|__MACOSX/#', $stored_file->get_filepath())) {
+        foreach ($itemfiles as $storedfile) {
+            if ($storedfile->get_filesize() == 0 || preg_match('#^/.DS_Store|__MACOSX/#', $storedfile->get_filepath())) {
                 continue;
             }
             if ($maxitems != 0 && $count >= $maxitems) {
                 break;
             }
-            $filename = $stored_file->get_filename();
+            $filename = $storedfile->get_filename();
 
             // Create an item.
             $data = new \stdClass();
@@ -159,7 +159,7 @@ class item extends base {
                 'filename'      => $filename
             );
             if (!$fs->get_file($context->id, 'mod_mediagallery', 'item', $item->id, '/', $filename)) {
-                $stored_file = $fs->create_file_from_storedfile($fileinfo, $stored_file);
+                $storedfile = $fs->create_file_from_storedfile($fileinfo, $storedfile);
             }
             $item->generate_image_by_type('lowres');
             $item->generate_image_by_type('thumbnail');
@@ -212,7 +212,7 @@ class item extends base {
         return true;
     }
 
-    public function generate_thumbnail(\stored_file $stored_file = null) {
+    public function generate_thumbnail(\stored_file $storedfile = null) {
         return $this->generate_image_by_type('thumbnail');
     }
 
@@ -260,7 +260,8 @@ class item extends base {
         return $fs->create_file_from_string($fileinfo, $newfiledata);
     }
 
-    private function get_image_resized(\stored_file $file = null, $height = 250, $width = 250, $offsetx = 0, $offsety = 0, $crop = true) {
+    private function get_image_resized(\stored_file $file = null, $height = 250, $width = 250, $offsetx = 0, $offsety = 0,
+        $crop = true) {
         global $CFG;
 
         if (is_null($file) && !$file = $this->get_file_by_type('item')) {
@@ -377,8 +378,14 @@ class item extends base {
 
     public function get_metainfo() {
         $info = clone $this->record;
-        $info->timecreatedformatted = $info->timecreated > 0 ? userdate($info->timecreated, get_string('strftimedaydatetime', 'langconfig')) : '';
-        $info->productiondateformatted = $info->productiondate > 0 ? userdate($info->productiondate, get_string('strftimedaydate', 'langconfig')) : '';
+        $info->timecreatedformatted = '';
+        $info->productiondateformatted = '';
+        if ($info->timecreated > 0) {
+            $info->timecreatedformatted = userdate($info->timecreated, get_string('strftimedaydatetime', 'langconfig'));
+        }
+        if ($info->productiondate > 0) {
+            $info->productiondateformatted = userdate($info->productiondate, get_string('strftimedaydate', 'langconfig'));
+        }
         return $info;
     }
 
@@ -400,8 +407,14 @@ class item extends base {
         $info->fields = array();
 
         $data = clone $this->record;
-        $data->timecreatedformatted = $data->timecreated > 0 ? userdate($data->timecreated, get_string('strftimedaydatetime', 'langconfig')) : '';
-        $data->productiondateformatted = $data->productiondate > 0 ? userdate($data->productiondate, get_string('strftimedaydate', 'langconfig')) : '';
+        $data->timecreatedformatted = '';
+        $data->productiondateformatted = '';
+        if ($data->timecreated > 0) {
+            $data->timecreatedformatted = userdate($data->timecreated, get_string('strftimedaydatetime', 'langconfig'));
+        }
+        if ($data->productiondate > 0) {
+            $data->productiondateformatted = userdate($data->productiondate, get_string('strftimedaydate', 'langconfig'));
+        }
         $data->moralrightsformatted = $data->moralrights ? get_string('yes') : get_string('no');
         foreach ($displayfields as $key => $displayname) {
             $info->fields[] = array(
@@ -559,7 +572,7 @@ class item extends base {
             $info->client_id = isset($matches[1]) ? $matches[1] : null;
         }
 
-        //Creator name.
+        // Creator name.
         $info->extradetails = '';
 
         return $info;
