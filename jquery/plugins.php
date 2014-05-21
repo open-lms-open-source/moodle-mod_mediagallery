@@ -28,9 +28,4 @@ $plugins = array(
             'jcarousel/jquery.jcarousel.v2.min.js',
         )
     ),
-    'lightbox-2.6' => array('files' => array(
-            'lightbox-2.6/js/lightbox-2.6-v5.min.js',
-            'lightbox-2.6/css/lightbox.css',
-        )
-    ),
 );
