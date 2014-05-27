@@ -386,6 +386,9 @@ class item extends base {
         if ($info->productiondate > 0) {
             $info->productiondateformatted = userdate($info->productiondate, get_string('strftimedaydate', 'langconfig'));
         }
+        if (!has_capability('moodle/user:viewhiddendetails', $this->get_context())) {
+            $info->username = null;
+        }
         return $info;
     }
 

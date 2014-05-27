@@ -134,6 +134,7 @@ class mod_mediagallery_gallery_form extends moodleform {
             array('optional' => true));
         $mform->addElement('date_time_selector', 'visibleother', get_string('visibleother', 'mediagallery'),
             array('optional' => true));
+        $mform->setDefault('visibleother', time());
 
         $mform->addElement('hidden', 'm', $mg->id);
         $mform->setType('m', PARAM_INT);

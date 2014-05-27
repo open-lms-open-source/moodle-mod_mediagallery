@@ -154,7 +154,7 @@ class collection extends base {
             $params['groupid'] = $this->options['currentgroup'];
         }
         $params['instanceid'] = $this->record->id;
-        $sql = "SELECT gg.*, u.username, g.name as groupname
+        $sql = "SELECT gg.*, u.firstname, u.lastname, g.name as groupname
                 FROM {mediagallery_gallery} gg
                 LEFT JOIN {user} u ON (gg.userid = u.id)
                 LEFT JOIN {groups} g ON (gg.groupid = g.id)

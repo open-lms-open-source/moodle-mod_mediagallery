@@ -63,7 +63,8 @@ M.mod_mediagallery.base = {
 
     add_gallery_info_modal : function(courseid, data) {
         var metainfo = Y.Node.create('<div class="metainfo"></div>');
-        var userlink = '<a href="'+M.cfg.wwwroot+'/user/view.php?id='+data.userid+'&course='+courseid+'">'+data.username+'</a>';
+        var userlink = '<a href="' + M.cfg.wwwroot + '/user/view.php?id=' + data.userid +
+            '&course=' + courseid + '">' + data.firstname + ' ' + data.lastname + '</a>';
 
         var list = [
             [M.str.mod_mediagallery.galleryname, data.name],
@@ -107,7 +108,7 @@ M.mod_mediagallery.base = {
 
         Y.each(list, function(v, k) {
             var display = true;
-            if (k === 4 && list[4][1] === null) {
+            if ((k === 4 || k === 3) && list[k][1] === null) {
                 display = false;
             }
             if (display) {
