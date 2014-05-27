@@ -428,10 +428,11 @@ class item extends base {
         }
 
         if ($user = $DB->get_record('user', array('id' => $this->record->userid), 'id, firstname, lastname')) {
+            $profileurl = new \moodle_url('/user/profile.php', array('id' => $this->record->userid));
             $info->fields[] = array(
                 'displayname' => get_string('uploader', 'mod_mediagallery'),
                 'name' => 'owner',
-                'link' => (new \moodle_url('/user/profile.php', array('id' => $this->record->userid)))->out(),
+                'link' => $profileurl->out(),
                 'value' => "{$user->firstname} {$user->lastname}",
             );
         }
