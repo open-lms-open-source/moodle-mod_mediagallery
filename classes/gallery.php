@@ -239,8 +239,8 @@ class gallery extends base {
     public function moral_rights_asserted() {
         global $DB;
 
-        $count = $DB->count_records('mediagallery_item', array('galleryid' => $this->record->id, 'moralrights' => 1));
-        return $count > 0;
+        $count = $DB->count_records('mediagallery_item', array('galleryid' => $this->record->id, 'moralrights' => 0));
+        return $count == 0;
     }
 
     /**
