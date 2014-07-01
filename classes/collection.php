@@ -191,11 +191,52 @@ class collection extends base {
         }
 
         list($insql, $params) = $DB->get_in_or_equal($collids, SQL_PARAMS_NAMED);
-        $sql = "SELECT g.id, ".$DB->sql_concat('mg.name', "' > '", 'g.name')."
+        $sql = "SELECT g.*,
+                ".$DB->sql_concat('mg.name', "' > '", 'g.name')." AS label
                 FROM {mediagallery_gallery} g
                 JOIN {mediagallery} mg on (mg.id = g.instanceid)
                 WHERE instanceid $insql";
-        $list = $DB->get_records_sql_menu($sql, $params);
+        $list = array();
+        foreach ($DB->get_records_sql($sql, $params) as $record) {
+            $gallery = new gallery($record);
+            if ($gallery->user_can_view()) {
+                $list[$gallery->id] = $record->label;
+            }
+        }
+        return $list;
+    }
+
+    public static function get_my_galleries_by_contextid($contextid) {
+        global $DB;
+
+        $context = \context::instance_by_id($contextid);
+        $coursecontext = $context->get_course_context();
+        $course = $DB->get_record('course', array('id' => $coursecontext->instanceid), '*', MUST_EXIST);
+
+        $collections = get_all_instances_in_course('mediagallery', $course);
+
+        $collids = array();
+        foreach ($collections as $collection) {
+            $collids[] = $collection->id;
+        }
+
+        if (empty($collids)) {
+            return array();
+        }
+
+        list($insql, $params) = $DB->get_in_or_equal($collids, SQL_PARAMS_NAMED);
+        $sql = "SELECT g.*,
+                ".$DB->sql_concat('mg.name', "' > '", 'g.name')." AS label
+                FROM {mediagallery_gallery} g
+                JOIN {mediagallery} mg on (mg.id = g.instanceid)
+                WHERE instanceid $insql";
+        $list = array();
+        foreach ($DB->get_records_sql($sql, $params) as $record) {
+            $gallery = new gallery($record);
+            if ($gallery->user_can_edit(null, true)) {
+                $list[$gallery->id] = $record->label;
+            }
+        }
         return $list;
     }
 
