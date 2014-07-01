@@ -71,7 +71,7 @@ class item extends base {
             );
             $fs->create_file_from_storedfile($fileinfo, $file);
         }
-        if ($file = $this->get_file_by_type('lowres')) { // Thumbnail.
+        if ($file = $this->get_file_by_type('lowres')) { // Low res version of full image.
             $fileinfo = array(
                 'contextid'     => $newitem->get_context()->id,
                 'itemid'        => $newitem->id,
@@ -270,9 +270,65 @@ class item extends base {
 
         require_once($CFG->libdir.'/gdlib.php');
 
-        $image = imagecreatefromstring($file->get_content());
+        $tempfile = $file->copy_content_to_temp();
+        $image = imagecreatefromstring(file_get_contents($tempfile));
+        if ($exif = exif_read_data($tempfile)) {
+            $ort = 1;
+            if (isset($exif['IFD0']['Orientation'])) {
+                $ort = $exif['IFD0']['Orientation'];
+            } else if (isset($exif['Orientation'])) {
+                $ort = $exif['Orientation'];
+            }
+            $mirror = false;
+            $degree = 0;
+            switch ($ort) {
+                case 2: // Horizontal flip.
+                    $mirror = true;
+                break;
 
-        $info = $file->get_imageinfo();
+                case 3: // 180 Rotate left.
+                    $degree = 180;
+                break;
+
+                case 4: // Vertical flip.
+                    $degree = 180;
+                    $mirror = true;
+                break;
+
+                case 5: // Vertical flip + 90 rotate right.
+                    $degree = 270;
+                    $mirror = true;
+                break;
+
+                case 6: // 90 rotate right.
+                    $degree = 270;
+                break;
+
+                case 7: // Horizontal flip + 90 rotate right.
+                    $degree = 90;
+                    $mirror = true;
+                break;
+
+                case 8: // 90 rotate left.
+                    $degree = 90;
+                break;
+
+                default: // Do nothing.
+                break;
+            }
+
+            if ($degree) {
+                $image = imagerotate($image, $degree, 0);
+            }
+            if ($mirror) {
+                $image = imagehelper::mirror($image);
+            }
+        }
+
+        $info = array(
+            'width' => imagesx($image),
+            'height' => imagesy($image),
+        );
 
         $cx = $info['width'] / 2;
         $cy = $info['height'] / 2;
@@ -281,7 +337,13 @@ class item extends base {
         $ratioh = $height / $info['height'];
 
         if ($info['width'] <= $width && $info['height'] <= $height) {
-            return false;
+            // Images containing EXIF orientation data don't display correctly in browsers.
+            // So even though we're not making a smaller version of the original here, we still
+            // want to have it displayed right-side up.
+            $width = $info['width'];
+            $height = $info['height'];
+            $ratiow = $width / $info['width'];
+            $ratioh = $height / $info['height'];
         }
         if (!$crop) {
             if ($ratiow < $ratioh) {
