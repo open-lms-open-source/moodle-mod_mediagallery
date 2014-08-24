@@ -43,6 +43,8 @@ require_once(dirname(__FILE__).'/classes/item.php');
 require_once(dirname(__FILE__).'/classes/imagehelper.php');
 require_once($CFG->dirroot.'/comment/lib.php');
 require_once($CFG->libdir.'/coursecatlib.php');
+require_once($CFG->libdir.'/filelib.php');
+require_once($CFG->dirroot.'/repository/lib.php');
 
 function mediagallery_filepicker_options($gallery) {
     $pickeroptions = array(

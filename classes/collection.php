@@ -172,7 +172,7 @@ class collection extends base {
         return $galleries;
     }
 
-    public static function get_public_galleries_by_contextid($contextid) {
+    public static function get_public_galleries_by_contextid($contextid, $prefix = true) {
         global $DB;
 
         $context = \context::instance_by_id($contextid);
@@ -190,9 +190,10 @@ class collection extends base {
             return array();
         }
 
+        $concat = $prefix ? $DB->sql_concat('mg.name', "' > '", 'g.name') : 'g.name';
         list($insql, $params) = $DB->get_in_or_equal($collids, SQL_PARAMS_NAMED);
         $sql = "SELECT g.*,
-                ".$DB->sql_concat('mg.name', "' > '", 'g.name')." AS label
+                $concat AS label
                 FROM {mediagallery_gallery} g
                 JOIN {mediagallery} mg on (mg.id = g.instanceid)
                 WHERE instanceid $insql";

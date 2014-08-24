@@ -54,7 +54,7 @@ class behat_mod_mediagallery extends behat_base {
         return array(
             new Given('I follow "' . $this->escape($name) . '"'),
             new Given('I follow "' . get_string('addagallery', 'mediagallery') . '"'),
-            new Given('I fill the moodle form with:', $table),
+            new Given('I set the following fields to these values:', $table),
             new Given('I press "' . get_string('savechanges') . '"'),
             new Given('I wait to be redirected')
         );

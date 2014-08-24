@@ -130,10 +130,15 @@ class mod_mediagallery_gallery_form extends moodleform {
         // Visibility settings.
         $mform->addElement('header', 'display', get_string('settingsvisibility', 'mediagallery'));
 
-        $mform->addElement('date_time_selector', 'visibleinstructor', get_string('visibleinstructor', 'mediagallery'),
+        $mform->addElement('date_time_selector', 'visibleinstructor',
+            get_string('visibleinstructor', 'mediagallery'),
             array('optional' => true));
-        $mform->addElement('date_time_selector', 'visibleother', get_string('visibleother', 'mediagallery'),
+        $mform->addHelpButton('visibleinstructor', 'visibleinstructor', 'mediagallery');
+
+        $mform->addElement('date_time_selector', 'visibleother',
+            get_string('visibleother', 'mediagallery'),
             array('optional' => true));
+        $mform->addHelpButton('visibleother', 'visibleother', 'mediagallery');
         $mform->setDefault('visibleother', time());
 
         $mform->addElement('hidden', 'm', $mg->id);

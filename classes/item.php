@@ -405,7 +405,7 @@ class item extends base {
         return $embed;
     }
 
-    private function get_file($thumbnail = false) {
+    public function get_file($thumbnail = false) {
         $type = $thumbnail ? 'thumbnail' : 'file';
         if (!is_null($this->$type)) {
             return $this->$type;
@@ -490,11 +490,10 @@ class item extends base {
         }
 
         if ($user = $DB->get_record('user', array('id' => $this->record->userid), 'id, firstname, lastname')) {
-            $profileurl = new \moodle_url('/user/profile.php', array('id' => $this->record->userid));
             $info->fields[] = array(
                 'displayname' => get_string('uploader', 'mod_mediagallery'),
                 'name' => 'owner',
-                'link' => $profileurl->out(),
+                'link' => (new \moodle_url('/user/profile.php', array('id' => $this->record->userid)))->out(),
                 'value' => "{$user->firstname} {$user->lastname}",
             );
         }
