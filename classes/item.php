@@ -95,6 +95,15 @@ class item extends base {
                     WHERE id = :galleryid";
             $DB->execute($sql, array('item' => $result->id, 'galleryid' => $result->galleryid));
         }
+
+        $params = array(
+            'context' => $result->get_context(),
+            'objectid' => $result->id,
+        );
+        $event = \mod_mediagallery\event\item_created::create($params);
+        $event->add_record_snapshot('mediagallery_item', $result->get_record());
+        $event->trigger();
+
         return $result;
     }
 
@@ -221,7 +230,8 @@ class item extends base {
         $originalfile = $this->get_file_by_type();
         if ($type != 'item' && !is_null($file)) {
             $originalfile = $file;
-        } else if (!$originalfile || !file_mimetype_in_typegroup($originalfile->get_mimetype(), 'web_image')) {
+        } else if (!$originalfile || !file_mimetype_in_typegroup($originalfile->get_mimetype(), 'web_image')
+            || $originalfile->get_mimetype() == 'image/svg+xml') {
             return false;
         }
         if ($type == 'item') {

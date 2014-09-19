@@ -130,7 +130,15 @@ $output = $PAGE->get_renderer('mod_mediagallery');
 echo $OUTPUT->header();
 
 if (!$gallery) {
-    add_to_log($course->id, 'mediagallery', 'view', "view.php?id={$cm->id}", $mediagallery->name, $cm->id);
+    $params = array(
+        'context' => $context,
+        'objectid' => $mediagallery->id,
+    );
+    $event = \mod_mediagallery\event\course_module_viewed::create($params);
+    $event->add_record_snapshot('course_modules', $cm);
+    $event->add_record_snapshot('course', $course);
+    $event->trigger();
+
     groups_print_activity_menu($cm, $pageurl);
     if ($mediagallery->intro) {
         echo $OUTPUT->box(format_module_intro('mediagallery', $mediagallery, $cm->id),
@@ -149,7 +157,14 @@ if (!$gallery) {
         }
     }
 } else {
-    add_to_log($course->id, 'mediagallery', 'view gallery', "view.php?g={$gallery->id}", $gallery->name, $cm->id);
+    $params = array(
+        'context' => $context,
+        'objectid' => $gallery->id,
+    );
+    $event = \mod_mediagallery\event\gallery_viewed::create($params);
+    $event->add_record_snapshot('course_modules', $cm);
+    $event->add_record_snapshot('course', $course);
+    $event->trigger();
     if ($canedit || $gallery->user_can_view()) {
         $options = array();
         if ($gallery->can_comment()) {

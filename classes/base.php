@@ -92,6 +92,17 @@ abstract class base {
         global $DB;
 
         if ($DB->update_record(static::$table, $data)) {
+
+            $params = array(
+                'context' => $this->get_context(),
+                'objectid' => $this->id,
+            );
+            $class = get_called_class();
+            $eventclass = str_replace(__NAMESPACE__, __NAMESPACE__.'\event', $class).'_updated';
+            $event = $eventclass::create($params);
+            $event->add_record_snapshot(static::$table, $this->get_record());
+            $event->trigger();
+
             return true;
         }
         return false;

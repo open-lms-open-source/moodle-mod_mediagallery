@@ -54,6 +54,10 @@ class collection extends base {
         return new collection($data);
     }
 
+    public function get_context() {
+        return $this->context;
+    }
+
     public function get_my_galleries() {
         global $DB, $USER;
         $galleries = array();

@@ -27,12 +27,15 @@ require_once(dirname(__FILE__).'/lib.php');
 $id = required_param('id', PARAM_INT);   // Course id.
 
 $course = $DB->get_record('course', array('id' => $id), '*', MUST_EXIST);
+$coursecontext = context_course::instance($course->id);
 
 require_course_login($course);
 
-add_to_log($course->id, 'mediagallery', 'view all', 'index.php?id='.$course->id, '');
-
-$coursecontext = context_course::instance($course->id);
+$event = \mod_mediagallery\event\course_module_instance_list_viewed::create(array(
+    'context' => $coursecontext
+));
+$event->add_record_snapshot('course', $course);
+$event->trigger();
 
 $PAGE->set_url('/mod/mediagallery/index.php', array('id' => $id));
 $PAGE->set_title(format_string($course->fullname));

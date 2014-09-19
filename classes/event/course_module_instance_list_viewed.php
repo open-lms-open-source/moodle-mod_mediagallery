@@ -15,22 +15,25 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Defines the version of mediagallery
- *
- * This code fragment is called by moodle_needs_upgrading() and
- * /admin/index.php
+ * The mod_mediagallery instance list viewed event.
  *
  * @package    mod_mediagallery
  * @copyright  2014 NetSpot Pty Ltd
- * @author     Adam Olley <adam.olley@netspot.com.au>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace mod_mediagallery\event;
 defined('MOODLE_INTERNAL') || die();
 
-$module->version   = 2014091900;
-$module->requires  = 2014050800;
-$module->cron      = 0;
-$module->component = 'mod_mediagallery';
-$module->maturity  = MATURITY_STABLE;
-$module->release   = '2.7.0.0';
+/**
+ * The mod_mediagallery instance list viewed event class.
+ *
+ * @package    mod_mediagallery
+ * @since      Moodle 2.7
+ * @copyright  2014 NetSpot Pty Ltd
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class course_module_instance_list_viewed extends \core\event\course_module_instance_list_viewed {
+    // No code required here as the parent class handles it all.
+}
+
