@@ -28,9 +28,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2014091900;
+$plugin->version   = 2014102400;
 $plugin->requires  = 2014050800;
 $plugin->cron      = 0;
 $plugin->component = 'mod_mediagallery';
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '2.7.0.0';
+$plugin->release   = '2.7.0.1';
