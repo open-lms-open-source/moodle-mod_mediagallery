@@ -86,6 +86,7 @@ class restore_mediagallery_activity_structure_step extends restore_activity_stru
 
         $data->instanceid = $this->get_new_parentid('mediagallery');
         $data->userid = $this->get_mappingid('user', $data->userid);
+        $data->groupid = $this->get_mappingid('group', $data->groupid);
         $newitemid = $DB->insert_record('mediagallery_gallery', $data);
         $this->set_mapping('mediagallery_gallery', $oldid, $newitemid);
     }

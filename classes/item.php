@@ -272,7 +272,12 @@ class item extends base {
 
         $tempfile = $file->copy_content_to_temp();
         $image = imagecreatefromstring(file_get_contents($tempfile));
-        if ($exif = exif_read_data($tempfile)) {
+
+        // exif_read_data is only supported for jpeg/tiff images.
+        $mimetype = $file->get_mimetype();
+        $isjpegortiff = $mimetype == 'image/jpeg' || $mimetype == 'image/tiff';
+
+        if ($isjpegortiff && ($exif = exif_read_data($tempfile))) {
             $ort = 1;
             if (isset($exif['IFD0']['Orientation'])) {
                 $ort = $exif['IFD0']['Orientation'];
