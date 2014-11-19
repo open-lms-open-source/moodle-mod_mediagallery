@@ -105,10 +105,11 @@ class collection extends base {
                 LEFT JOIN {assignsubmission_mg} asm ON asm.submission = asub.id AND asm.assignment = asub.assignment
                 JOIN {assign_plugin_config} apc ON apc.assignment = asub.assignment
                 JOIN {assign} a ON a.id = asub.assignment
+                LEFT JOIN {assign_user_flags} uf ON a.id = uf.assignment AND uf.userid = asub.userid
                 WHERE apc.plugin = 'mediagallery' AND apc.subtype = 'assignsubmission' AND apc.name = 'mediagallery'
                     AND apc.value = :collection
                     AND asub.status IN ('".ASSIGN_SUBMISSION_STATUS_SUBMITTED."', '".ASSIGN_SUBMISSION_STATUS_REOPENED."')
-                    AND (a.duedate = 0 OR a.duedate < :time)
+                    AND (a.duedate = 0 OR a.duedate < :time OR uf.locked = 1)
                 GROUP BY asub.id, asm.galleryid, asub.assignment, asub.status, asub.attemptnumber, asub.userid
                 ORDER BY asub.assignment ASC, asub.userid, asub.attemptnumber ASC";
         $params = array('collection' => $this->record->id, 'time' => time());
