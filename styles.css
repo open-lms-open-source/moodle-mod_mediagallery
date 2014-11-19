@@ -172,6 +172,10 @@
     box-shadow: none;
 }
 
+.path-mod-mediagallery .metainfo {
+    display: inline-block;
+}
+
 .path-mod-mediagallery .metainfo div.field {
     width: 100px;
     font-weight: bold;

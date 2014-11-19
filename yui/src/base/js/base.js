@@ -122,7 +122,8 @@ M.mod_mediagallery.base = {
         }
         Y.one('.item[data-id='+data.id+'] .action-icon.info').on('click', function(e) {
             e.preventDefault();
-            new M.core.dialogue(config);
+            var dialogue = new M.core.dialogue(config);
+            dialogue.show();
         });
     },
 
