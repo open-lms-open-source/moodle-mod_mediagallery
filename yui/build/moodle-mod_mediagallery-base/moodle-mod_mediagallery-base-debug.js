@@ -3,29 +3,154 @@ YUI.add('moodle-mod_mediagallery-base', function (Y, NAME) {
 M.mod_mediagallery = M.mod_mediagallery || {};
 M.mod_mediagallery.base = {
 
+    courseid: 0,
     mid : 0,
     gallery: 0,
     lbg_setup_ran: false,
     options: {
         enablecomments : false,
-        enablelikes : false
+        enablelikes : false,
+        mode: 'standard'
     },
     uri : M.cfg.wwwroot + '/mod/mediagallery/rest.php',
 
-    init: function(mid, type, editing, gallery, options) {
+    init: function(courseid, mid, type, editing, gallery, options) {
+        this.courseid = courseid;
         this.mid = mid;
         this.gallery = gallery;
-        if (editing || type === 'gallery') {
-            this.watch_editing_buttons(type);
-        }
         if (options && options.enablecomments) {
             this.options.enablecomments = true;
         }
         if (options && options.enablelikes) {
             this.options.enablelikes = true;
         }
+        if (options && options.mode) {
+            this.options.mode = options.mode;
+        }
+        if (editing || type === 'gallery') {
+            if (this.options.mode !== 'thebox') {
+                this.watch_editing_buttons(type);
+            } else {
+                this.watch_delete_thebox(type);
+            }
+        }
+        if (gallery === 0 && type === 'gallery') {
+            this.add_remove_collection_handler();
+        }
 
         this.setup_sample_link();
+    },
+
+    add_remove_collection_handler : function() {
+        var node = Y.one('.collection.actions .remove');
+        if (!node) {
+            return;
+        }
+        var owner = node.hasClass('owner');
+
+        var config = {
+            title : M.str.mod_mediagallery.confirmcollectiondelete,
+            question : M.str.mod_mediagallery.removecollectionconfirm,
+            yesLabel : M.str.moodle.submit,
+            noLabel : M.str.moodle.cancel,
+            closeButtonTitle : M.str.moodle.cancel
+        };
+
+        var itemdata = {
+            'class': 'collection',
+            'id': this.mid
+        };
+
+        this._confirmationListener = this._confirmationListener || node.on('click', function(e) {
+            e.preventDefault();
+
+            var confirm;
+            if (!owner) {
+                confirm = new M.core.confirm(config);
+                itemdata.action = 'remove';
+                confirm.on('complete-yes', function(e) {
+                    this._confirmationListener.detach();
+                    M.mod_mediagallery.base.delete_object(itemdata);
+                }, this);
+            } else {
+                var question = M.str.mod_mediagallery.deleteorremovecollection;
+                question += '<br/><input type="textbox" name="deleteorremove"/><br/>';
+                question += M.str.mod_mediagallery.deleteorremovecollectionwarn;
+                config.question = '<div class="deleteorremove">'+question+'</div>';
+                confirm = new M.core.confirm(config);
+                confirm.on('complete-yes', function(e) {
+                    itemdata.action = 'remove';
+                    var deleteinput = Y.one('input[name="deleteorremove"]');
+                    if (deleteinput) {
+                        if (deleteinput.get('value').toUpperCase() === 'DELETE') {
+                            itemdata.action = 'delete';
+                        } else if (deleteinput.get('value') !== '') {
+                            return;
+                        }
+                    }
+                    this._confirmationListener.detach();
+                    M.mod_mediagallery.base.delete_object(itemdata);
+                }, this);
+            }
+            confirm.show();
+
+        }, this);
+    },
+
+    watch_delete_thebox: function(type) {
+        var selector = '.gallery_list_item';
+        if (type === 'item') {
+            selector = '.item';
+        }
+
+        var config = {
+            title : M.str.mod_mediagallery['confirm'+type+'delete'],
+            yesLabel : M.str.moodle.submit,
+            noLabel : M.str.moodle.cancel,
+            closeButtonTitle : M.str.moodle.cancel
+        };
+
+        Y.all(selector + ' .action-icon.delete').each(function() {
+            this._confirmationListener = this._confirmationListener || this.on('click', function(e) {
+                // Prevent the default event (submit) from firing
+                e.preventDefault();
+
+                var owner = this.hasClass('owner');
+                var itemdata = this.ancestor("div"+selector).getData();
+                itemdata.class = type;
+
+                var confirm;
+                if (!owner) {
+                    config.question = M.str.mod_mediagallery['remove'+type+'confirm'];
+                    confirm = new M.core.confirm(config);
+                    itemdata.action = 'remove';
+                    confirm.on('complete-yes', function(e) {
+                        this._confirmationListener.detach();
+                        M.mod_mediagallery.base.delete_object(itemdata, selector);
+                    }, this);
+                } else {
+                    var question = M.str.mod_mediagallery['deleteorremove'+type];
+                    question += '<br/><input type="textbox" name="deleteorremove"/><br/>';
+                    question += M.str.mod_mediagallery['deleteorremove'+type+'warn'];
+                    config.question = '<div class="deleteorremove">'+question+'</div>';
+                    confirm = new M.core.confirm(config);
+                    confirm.on('complete-yes', function(e) {
+                        itemdata.action = 'remove';
+                        var deleteinput = Y.one('input[name="deleteorremove"]');
+                        if (deleteinput) {
+                            if (deleteinput.get('value').toUpperCase() === 'DELETE') {
+                                itemdata.action = 'delete';
+                            } else if (deleteinput.get('value') !== '') {
+                                return;
+                            }
+                        }
+                        this._confirmationListener.detach();
+                        M.mod_mediagallery.base.delete_object(itemdata, selector);
+                    }, this);
+                }
+                confirm.show();
+            }, this);
+        });
     },
 
     watch_editing_buttons : function(type) {
@@ -43,7 +168,7 @@ M.mod_mediagallery.base = {
 
         Y.all(selector + ' .action-icon.delete').each(function() {
             this._confirmationListener = this._confirmationListener || this.on('click', function(e) {
-                // Prevent the default event (sumbit) from firing
+                // Prevent the default event (submit) from firing
                 e.preventDefault();
                 // Create the confirm box
                 var itemdata = this.ancestor("div"+selector).getData();
@@ -86,7 +211,8 @@ M.mod_mediagallery.base = {
         }
         Y.one('.gallery_list_item[data-id='+data.id+'] .action-icon.info').on('click', function(e) {
             e.preventDefault();
-            new M.core.dialogue(config);
+            var dialogue = new M.core.dialogue(config);
+            dialogue.show();
         });
     },
 
@@ -101,16 +227,19 @@ M.mod_mediagallery.base = {
             [M.str.moodle.group, data.groupname],
             [M.str.moodle.description, data.description],
             [M.str.mod_mediagallery.moralrights, data.moralrights == "1" ? M.str.moodle.yes : M.str.moodle.no],
+            [M.str.mod_mediagallery.copyright, data.copyrightformatted],
             [M.str.mod_mediagallery.originalauthor, data.originalauthor],
             [M.str.mod_mediagallery.productiondate, data.productiondateformatted],
             [M.str.mod_mediagallery.medium, data.medium],
             [M.str.mod_mediagallery.publisher, data.publisher],
-            [M.str.mod_mediagallery.collection, data.collection],
+            [M.str.mod_mediagallery.broadcaster, data.broadcaster],
+            [M.str.mod_mediagallery.reference, data.reference],
+            [M.str.mod_mediagallery.tags, data.tags]
         ];
 
         Y.each(list, function(v, k) {
             var display = true;
-            if ((k === 4 || k === 3) && list[k][1] === null) {
+            if ((k === 4 || k === 3 || k == 7) && (list[k][1] === null || list[k][1] === '')) {
                 display = false;
             }
             if (display) {
@@ -155,8 +284,13 @@ M.mod_mediagallery.base = {
                             statusspinner.hide();
                         }, 400);
                     }
-                    // TODO: remove gallery from dom.
-                    Y.one(selector+'[data-id='+data.id+']').remove();
+                    if (selector) {
+                        Y.one(selector+'[data-id='+data.id+']').remove();
+                    }
+                    if (data['class'] === 'collection') {
+                        // Redirect to course.
+                        window.location.href = M.cfg.wwwroot+'/course/view.php?id='+this.courseid;
+                    }
                 },
                 failure : function(tid, response) {
                     if (statusspinner) {
@@ -520,6 +654,7 @@ M.mod_mediagallery.base = {
                         sesskey : M.cfg.sesskey,
                         m : M.mod_mediagallery.base.mid,
                         "class" : 'gallery',
+                        id : M.mod_mediagallery.base.gallery,
                         action : 'get_sample_targets'
                     },
                     on: {

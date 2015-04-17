@@ -35,9 +35,10 @@ class backup_mediagallery_activity_structure_step extends backup_activity_struct
         $mediagallery = new backup_nested_element('mediagallery', array('id'), array(
             'course', 'name', 'intro', 'introformat', 'timecreated', 'timemodified',
             'thumbnailsperpage', 'thumbnailsperrow', 'displayfullcaption',
-            'captionposition', 'gallerytype', 'carousel', 'grid', 'gridrows',
+            'captionposition', 'galleryfocus', 'carousel', 'grid', 'gridrows',
             'gridcolumns', 'enforcedefaults', 'readonlyfrom', 'readonlyto',
             'maxbytes', 'maxitems', 'maxgalleries', 'allowcomments', 'allowlikes',
+            'colltype', 'objectid', 'source', 'mode', 'creator', 'userid',
         ));
 
         $userfeedbacks = new backup_nested_element('userfeedback');
@@ -49,14 +50,14 @@ class backup_mediagallery_activity_structure_step extends backup_activity_struct
         $gallery = new backup_nested_element('gallery', array('id'), array(
             'instanceid', 'name', 'userid', 'nameposition', 'exportable', 'galleryview',
             'gridrows', 'gridcolumns', 'visibleinstructor', 'visibleother', 'thumbnail',
-            'gallerytype', 'groupid',
+            'galleryfocus', 'groupid', 'mode', 'objectid', 'source', 'creator',
         ));
 
         $items = new backup_nested_element('items');
         $item = new backup_nested_element('item', array('id'), array(
             'galleryid', 'userid', 'caption', 'description', 'sortorder', 'display', 'moralrights',
-            'originalauthor', 'productiondate', 'medium', 'publisher', 'collection', 'externalurl',
-            'timecreated',
+            'originalauthor', 'productiondate', 'medium', 'publisher', 'reference', 'externalurl',
+            'timecreated', 'broadcaster', 'objectid', 'source', 'processing_status', 'creator',
         ));
 
         // Build the tree.

@@ -1,0 +1,11 @@
+{
+  "moodle-mod_mediagallery-tagselector": {
+    "requires": [
+        "base",
+        "node",
+        "autocomplete",
+        "autocomplete-highlighters",
+        "autocomplete-filters"
+    ]
+  }
+}

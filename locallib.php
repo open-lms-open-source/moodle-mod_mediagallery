@@ -45,6 +45,7 @@ require_once($CFG->dirroot.'/comment/lib.php');
 require_once($CFG->libdir.'/coursecatlib.php');
 require_once($CFG->libdir.'/filelib.php');
 require_once($CFG->dirroot.'/repository/lib.php');
+require_once($CFG->dirroot.'/tag/lib.php');
 
 function mediagallery_filepicker_options($gallery) {
     $pickeroptions = array(
@@ -61,7 +62,7 @@ function mediagallery_filepicker_options($gallery) {
  * gallery into.
  * @return array List of mediagallery's.'
  */
-function mediagallery_get_sample_targets($course) {
+function mediagallery_get_sample_targets($course, $gallery) {
     $list = array();
     $modinfo = get_fast_modinfo($course);
     foreach ($modinfo->get_instances_of('mediagallery') as $mgid => $cm) {
@@ -337,8 +338,23 @@ function mediagallery_add_metainfo_fields(&$mform) {
     $mform->addRule('publisher', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
     $mform->addHelpButton('publisher', 'publisher', 'mediagallery');
 
-    $mform->addElement('text', 'collection', get_string('collection', 'mediagallery'));
-    $mform->setType('collection', PARAM_TEXT);
-    $mform->addRule('collection', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
-    $mform->addHelpButton('collection', 'collection', 'mediagallery');
+    $mform->addElement('text', 'broadcaster', get_string('broadcaster', 'mediagallery'));
+    $mform->setType('broadcaster', PARAM_TEXT);
+    $mform->addRule('broadcaster', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
+    $mform->addHelpButton('broadcaster', 'broadcaster', 'mediagallery');
+
+    $mform->addElement('text', 'reference', get_string('reference', 'mediagallery'));
+    $mform->setType('reference', PARAM_TEXT);
+    $mform->addRule('reference', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
+    $mform->addHelpButton('reference', 'reference', 'mediagallery');
+}
+
+function mediagallery_add_tag_field($mform, array $tags, $useajax = false, $loadjs = true) {
+    global $PAGE;
+    $mform->addElement('text', 'tags', get_string('tags', 'mediagallery'));
+    $mform->setType('tags', PARAM_TAGLIST);
+    if ($loadjs) {
+        $PAGE->requires->yui_module('moodle-mod_mediagallery-tagselector', 'M.mod_mediagallery.tagselector.init',
+            array('id_tags', $tags, $useajax), null, true);
+    }
 }

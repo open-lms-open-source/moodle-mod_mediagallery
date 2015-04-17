@@ -14,23 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Defines the version of mediagallery
- *
- * This code fragment is called by moodle_needs_upgrading() and
- * /admin/index.php
- *
- * @package    mod_mediagallery
- * @copyright  2014 NetSpot Pty Ltd
- * @author     Adam Olley <adam.olley@netspot.com.au>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+if (!defined('AJAX_SCRIPT')) {
+    define('AJAX_SCRIPT', true);
+}
+require_once(dirname(__FILE__) . '/../../config.php');
+require_once($CFG->dirroot.'/mod/mediagallery/locallib.php');
 
-defined('MOODLE_INTERNAL') || die();
+$insttype = required_param('insttype', PARAM_ALPHA);
 
-$plugin->version   = 2015021102;
-$plugin->requires  = 2014050800;
-$plugin->cron      = 0;
-$plugin->component = 'mod_mediagallery';
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '2.7.1.0';
+$PAGE->set_context(context_system::instance());
+$PAGE->set_url('/mod/mediagallery/tagajax.php', array('insttype' => $insttype));
+
+require_login();
+require_sesskey();
+echo $OUTPUT->header();
+$classname = "\\mod_mediagallery\\{$insttype}";
+$result = $classname::get_tags_possible();
+echo json_encode($result);
+echo $OUTPUT->footer();

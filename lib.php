@@ -77,12 +77,20 @@ function mediagallery_supports($feature) {
  * @return int The id of the newly inserted mediagallery record
  */
 function mediagallery_add_instance(stdClass $mediagallery, mod_mediagallery_mod_form $mform = null) {
-    global $DB;
+    global $DB, $USER;
 
     $mediagallery = mediagallery_formfield_transform($mediagallery);
     $mediagallery->timecreated = time();
+    $mediagallery->userid = $USER->id;
 
-    return $DB->insert_record('mediagallery', $mediagallery);
+    $mediagallery->id = $DB->insert_record('mediagallery', $mediagallery);
+
+    if (isset($mediagallery->tags)) {
+        $collection = new \mod_mediagallery\collection($mediagallery);
+        $collection->set_tags($mediagallery->tags);
+    }
+
+    return $mediagallery->id;
 }
 
 /**
@@ -97,13 +105,24 @@ function mediagallery_add_instance(stdClass $mediagallery, mod_mediagallery_mod_
  * @return boolean Success/Fail
  */
 function mediagallery_update_instance(stdClass $mediagallery, mod_mediagallery_mod_form $mform = null) {
-    global $DB;
+    global $DB, $USER;
+    if (empty($mediagallery->enforcedefaults)) {
+        $mediagallery->enforcedefaults = 0;
+    }
+
+    // We never change the mode once set.
+    unset($mediagallery->mode);
 
     $mediagallery = mediagallery_formfield_transform($mediagallery);
     $mediagallery->timemodified = time();
     $mediagallery->id = $mediagallery->instance;
 
-    return $DB->update_record('mediagallery', $mediagallery);
+    $result = $DB->update_record('mediagallery', $mediagallery);
+
+    $collection = new \mod_mediagallery\collection($mediagallery);
+    $collection->set_tags($mediagallery->tags);
+
+    return $result;
 }
 
 /**
@@ -114,7 +133,7 @@ function mediagallery_update_instance(stdClass $mediagallery, mod_mediagallery_m
 function mediagallery_formfield_transform(stdClass $mediagallery) {
     $mediagallery->carousel = 0;
     $mediagallery->grid = 0;
-    $mediagallery->gallerytype = 1;
+    $mediagallery->galleryfocus = 1; // Locallib not necessairily included here.
     if (isset($mediagallery->galleryviewoptions['carousel'])) {
         $mediagallery->carousel = $mediagallery->galleryviewoptions['carousel'];
     }
@@ -123,15 +142,18 @@ function mediagallery_formfield_transform(stdClass $mediagallery) {
     }
     unset($mediagallery->galleryviewoptions);
 
-    // Types are 0, 1 or 2.
-    $types = array();
-    for ($i = 0; $i <= 2; $i++) {
-        if (isset($mediagallery->gallerytypeoptions[$i])) {
-            $types[] = $i;
-        }
+    if (isset($mediagallery->gallerytypeoptions['focus'])) {
+        $mediagallery->galleryfocus = $mediagallery->gallerytypeoptions['focus'];
     }
-    $mediagallery->gallerytype = implode(',', $types);
     unset($mediagallery->gallerytypeoptions);
+
+    if (!isset($mediagallery->colltype)) {
+        $mediagallery->colltype = 'instructor';
+    }
+    if ($mediagallery->colltype == 'instructor') {
+        $mediagallery->maxitems = 0;
+        $mediagallery->maxgalleries = 0;
+    }
 
     return $mediagallery;
 }
@@ -153,7 +175,8 @@ function mediagallery_delete_instance($id) {
         return false;
     }
 
-    $DB->delete_records('mediagallery', array('id' => $mediagallery->id));
+    $collection = new \mod_mediagallery\collection($mediagallery);
+    $collection->delete();
 
     return true;
 }
@@ -419,34 +442,6 @@ function mediagallery_pluginfile($course, $cm, $context, $filearea, array $args,
     }
 
     send_stored_file($file, 0, 0, $forcedownload, $options); // Download MUST be forced - security!
-}
-
-
-// Navigation API.
-
-/**
- * Extends the global navigation tree by adding mediagallery nodes if there is a relevant content
- *
- * This can be called by an AJAX request so do not rely on $PAGE as it might not be set up properly.
- *
- * @param navigation_node $navref An object representing the navigation tree node of the mediagallery module instance
- * @param stdClass $course
- * @param stdClass $module
- * @param cm_info $cm
- */
-function mediagallery_extend_navigation(navigation_node $navref, stdclass $course, stdclass $module, cm_info $cm) {
-}
-
-/**
- * Extends the settings navigation with the mediagallery settings
- *
- * This function is called when the context for the page is a mediagallery module. This is not called by AJAX
- * so it is safe to rely on the $PAGE.
- *
- * @param settings_navigation $settingsnav {@link settings_navigation}
- * @param navigation_node $mediagallerynode {@link navigation_node}
- */
-function mediagallery_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $mediagallerynode=null) {
 }
 
 /**

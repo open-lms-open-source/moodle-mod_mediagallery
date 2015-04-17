@@ -1,0 +1,10 @@
+{
+  "name": "moodle-mod_mediagallery-tagselector",
+  "builds": {
+    "moodle-mod_mediagallery-tagselector": {
+      "jsfiles": [
+        "tagselector.js"
+      ]
+    }
+  }
+}

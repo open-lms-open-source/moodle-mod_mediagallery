@@ -34,15 +34,18 @@ $string['addanitem'] = 'Add an item';
 $string['addbulkitems'] = 'Add items in bulk';
 $string['addsamplegallery'] = 'Add a sample gallery';
 $string['allowcomments'] = 'Allow comments';
-$string['allowcomments_help'] = 'Allow users with the mod/mediagallery:comment capability to comment on items and galleries.';
+$string['allowcomments_help'] = 'Allow users to comment on items and galleries.';
 $string['allowlikes'] = 'Allow likes';
-$string['allowlikes_help'] = 'Allow users with the mod/mediagallery:like capability to \'like\' items in a gallery.';
+$string['allowlikes_help'] = 'Allow users to \'like\' items in a gallery.';
 $string['areaitem'] = 'Items';
 $string['arealowres'] = 'Low resolution';
 $string['areathumbnail'] = 'Thumbnails';
 $string['areagallery'] = 'Galleries';
 $string['automatic'] = 'Automatic';
+$string['beingprocessed'] = 'being processed';
 $string['bottom'] = 'Bottom';
+$string['broadcaster'] = 'Broadcaster';
+$string['broadcaster_help'] = 'Who was the distributor that broadcasted this work?';
 $string['caption'] = 'Caption';
 $string['caption_help'] = 'The caption for this item in your gallery. This caption will be displayed alongside the item.';
 $string['captionposition'] = 'Caption position';
@@ -50,10 +53,34 @@ $string['carousel'] = 'Carousel';
 $string['choosecontent'] = 'Select either a file to upload, or a URL in the options below.';
 $string['close'] = 'Close';
 $string['collection'] = 'Collection';
-$string['collection_help'] = 'The collection (if any) the work is from.';
+$string['collectionwasdeleted'] = 'Sorry, this collection no longer exists and has been removed from this course.';
+
+// Collection modes.
+$string['collmode'] = 'Collection mode';
+$string['collmode_help'] = 'This decides if the collection will be purely in Moodle, or be linked to theBox. Once set, this value cannot be changed.
+
+<ul><li>Standard: in this mode, the collection, its galleries and items, are stored purely in Moodle.</li></ul>';
+
+// Collection types.
+$string['colltype'] = 'Collection type';
+$string['colltype_help'] = 'The collection type determines what level users can interact with the collection and its content.
+
+<ul>
+<li>Instructor collection: Only users that can grade the collection can add/edit content within it. This is primarily used for instructors to create example collections; or a set of galleries without letting users create their own.</li>
+<li>Contributed collection: Allows users to create their own galleries and items, but the collection cannot be used as part of an assignment.</li>
+<li>Assignment collection: Users are only able to see the galleries they or their group (if in group mode) have created. Can be used as part of an assignment submission.</li>
+<li>Peer reviewed assignment collection: Users are able to view other users/groups galleries and like/comment on them if those features are enabled. Can be used as part of an assignment submission.</li></ul>';
+$string['colltypeinstructor'] = 'Instructor collection';
+$string['colltypecontributed'] = 'Contributed collection';
+$string['colltypeassignment'] = 'Assignment collection';
+$string['colltypepeerreviewed'] = 'Peer reviewed assignment collection';
+
 $string['comments'] = 'Comments';
 $string['completegallery'] = 'Complete gallery';
+$string['configdisablestandardgallery'] = 'Prevent users from creating standard galleries.';
+$string['configenablethebox'] = 'This needs to be enabled in order for users to create new theBox based collections and content. If disabled, existing theBox collections will display a message saying the activity is currently unavailable. Standard collections will not be affected.';
 $string['configmaxbytes'] = 'Default maximum item file size for all media collections on the site (subject to course limits and other local settings)';
+$string['confirmcollectiondelete'] = 'Confirm collection deletion';
 $string['confirmgallerydelete'] = 'Confirm gallery deletion';
 $string['confirmitemdelete'] = 'Confirm item deletion';
 $string['content'] = 'Content';
@@ -61,21 +88,56 @@ $string['content_help'] = 'The item you want to add to your gallery.';
 $string['contentbulk'] = 'Content';
 $string['contentbulkheader'] = 'Here you can upload a zip archive full of media. Every file inside the zip archive will be added as an item in the gallery, so make sure only files you want uploaded are in the archive before submitting it. Folders inside the archive are ignored.';
 $string['contentbulk_help'] = 'You can select a zip archive containing multiple images, which will be extracted into the image directory after being uploaded.';
+$string['contentlinked'] = 'Content';
+$string['contentlinkedinfo'] = 'This item is linked to the file {$a} in theBox.';
+$string['contentlinked_help'] = 'Once an item is linked to content in theBox, you cannot change the linked file.';
+$string['copyright'] = 'Copyright';
+$string['copyright_help'] = 'This defines which copyright license is set for all the items you upload via this form.';
+$string['createdby'] = 'Created by: {$a}';
 $string['creator'] = 'Creator';
 $string['datecreated'] = 'Date created';
 $string['deletegallery'] = 'Delete gallery';
 $string['deleteitem'] = 'Delete item';
+$string['deleteorremovecollection'] = 'If you wish to remove the link to the collection without deleting the content click submit.<br/><br/>
+
+If you wish to remove the link to the collection and delete the content within type DELETE in the textbox below and click submit.';
+$string['deleteorremovecollectionwarn'] = 'By deleting you acknowledge you are:<br/>
+- removing this link to the media collection<br/>
+- deleting the collection and/or all galleries and all content from theBox<br/>
+- disabling all links made in other courses to this collection or its content
+';
+$string['deleteorremovegallery'] = 'If you wish to remove the link to the gallery without deleting the content click submit.<br/><br/>
+
+If you wish to remove the link to the gallery and delete the content within type DELETE in the textbox below and click submit.';
+$string['deleteorremovegallerywarn'] = 'By deleting you acknowledge you are:<br/>
+- removing this link to the media gallery<br/>
+- deleting the media gallery and all content<br/>
+- disabling all links made in other courses to this media gallery or its content';
+$string['deleteorremoveitem'] = 'If you wish to remove the item from the gallery without deleting the content click submit.<br/><br/>
+
+If you wish to remove the link to the gallery and delete the content type DELETE in the textbox below and click submit.';
+$string['deleteorremoveitemwarn'] = 'By deleting you acknowledge you are:<br/>
+- removing this link to the media item<br/>
+- deleting the media item<br/>
+- disabling all links made in other courses to this media item';
+$string['disablestandardgallery'] = 'Disable standard galleries';
 $string['displayfullcaption'] = 'Display full caption text';
 $string['editgallery'] = 'Edit gallery settings';
 $string['editthisgallery'] = 'Edit this gallery';
+$string['enablethebox'] = 'Enable theBox';
 $string['enforcedefaults'] = 'Enforce gallery defaults';
 $string['enforcedefaults_help'] = 'If enabled, then the gallery defaults determined by the instructor are enforced.';
+$string['errorchooseimportoption'] = 'Please select an option to import';
+$string['errornotyouritem'] = 'You cannot edit this media object, it belongs to another user.';
+$string['errortheboxunavailable'] = 'Sorry, it looks like theBox is unavailable right now. Please try again later.';
 $string['errortoomanyitems'] = 'Sorry, this gallery already has the maximum number of items allowed ({$a}).';
 $string['errortoomanygalleries'] = 'Sorry, you or your group has exceeded the maximum number of galleries allowed in this collection ({$a}).';
+$string['eventcollectiondeleted'] = 'Collection deleted';
 $string['eventgallerycreated'] = 'Gallery created';
 $string['eventgallerydeleted'] = 'Gallery deleted';
 $string['eventgalleryupdated'] = 'Gallery updated';
 $string['eventitemcreated'] = 'Item created';
+$string['eventitemdeleted'] = 'Item deleted';
 $string['eventitemupdated'] = 'Item updated';
 $string['eventgalleryviewed'] = 'Gallery viewed';
 $string['export'] = 'Export';
@@ -86,14 +148,11 @@ $string['filename'] = 'File name';
 $string['filesize'] = 'File size';
 $string['foundxresults'] = 'Found {$a} result(s):';
 $string['gallery'] = 'Gallery';
+$string['galleryfocus'] = 'Gallery focus';
+$string['galleryfocus_help'] = 'The default focus of the gallery (determines what filetypes are presented as the focus of the gallery). If set as a YouTube gallery, the focus is locked to Video.';
 $string['galleryname'] = 'Gallery name';
 $string['gallerythumbnail'] = 'Use as thumbnail';
 $string['gallerythumbnail_help'] = 'If selected, the thumbnail for this item is used as the thumbnail for the gallery.';
-$string['gallerytype'] = 'Gallery type';
-$string['gallerytype_help'] = 'Type of Media gallery ';
-$string['gallerytypeinvalid'] = 'You must choose a valid gallery type from the list.';
-$string['gallerytypes'] = 'Gallery types';
-$string['gallerytypes_help'] = 'Type(s) of Media gallery users are allowed to create inside this Media collection. At least one type must be selected.';
 $string['galleryviewoptions'] = 'Gallery view options';
 $string['galleryviewoptions_help'] = 'Determines the gallery view options which are available to students.';
 $string['gridview'] = 'Grid view';
@@ -109,14 +168,18 @@ $string['itemdisplay_help'] = 'Include this item in the gallery display (e.g. ca
 $string['like'] = 'Like';
 $string['likedby'] = 'Liked by';
 $string['maxbytes'] = 'Maximum size per item';
-$string['maxgalleries'] = 'Maximum number of galleries per user/group';
-$string['maxgalleries_help'] = 'The maximum number of galleries a user (or group when using groups modes) can create in this collection.';
+$string['maxgalleries'] = 'Max galleries per user/group';
+$string['maxgalleries_help'] = 'The maximum number of galleries a user (or group when using groups modes) can create in this collection.
+
+Note: for Instructor collections, this is always unlimited.';
 $string['maxgalleriesreached'] = 'Maximum number of galleries added';
-$string['maxitems'] = 'Maximum number of items per gallery';
-$string['maxitems_help'] = 'The maximum number of items a user can put in a gallery in this collection.';
+$string['maxitems'] = 'Maximum items per gallery';
+$string['maxitems_help'] = 'The maximum number of items a user can put in a gallery in this collection.
+
+Note: for Instructor collections, this is always unlimited.';
 $string['maxitemsreached'] = 'Maximum number of items added';
 $string['modulename'] = 'Media collection';
-$string['modulenameplural'] = 'Media galleries';
+$string['modulenameplural'] = 'Media collections';
 $string['modulename_help'] = 'Use the Media collection module for creating galleries of media content.
 
 Users can create their own galleries of images, video or audio either on their own or in groups.
@@ -137,6 +200,14 @@ $string['mediagallery'] = 'Media collection';
 $string['medium'] = 'Medium';
 $string['medium_help'] = 'The medium used to create the work (i.e. painting, photography, sound, etc).';
 $string['metainfobulkheader'] = 'The below values will be used as the initial metadata for each of the items added above.';
+$string['mode'] = 'Gallery mode';
+$string['mode_help'] = 'This defines the kind of content the gallery supports. Once set, this value cannot be changed.
+
+<ul><li>Standard: in this mode, users can add any kind of media content they wish.</li>
+<li>YouTube: in this mode, only youtube videos can be added to the gallery.</li></ul>';
+$string['modestandard'] = 'Standard';
+$string['modethebox'] = 'theBox';
+$string['modeyoutube'] = 'YouTube';
 $string['moralrights'] = 'Moral rights';
 $string['moralrights_help'] = 'Do you wish to assert your moral rights?
 
@@ -157,6 +228,12 @@ $string['publisher'] = 'Publisher';
 $string['publisher_help'] = 'The publisher (if any) of the work.';
 $string['readonlyfrom'] = 'Read only from';
 $string['readonlyto'] = 'Read only to';
+$string['reference'] = 'Reference';
+$string['reference_help'] = 'Reference to the collection (if any) the work is from.';
+$string['removethecollection'] = 'Remove/delete the collection';
+$string['removecollectionconfirm'] = 'Are you sure you wish to remove the link to this collection?';
+$string['removegalleryconfirm'] = 'Are you sure you wish to remove the link to this gallery?';
+$string['removeitemconfirm'] = 'Are you sure you wish to remove the link to this item?';
 $string['restrictavailableinfo'] = 'To restrict the dates this activity is available between, use the Restrict access section below.';
 $string['sample'] = 'Sample';
 $string['search'] = 'Search';
@@ -166,6 +243,7 @@ $string['searchcourseonly_help'] = 'Did you only want to search for items in med
 $string['searchdisplayxtoyofzresults'] = 'Found {$a->total} result(s). Displaying {$a->from}-{$a->to}:';
 $string['searchresults'] = 'Search results';
 $string['searchtitle'] = 'Media collection search';
+$string['selection'] = 'Selection';
 $string['settingsavailability'] = 'Availability';
 $string['settingsdisplay'] = 'Display list';
 $string['settingsgallery'] = 'Gallery defaults';
@@ -175,6 +253,10 @@ $string['storagereport'] = 'Media collection storage';
 $string['storagetotalusage'] = 'Total storage usage across the site: {$a}.';
 $string['submittedforgrading'] = 'Submitted for grading';
 $string['showall'] = 'Show all';
+$string['synclastcompleted'] = 'Sync last completed';
+$string['syncwiththebox'] = 'Sync from theBox';
+$string['tags'] = 'Tags';
+$string['theboxisnotenabled'] = 'Unfortunately, this collection is not currently accessible as it\'s linked to theBox, which is not currently enabled.';
 $string['thumbnail'] = 'Thumbnail';
 $string['thumbnail_help'] = 'You can select an image to use as the thumbnail in the gallery for this item.
 
@@ -196,3 +278,5 @@ $string['visibleinstructor_help'] = 'Define the gallery as visible to course ins
 $string['visibleother'] = 'Visible to everyone in the course after';
 $string['visibleother_help'] = 'Define the gallery as visible to other users after the specified date. Course managers with appropriate permissions will always be able to see the gallery.';
 $string['you'] = 'you';
+$string['youmusttypedelete'] = 'You must type DELETE to confirm deletion.';
+$string['youtubeurl'] = 'YouTube URL';

@@ -41,8 +41,16 @@ class mod_mediagallery_gallery_form extends moodleform {
 
         $mform = $this->_form;
         $mg = $this->_customdata['mediagallery'];
+        $gallery = $this->_customdata['gallery'];
         $groupmode = $this->_customdata['groupmode'];
         $groups = $this->_customdata['groups'];
+        $context = $this->_customdata['context'];
+        $tags = $this->_customdata['tags'];
+
+        $lockfields = false;
+        if ($gallery && $gallery->mode == 'thebox' && !$gallery->is_thebox_creator_or_agent()) {
+            $lockfields = true;
+        }
 
         // General settings.
         $mform->addElement('header', 'general', get_string('general', 'form'));
@@ -57,7 +65,7 @@ class mod_mediagallery_gallery_form extends moodleform {
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
         $mform->addHelpButton('name', 'mediagalleryname', 'mediagallery');
 
-        if ($groupmode !== NOGROUPS && count($groups) > 1) {
+        if ($groupmode != NOGROUPS && count($groups) > 1) {
             $opts = array();
             foreach ($groups as $group) {
                 $opts[$group->id] = $group->name;
@@ -71,6 +79,24 @@ class mod_mediagallery_gallery_form extends moodleform {
             $mform->setType('groupid', PARAM_INT);
         }
 
+        // Mode. Normal or YT.
+        $opts = array(
+            'standard' => get_string('modestandard', 'mod_mediagallery'),
+            'youtube' => get_string('modeyoutube', 'mod_mediagallery'),
+        );
+        if (get_config('mediagallery', 'disablestandardgallery') || $mg->mode != 'standard') {
+            unset($opts['standard']);
+        }
+        $mform->addElement('select', 'mode', get_string('mode', 'mod_mediagallery'), $opts);
+        $mform->addHelpButton('mode', 'mode', 'mediagallery');
+
+        mediagallery_add_tag_field($mform, $tags, false, !$lockfields);
+
+        if ($lockfields) {
+            $mform->hardFreeze('name');
+            $mform->hardFreeze('tags');
+        }
+
         // Gallery settings.
         $mform->addElement('header', 'display', get_string('settingsgallerydisplay', 'mediagallery'));
 
@@ -79,14 +105,13 @@ class mod_mediagallery_gallery_form extends moodleform {
             MEDIAGALLERY_TYPE_VIDEO => get_string('typevideo', 'mediagallery'),
             MEDIAGALLERY_TYPE_AUDIO => get_string('typeaudio', 'mediagallery'),
         );
-        foreach ($options as $key => $val) {
-            if (!in_array($key, $mg->gallerytypes)) {
-                unset($options[$key]);
-            }
+        $mform->addElement('select', 'galleryfocus', get_string('galleryfocus', 'mediagallery'), $options);
+        $mform->addHelpButton('galleryfocus', 'galleryfocus', 'mediagallery');
+        $mform->setDefault('galleryfocus', $mg->galleryfocus);
+        $mform->disabledIf('galleryfocus', 'mode', 'eq', 'youtube');
+        if ($mg->enforcedefaults) {
+            $mform->hardFreeze('galleryfocus');
         }
-        $mform->addElement('select', 'gallerytype', get_string('gallerytype', 'mediagallery'), $options);
-        $mform->addHelpButton('gallerytype', 'gallerytype', 'mediagallery');
-        $mform->setDefault('gallerytype', MEDIAGALLERY_TYPE_IMAGE);
 
         $options = array();
         if ($mg->grid) {
@@ -96,10 +121,12 @@ class mod_mediagallery_gallery_form extends moodleform {
             $options[MEDIAGALLERY_VIEW_CAROUSEL] = get_string('carousel', 'mediagallery');
         }
 
-        if (!$mg->enforcedefaults || $mg->grid && $mg->carousel) {
-            $mform->addElement('select', 'galleryview', get_string('galleryviewoptions', 'mediagallery'), $options);
-        } else {
-            $mform->addElement('static', 'galleryview', get_string('galleryviewoptions', 'mediagallery'), current($options));
+
+        $mform->addElement('select', 'galleryview', get_string('galleryviewoptions', 'mediagallery'), $options);
+        if ($mg->enforcedefaults && !($mg->grid && $mg->carousel)) {
+            $default = $mg->grid ? MEDIAGALLERY_VIEW_GRID : MEDIAGALLERY_VIEW_CAROUSEL;
+            $mform->setDefault('galleryview', $default);
+            $mform->hardFreeze('galleryview');
         }
 
         if (!$mg->enforcedefaults) {
@@ -147,6 +174,10 @@ class mod_mediagallery_gallery_form extends moodleform {
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
 
+        $mform->addElement('hidden', 'source', 'moodle');
+        $mform->setType('source', PARAM_ALPHA);
+        $mform->hardFreeze('source');
+
         $this->add_action_buttons();
     }
 
@@ -156,12 +187,20 @@ class mod_mediagallery_gallery_form extends moodleform {
         $toform['galleryviewoptions']['grid'] = $toform['grid'];
     }
 
+    public function set_data($data) {
+        if (!empty($data->mode)) {
+            $this->_form->hardFreeze('mode');
+            if ($data->mode == 'youtube') {
+                $data->galleryfocus = MEDIAGALLERY_TYPE_VIDEO;
+                $this->_form->freeze('galleryfocus');
+            }
+        }
+        parent::set_data($data);
+    }
+
     public function validation($data, $files) {
         $errors = array();
         $collection = new \mod_mediagallery\collection($data['m']);
-        if (!isset($data['gallerytype'])) {
-            $errors['gallerytype'] = get_string('gallerytypeinvalid', 'mediagallery');
-        }
         return $errors;
     }
 }

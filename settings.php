@@ -29,9 +29,14 @@ if ($ADMIN->fulltree) {
     if (isset($CFG->maxbytes)) {
         $maxbytes = get_config('mediagallery', 'maxbytes');
         $options = get_max_upload_sizes($CFG->maxbytes, 0, 0, $maxbytes);
-        $settings->add(new admin_setting_configselect('mediagallery/maxbytes', get_string('maxbytes', 'mediagallery'),
-                            get_string('configmaxbytes', 'mediagallery'), 0, $options));
+        $settings->add(new admin_setting_configselect('mediagallery/maxbytes', new lang_string('maxbytes', 'mediagallery'),
+                            new lang_string('configmaxbytes', 'mediagallery'), 0, $options));
     }
+
+    $settings->add(new admin_setting_configcheckbox('mediagallery/disablestandardgallery',
+                        new lang_string('disablestandardgallery', 'mediagallery'),
+                        new lang_string('configdisablestandardgallery', 'mediagallery'), 0));
+
 }
 if ($hassiteconfig) {
     $ADMIN->add('reports', new admin_externalpage('modmediagallerystorage',

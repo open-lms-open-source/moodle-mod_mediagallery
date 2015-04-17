@@ -60,7 +60,17 @@ class restore_mediagallery_activity_structure_step extends restore_activity_stru
         $data = (object)$data;
         $oldid = $data->id;
         $data->course = $this->get_courseid();
+        $data->userid = $this->get_mappingid('user', $data->userid);
         $data->timemodified = $this->apply_date_offset($data->timemodified);
+        if (isset($data->gallerytype)) {
+            $types = explode(',', $data->gallerytype);
+            // "1" means default to image focus.
+            $focus = !empty($types) ? $types[0] : 1;
+            if (empty($focus)) {
+                $focus = 1;
+            }
+            $data->galleryfocus = $focus;
+        }
         // Insert the mediagallery record.
         $newitemid = $DB->insert_record('mediagallery', $data);
         // Immediately after inserting "activity" record, call this.
@@ -87,6 +97,9 @@ class restore_mediagallery_activity_structure_step extends restore_activity_stru
         $data->instanceid = $this->get_new_parentid('mediagallery');
         $data->userid = $this->get_mappingid('user', $data->userid);
         $data->groupid = $this->get_mappingid('group', $data->groupid);
+        if (isset($data->gallerytype)) {
+            $data->galleryfocus = $data->gallerytype;
+        }
         $newitemid = $DB->insert_record('mediagallery_gallery', $data);
         $this->set_mapping('mediagallery_gallery', $oldid, $newitemid);
     }
@@ -100,6 +113,9 @@ class restore_mediagallery_activity_structure_step extends restore_activity_stru
         $data->galleryid = $this->get_new_parentid('mediagallery_gallery');
         $data->timecreated = $this->apply_date_offset($data->timecreated);
         $data->userid = $this->get_mappingid('user', $data->userid);
+        if (isset($data->collection)) {
+            $data->reference = $data->collection;
+        }
         $newitemid = $DB->insert_record('mediagallery_item', $data);
         $this->set_mapping('mediagallery_item', $oldid, $newitemid, true);
     }

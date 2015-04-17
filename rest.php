@@ -59,7 +59,7 @@ switch($requestmethod) {
             $info = $object->get_socialinfo();
             echo json_encode($info);
         } else if ($action == 'get_sample_targets') {
-            $info = mediagallery_get_sample_targets($course);
+            $info = mediagallery_get_sample_targets($course, $object);
             echo json_encode($info);
         } else if ($action == 'embed') {
             $output = $PAGE->get_renderer('mod_mediagallery')->embed_html($object);
@@ -71,6 +71,7 @@ switch($requestmethod) {
             $data->id = isset($matches[2]) ? $matches[2] : null;
             $data->url = isset($matches[3]) ? str_replace('\/', '/', $matches[3]) : null;
             $data->type = isset($matches[1]) ? $matches[1] : $object->type(true);
+            $data->objectid = $object->objectid;
             $data->flow = !empty($matches[1]);
             echo json_encode($data);
         } else if ($action == 'metainfo') {
@@ -94,7 +95,26 @@ switch($requestmethod) {
     break;
 
     case 'DELETE':
-        if ($object->delete()) {
+        $success = false;
+        $isowner = $object->is_thebox_creator_or_agent();
+
+        if ($class == 'collection') {
+            if (!has_capability('mod/mediagallery:manage', $object->get_context())) {
+                throw new moodle_exception("no permission");
+            }
+            $success = true;
+        } else {
+            if (empty($object->objectid)) {
+                // Non-box.
+                if ($object->delete()) {
+                    $success = true;
+                }
+            } else {
+                $success = true;
+            }
+
+        }
+        if ($success) {
             echo json_encode('success');
         } else {
             throw new moodle_exception("failed to delete $class $id");

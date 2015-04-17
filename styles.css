@@ -46,7 +46,6 @@
 .path-mod-mediagallery .item .title {
     margin-left: 5px;
     float: left;
-    max-width: 100px;
     max-height: 20px;
     overflow: hidden;
 }
@@ -78,7 +77,7 @@
 
 .path-mod-mediagallery div.grid_item .caption {
     text-align: center;
-    height: 18px;
+    position: relative;
 }
 
 .path-mod-mediagallery div.grid_item div.item-wrapper {
@@ -86,16 +85,34 @@
 }
 
 .path-mod-mediagallery div.grid_item div.item-wrapper div.info {
-    position: absolute;
-    bottom: 0;
+    float: left;
 }
 
 .path-mod-mediagallery div.grid_item div.item-thumb {
     height: 250px;
 }
 
+.path-mod-mediagallery div.grid_item div.item-thumb:before {
+    content: ' ';
+    display: inline-block;
+    vertical-align: middle;
+    height: 100%;
+}
+
 .path-mod-mediagallery .heading {
     float: left;
+}
+
+.path-mod-mediagallery .focus_selector {
+    float: right;
+    height: 30px;
+    line-height: 30px;
+    margin-right: 5px;
+}
+
+.path-mod-mediagallery .focus_selector label {
+    display: inline-block;
+    margin-right: 5px;
 }
 
 .path-mod-mediagallery .moralrights {
@@ -120,6 +137,7 @@
 
 .path-mod-mediagallery .actions {
     float: left;
+    clear: both;
 }
 
 .path-mod-mediagallery .lb-outerContainer {
@@ -162,9 +180,30 @@
 }
 
 .path-mod-mediagallery .commentarea {
-    float: left;
     width: 100%;
     clear: both;
+}
+
+.path-mod-mediagallery .comment-area {
+    max-width: 100%;
+}
+
+.path-mod-mediagallery .comment-area textarea {
+    width: 94%;
+}
+
+.path-mod-mediagallery .comment-area .fd {
+    text-align: center;
+}
+
+.path-mod-mediagallery div.taglist {
+    margin: 5px 0;
+    float: left;
+    clear: both;
+}
+
+.path-mod-mediagallery span.tagheading {
+    font-weight: bold;
 }
 
 #page-mod-mediagallery-item .felement.fstatic {
@@ -417,8 +456,10 @@ body.mediaboxactive .gallery .mediaplugin object {
     width: 300px;
     height: 100%;
     background-color: #222;
-    overflow: visible;
+    overflow-x: hidden;
+    overflow-y: auto;
     color: #FFF;
+    padding-top: 30px;
 }
 
 #mediabox-navbar {
@@ -496,6 +537,8 @@ body.mediaboxactive .gallery .mediaplugin object {
 #mediabox-sidebar-actions {
     margin: 2px;
     text-align: center;
+    position: fixed;
+    right: 70px;
 }
 
 #mediabox-sidebar-actions img {
@@ -508,7 +551,6 @@ body.mediaboxactive .gallery .mediaplugin object {
 #mediabox.sidebarhidden #mediabox-sidebar-actions {
     position: absolute;
     top: 10px;
-    left: -32px;
     background-color: #222;
     padding: 4px;
     -webkit-border-top-left-radius: 4px;
@@ -521,7 +563,9 @@ body.mediaboxactive .gallery .mediaplugin object {
 
 #mediabox.sidebarhidden #mediabox-sidebar-actions {
     top: 50px;
-    left: -34px;
+    right: 0;
+    position: fixed;
+    width: 25px;
 }
 
 #mediabox.sidebarhidden #mediabox-sidebar-actions img {
@@ -563,4 +607,23 @@ body.mediaboxactive .gallery .mediaplugin object {
     background-image:    -moz-linear-gradient(left, rgba(0,0,0,0), rgba(255,255,255,0.75), rgba(0,0,0,0));
     background-image:     -ms-linear-gradient(left, rgba(0,0,0,0), rgba(255,255,255,0.75), rgba(0,0,0,0));
     background-image:      -o-linear-gradient(left, rgba(0,0,0,0), rgba(255,255,255,0.75), rgba(0,0,0,0));
+}
+
+#page-mod-mediagallery-item .mform #id_general iframe {
+    border: none;
+    width: 680px;
+    height: 443px;
+}
+
+#page-mod-mediagallery-item .mform .femptylabel .felement.fstatic {
+    margin-left: 0px;
+}
+
+.path-mod-mediagallery .deleteorremove {
+    text-align: left;
+}
+
+.path-mod-mediagallery .lastsync {
+    float: left;
+    clear: both;
 }

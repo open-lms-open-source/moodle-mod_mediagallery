@@ -52,20 +52,22 @@ class mod_mediagallery_generator extends testing_module_generator {
             'name'               => get_string('pluginname', 'mediagallery').' '.$i,
             'intro'              => 'Test mediagallery ' . $i,
             'introformat'        => FORMAT_MOODLE,
+            'userid'             => 0,
             'thumbnailsperpage'  => 0,
             'thumbnailsperrow'   => 2,
             'displayfullcaption' => 0,
             'captionposition'    => 0,
-            'gallerytype'        => 1,
-            'carousel'           => 1,
-            'grid'               => 0,
+            'colltype'           => 'contributed',
+            'galleryfocus'       => 1,
+            'galleryviewoptions' => array('carousel' => 1),
             'gridrows'           => 2,
             'gridcolumns'        => 3,
             'enforcedefauls'     => 0,
             'readonlyfrom'       => 0,
             'readonlyto'         => 0,
+            'mode'               => 'standard',
         );
-        $defaultsettings['gallerytypeoptions'][MEDIAGALLERY_TYPE_IMAGE] = 1;
+        $defaultsettings['gallerytypeoptions']['focus'] = 1;
 
         foreach ($defaultsettings as $name => $value) {
             if (!isset($record->{$name})) {
@@ -77,5 +79,36 @@ class mod_mediagallery_generator extends testing_module_generator {
         $id = mediagallery_add_instance($record, null);
         rebuild_course_cache($record->course, true);
         return $this->post_add_instance($id, $record->coursemodule);
+    }
+
+    public function create_gallery($record = null) {
+        global $CFG, $USER;
+
+        require_once($CFG->dirroot.'/mod/mediagallery/locallib.php');
+
+        $record = (object)(array)$record;
+        $defaults = array(
+            'groupid' => 0,
+            'galleryfocus' => MEDIAGALLERY_TYPE_IMAGE,
+            'galleryview' => MEDIAGALLERY_VIEW_GRID,
+            'userid' => $USER->id,
+            'mode' => 'standard',
+            'tags' => '',
+        );
+
+        if (!isset($record->instanceid)) {
+            throw new coding_exception('instanceid must be present in $record');
+        }
+
+        if (!isset($record->name)) {
+            throw new coding_exception('name must be present in $record');
+        }
+
+        foreach ($defaults as $key => $value) {
+            if (!isset($record->$key)) {
+                $record->$key = $value;
+            }
+        }
+        return \mod_mediagallery\gallery::create($record);
     }
 }

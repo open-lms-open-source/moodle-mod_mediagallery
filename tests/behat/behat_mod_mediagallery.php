@@ -71,8 +71,8 @@ class behat_mod_mediagallery extends behat_base {
     public function i_add_a_new_item_to_gallery_uploading_with($gallery, $file, TableNode $table) {
         return array(
             new Given('I follow "'.get_string('addanitem', 'mediagallery').'"'),
-            new Given('I fill the moodle form with:', $table),
-            new Given('I upload "'.$file.'" file to "Content" filepicker'),
+            new Given('I set the following fields to these values:', $table),
+            new Given('I upload "'.$file.'" file to "Content" filemanager'),
             new Given('I press "' . get_string('savechanges') . '"'),
             new Given('I wait to be redirected')
         );

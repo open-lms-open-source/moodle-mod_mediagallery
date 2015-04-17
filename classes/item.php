@@ -22,13 +22,18 @@ class item extends base {
     protected $gallery;
     static protected $table = 'mediagallery_item';
 
-
     /**
      * Related stored files.
      */
     protected $file = null;
     protected $lowres = null;
     protected $thumbnail = null;
+    protected static $defaultvalues = array(
+        'sortorder' => 1000000,
+        'display' => 1,
+        'moralrights' => 1,
+        'productiondate' => '',
+    );
 
     public function __construct($recordorid, $options = array()) {
         if (!empty($options['gallery'])) {
@@ -71,7 +76,7 @@ class item extends base {
             );
             $fs->create_file_from_storedfile($fileinfo, $file);
         }
-        if ($file = $this->get_file_by_type('lowres')) { // Low res version of full image.
+        if ($file = $this->get_stored_file_by_type('lowres')) { // Low res version of full image.
             $fileinfo = array(
                 'contextid'     => $newitem->get_context()->id,
                 'itemid'        => $newitem->id,
@@ -83,8 +88,10 @@ class item extends base {
 
     public static function create(\stdClass $data) {
         global $DB, $USER;
-        if (empty($data->sortorder)) {
-            $data->sortorder = 1000000;
+        foreach (static::$defaultvalues as $key => $val) {
+            if (!isset($data->$key)) {
+                $data->$key = $val;
+            }
         }
         $data->timecreated = time();
         $data->userid = $USER->id;
@@ -100,6 +107,9 @@ class item extends base {
             'context' => $result->get_context(),
             'objectid' => $result->id,
         );
+        if (!empty($data->nosync)) {
+            $params['other']['nosync'] = true;
+        }
         $event = \mod_mediagallery\event\item_created::create($params);
         $event->add_record_snapshot('mediagallery_item', $result->get_record());
         $event->trigger();
@@ -145,10 +155,11 @@ class item extends base {
                 'productiondate' => 0,
                 'medium' => '',
                 'publisher' => '',
-                'collection' => ''
+                'broadcaster' => '',
+                'reference' => ''
             );
             foreach ($metafields as $field => $default) {
-                $data->$field = !empty($formdata->$field) ? $formdata->$field : $default;
+                $data->$field = isset($formdata->$field) ? $formdata->$field : $default;
             }
 
             $data->galleryid = $gallery->id;
@@ -180,8 +191,20 @@ class item extends base {
     /**
      * Delete the item and everything related to it.
      */
-    public function delete() {
+    public function delete($options = array()) {
         global $DB;
+
+        $params = array(
+            'context' => $this->get_context(),
+            'objectid' => $this->id,
+        );
+        if (!empty($options['nosync'])) {
+            $params['other']['nosync'] = true;
+        }
+        $event = \mod_mediagallery\event\item_deleted::create($params);
+        $event->add_record_snapshot('mediagallery_item', $this->record);
+        $event->trigger();
+
         $fs = get_file_storage();
         $fs->delete_area_files($this->get_context()->id, 'mod_mediagallery', 'item', $this->record->id);
         $fs->delete_area_files($this->get_context()->id, 'mod_mediagallery', 'lowres', $this->record->id);
@@ -227,7 +250,7 @@ class item extends base {
 
     public function generate_image_by_type($type = 'thumbnail', $force = false, \stored_file $file = null) {
         global $CFG;
-        $originalfile = $this->get_file_by_type();
+        $originalfile = $this->get_stored_file_by_type();
         if ($type != 'item' && !is_null($file)) {
             $originalfile = $file;
         } else if (!$originalfile || !file_mimetype_in_typegroup($originalfile->get_mimetype(), 'web_image')
@@ -237,7 +260,7 @@ class item extends base {
         if ($type == 'item') {
             return $originalfile;
         }
-        if (!$force && ($newfile = $this->get_file_by_type($type))) {
+        if (!$force && ($newfile = $this->get_stored_file_by_type($type))) {
             return $newfile;
         }
 
@@ -274,16 +297,24 @@ class item extends base {
         $crop = true) {
         global $CFG;
 
-        if (is_null($file) && !$file = $this->get_file_by_type('item')) {
+        if (is_null($file) && !$file = $this->get_stored_file_by_type('item')) {
             return false;
         }
 
         require_once($CFG->libdir.'/gdlib.php');
 
+        $oldmemlimit = @ini_get('memory_limit');
+        raise_memory_limit(MEMORY_EXTRA);
+
         $tempfile = $file->copy_content_to_temp();
+
+        if (!imagehelper::memory_check($tempfile)) {
+            return false;
+        }
+
         $image = imagecreatefromstring(file_get_contents($tempfile));
 
-        // exif_read_data is only supported for jpeg/tiff images.
+        // Func exif_read_data is only supported for jpeg/tiff images.
         $mimetype = $file->get_mimetype();
         $isjpegortiff = $mimetype == 'image/jpeg' || $mimetype == 'image/tiff';
 
@@ -387,6 +418,9 @@ class item extends base {
         $resized = imagecreatetruecolor($width, $height);
         imagecopybicubic($resized, $image, 0, 0, $srcx, $srcy, $width, $height, $srcw, $srch);
 
+        unset($image);
+        reduce_memory_limit($oldmemlimit);
+
         return $resized;
     }
 
@@ -412,7 +446,9 @@ class item extends base {
         } else if ($this->type() == MEDIAGALLERY_TYPE_IMAGE) {
             $embed = $this->get_image_url_by_type();
         } else {
-            if ($file = $this->get_file()) {
+            if (!empty($this->objectid)) {
+                $embed = $this->get_box_url();
+            } else if ($file = $this->get_file()) {
                 $embed = file_encode_url($CFG->wwwroot.'/pluginfile.php',
                     '/'.$this->get_context()->id.'/mod_mediagallery/item/'.$this->record->id.'/'.$file->get_filename());
             }
@@ -435,7 +471,7 @@ class item extends base {
         return $this->$type = current($files);
     }
 
-    private function get_file_by_type($type = 'item') {
+    private function get_stored_file_by_type($type = 'item') {
         $property = $type == 'item' ? 'file' : $type;
         if (!is_null($this->$property)) {
             return $this->$property;
@@ -457,6 +493,7 @@ class item extends base {
         $info = clone $this->record;
         $info->timecreatedformatted = '';
         $info->productiondateformatted = '';
+        $info->copyrightformatted = '';
         if ($info->timecreated > 0) {
             $info->timecreatedformatted = userdate($info->timecreated, get_string('strftimedaydatetime', 'langconfig'));
         }
@@ -466,6 +503,7 @@ class item extends base {
         if (!has_capability('moodle/user:viewhiddendetails', $this->get_context())) {
             $info->username = null;
         }
+        $info->tags = $this->get_tags();
         return $info;
     }
 
@@ -479,8 +517,11 @@ class item extends base {
             'productiondateformatted' => get_string('productiondate', 'mod_mediagallery'),
             'medium' => get_string('medium', 'mod_mediagallery'),
             'publisher' => get_string('publisher', 'mod_mediagallery'),
-            'collection' => get_string('collection', 'mod_mediagallery'),
+            'broadcaster' => get_string('broadcaster', 'mod_mediagallery'),
+            'reference' => get_string('reference', 'mod_mediagallery'),
             'moralrightsformatted' => get_string('moralrights', 'mod_mediagallery'),
+            'copyrightformatted' => get_string('copyright', 'mod_mediagallery'),
+            'tags' => get_string('tags', 'mod_mediagallery'),
         );
 
         $info = $this->get_socialinfo();
@@ -489,6 +530,8 @@ class item extends base {
         $data = clone $this->record;
         $data->timecreatedformatted = '';
         $data->productiondateformatted = '';
+        $data->copyrightformatted = '';
+        $data->tags = $this->get_tags();
         if ($data->timecreated > 0) {
             $data->timecreatedformatted = userdate($data->timecreated, get_string('strftimedaydatetime', 'langconfig'));
         }
@@ -532,6 +575,16 @@ class item extends base {
         return $id;
     }
 
+    public function get_source() {
+        if (empty($this->record->externalurl) && empty($this->record->objectid)) {
+            return 'internal';
+        }
+        if ($this->get_youtube_videoid()) {
+            return 'youtube';
+        }
+        return 'external';
+    }
+
     public function get_image_url($preview = false) {
         global $CFG;
 
@@ -548,12 +601,16 @@ class item extends base {
             }
         }
 
-        if (!$file = $this->get_file_by_type('thumbnail')) {
-            if (!$file = $this->get_file_by_type()) {
+        $type = $preview ? 'thumbnail' : 'item';
+        if (!empty($this->objectid) && ($this->type() !== MEDIAGALLERY_TYPE_AUDIO && $this->type() !== null || $type == 'item')) {
+            return $this->get_box_url($type);
+        }
+
+        if (!$file = $this->get_stored_file_by_type('thumbnail')) {
+            if (!$file = $this->get_stored_file_by_type()) {
                 return null;
             }
         }
-        $type = $preview ? 'thumbnail' : 'item';
         if (!file_mimetype_in_typegroup($file->get_mimetype(), 'web_image')) {
             // If its not an image, we want to display a moodle filetype icon, so we need to use the item path.
             $type = 'item';
@@ -571,6 +628,10 @@ class item extends base {
         return $path;
     }
 
+    protected function get_box_url($type = 'item') {
+        return '';
+    }
+
     public function get_image_url_by_type($type = 'item') {
         global $CFG;
 
@@ -585,16 +646,32 @@ class item extends base {
             if (isset($matches[5])) {
                 return new \moodle_url('http://img.youtube.com/vi/'.$matches[5].'/0.jpg');
             }
+
+            // Handle FILE_EXTERNAL repository content.
+            if (preg_match('#^'.$CFG->wwwroot.'/repository/([a-z][a-z0-9]*)/#', $url, $matches) && !empty($matches)) {
+                require_once("{$CFG->dirroot}/repository/{$matches[1]}/lib.php");
+                $class = "repository_{$matches[1]}";
+                if (method_exists($class, "get_mediagallery_link")) {
+                    return $class::get_mediagallery_link($this->record->externalurl, $type);
+                }
+                return $this->record->externalurl;
+            }
+        }
+
+        // Fetch the box url for thumbnails of images and video. Documents and audio don't need it.
+        if (!empty($this->objectid) && ($this->type() !== MEDIAGALLERY_TYPE_AUDIO && $this->type() !== null || $type == 'item')) {
+            return $this->get_box_url($type);
         }
 
         $urltype = $type;
-        if (!$file = $this->get_file_by_type($type)) {
-            if (!$file = $this->get_file_by_type()) {
+        if (!$file = $this->get_stored_file_by_type($type)) {
+            if (!$file = $this->get_stored_file_by_type()) {
                 return null;
             }
             $urltype = 'item';
         }
-        if (!file_mimetype_in_typegroup($file->get_mimetype(), 'web_image')) {
+        $isimagetype = file_mimetype_in_typegroup($file->get_mimetype(), 'web_image');
+        if (!$isimagetype) {
             // If its not an image, we want to display a moodle filetype icon, so we need to use the item path.
             $urltype = 'item';
         }
@@ -602,7 +679,7 @@ class item extends base {
             '/'.$context->id.'/mod_mediagallery/'.$urltype.'/'.$this->record->id.'/'.$file->get_filename());
 
         // For audio/video files, this has moodle display a filetype icon.
-        if ($type == 'thumbnail' && $urltype == 'item') {
+        if ($type == 'thumbnail' && $urltype == 'item' && !$isimagetype) {
             $path .= '?preview=bigthumb';
         }
 
@@ -706,21 +783,41 @@ class item extends base {
         if ($this->record->externalurl != '') {
             // External URLs are either youtube videos or images.
             if ($this->get_youtube_videoid()) {
-                return MEDIAGALLERY_TYPE_VIDEO;
+                return $text ? 'video' : MEDIAGALLERY_TYPE_VIDEO;
             }
-            return MEDIAGALLERY_TYPE_IMAGE;
+            return $text ? 'image' : MEDIAGALLERY_TYPE_IMAGE;
         }
 
         if (!$file = $this->get_file()) {
             return null;
         }
+
+        $videogroups = array('web_video');
+        if (!empty($this->objectid)) {
+            $videogroups[] = 'video';
+        }
+
         $mimetype = $this->file->get_mimetype();
         if (file_mimetype_in_typegroup($mimetype, 'web_image')) {
             return $text ? 'image' : MEDIAGALLERY_TYPE_IMAGE;
         } else if (file_mimetype_in_typegroup($mimetype, 'web_audio')) {
             return $text ? 'audio' : MEDIAGALLERY_TYPE_AUDIO;
-        } else if (file_mimetype_in_typegroup($mimetype, 'web_video')) {
+        } else if (file_mimetype_in_typegroup($mimetype, $videogroups)) {
             return $text ? 'video' : MEDIAGALLERY_TYPE_VIDEO;
+        }
+
+        $texttotype = array(
+            'audio' => MEDIAGALLERY_TYPE_AUDIO,
+            'image' => MEDIAGALLERY_TYPE_IMAGE,
+            'video' => MEDIAGALLERY_TYPE_VIDEO,
+        );
+
+
+        if ($mimetype == 'document/unknown' && !empty($this->objectid)) {
+            $ref = $this->file->get_reference_details();
+            if (isset($ref->type) && in_array($ref->type, array('audio', 'image', 'video'))) {
+                return $text ? $ref->type : $texttotype[$ref->type];
+            }
         }
 
         return null;
@@ -754,8 +851,31 @@ class item extends base {
                     WHERE id = :galleryid";
             $DB->execute($sql, array('item' => $this->record->id, 'galleryid' => $this->record->galleryid));
         }
+        if (!$this->is_thebox_creator_or_agent()) {
+            $data->nosync = true;
+        }
         return parent::update($data);
     }
 
+    public function user_can_edit($userid = null) {
+        global $USER;
 
+        if (empty($this->objectid)) {
+            return true;
+        }
+
+        $username = $USER->username;
+        if (!is_null($userid)) {
+            $username = $DB->get_field('user', 'username', array('id' => $userid));
+        }
+
+        return $this->is_thebox_creator_or_agent();
+    }
+
+    public function thebox_processed() {
+        if (!empty($this->objectid) && $this->processing_status == 'complete') {
+            return true;
+        }
+        return false;
+    }
 }

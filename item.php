@@ -25,6 +25,7 @@ require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/item_form.php');
 require_once(dirname(__FILE__).'/item_bulk_form.php');
 require_once(dirname(__FILE__).'/locallib.php');
+require_once($CFG->dirroot.'/repository/lib.php');
 
 $g = optional_param('g', 0, PARAM_INT); // The gallery id.
 $i = optional_param('i', 0, PARAM_INT); // An item id.
@@ -57,6 +58,7 @@ $PAGE->set_url($pageurl);
 $PAGE->set_title(format_string($mediagallery->name));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($context);
+$PAGE->add_body_class('mediagallery-mode-'.$gallery->mode);
 
 if ($gallery) {
     $pageurl = new moodle_url('/mod/mediagallery/view.php', array('g' => $g));
@@ -72,12 +74,16 @@ if ($gallery) {
 $fmoptions = mediagallery_filepicker_options($gallery);
 
 $formclass = $bulk ? 'mod_mediagallery_item_bulk_form' : 'mod_mediagallery_item_form';
-$mform = new $formclass(null, array('gallery' => $gallery, 'firstitem' => !$gallery->has_items()));
+$tags = \mod_mediagallery\item::get_tags_possible();
+$mform = new $formclass(null,
+    array('gallery' => $gallery, 'firstitem' => !$gallery->has_items(), 'tags' => $tags, 'item' => $item));
+
+$fs = get_file_storage();
+
 if ($mform->is_cancelled()) {
     redirect(new moodle_url('/mod/mediagallery/view.php', array('g' => $gallery->id, 'editing' => 1)));
 } else if ($data = $mform->get_data()) {
     if ($bulk) {
-        $fs = get_file_storage();
         $draftid = file_get_submitted_draft_itemid('content');
         $files = $fs->get_area_files(context_user::instance($USER->id)->id, 'user', 'draft', $draftid, 'id DESC', false);
         $storedfile = reset($files);
@@ -93,20 +99,34 @@ if ($mform->is_cancelled()) {
             $item = \mod_mediagallery\item::create($data);
         }
 
-        $info = file_get_draft_area_info($data->content);
-        file_save_draft_area_files($data->content, $context->id, 'mod_mediagallery', 'item', $item->id, $fmoptions);
+        if (!empty($data->content)) {
+            $info = file_get_draft_area_info($data->content);
+            file_save_draft_area_files($data->content, $context->id, 'mod_mediagallery', 'item', $item->id, $fmoptions);
 
-        $storedfile = null;
-        if ($gallery->gallerytype != MEDIAGALLERY_TYPE_IMAGE) {
-            $draftid = file_get_submitted_draft_itemid('customthumbnail');
-            $fs = get_file_storage();
-            if ($files = $fs->get_area_files(
-                context_user::instance($USER->id)->id, 'user', 'draft', $draftid, 'id DESC', false)) {
-                $storedfile = reset($files);
+            $storedfile = null;
+            if ($gallery->galleryfocus != MEDIAGALLERY_TYPE_IMAGE && $gallery->mode != 'thebox') {
+                $draftid = file_get_submitted_draft_itemid('customthumbnail');
+                if ($files = $fs->get_area_files(
+                    context_user::instance($USER->id)->id, 'user', 'draft', $draftid, 'id DESC', false)) {
+                    $storedfile = reset($files);
+                }
             }
+            if ($gallery->mode != 'thebox') {
+                $item->generate_image_by_type('lowres', false, $storedfile);
+                $item->generate_image_by_type('thumbnail', false, $storedfile);
+            }
+            $params = array(
+                'context' => $context,
+                'objectid' => $item->id,
+                'other' => array(
+                    'copyright_id' => $data->copyright_id,
+                    'theme_id' => $data->theme_id,
+                ),
+            );
+            $event = \mod_mediagallery\event\item_updated::create($params);
+            $event->add_record_snapshot('mediagallery_item', $item->get_record());
+            $event->trigger();
         }
-        $item->generate_image_by_type('lowres', false, $storedfile);
-        $item->generate_image_by_type('thumbnail', false, $storedfile);
     }
 
     redirect(new moodle_url('/mod/mediagallery/view.php', array('g' => $gallery->id, 'editing' => 1)));
@@ -116,7 +136,7 @@ if ($mform->is_cancelled()) {
     $draftitemid = file_get_submitted_draft_itemid('content');
     file_prepare_draft_area($draftitemid, $context->id, 'mod_mediagallery', 'item', $data->id);
 
-    if ($gallery->gallerytype == MEDIAGALLERY_TYPE_AUDIO) {
+    if ($gallery->galleryfocus == MEDIAGALLERY_TYPE_AUDIO) {
         $draftitemidthumb = file_get_submitted_draft_itemid('customthumbnail');
         $data->customthumbnail = $draftitemidthumb;
     }
@@ -131,6 +151,7 @@ if ($mform->is_cancelled()) {
                            'format' => editors_get_preferred_format(),
                            'itemid' => $draftideditor);
 
+    $data->tags = $item->get_tags();
     $mform->set_data($data);
 }
 

@@ -16,6 +16,8 @@
 
 namespace mod_mediagallery;
 
+require_once(dirname(__FILE__).'/../locallib.php');
+
 class gallery extends base {
 
     protected $collection = null;
@@ -78,20 +80,31 @@ class gallery extends base {
     }
 
     public static function create(\stdClass $data) {
+        if ($data->mode == 'youtube') {
+            $data->galleryfocus = MEDIAGALLERY_TYPE_VIDEO;
+        }
+        if (empty($data->groupid)) {
+            $data->groupid = 0;
+        }
         $result = parent::create($data);
 
         $params = array(
             'context' => $result->get_collection()->context,
             'objectid' => $result->id,
         );
-        $event = \mod_mediagallery\event\gallery_created::create($params);
-        $event->add_record_snapshot('mediagallery_gallery', $result->get_record());
-        $event->trigger();
+        if (!empty($data->nosync)) {
+            $params['other']['nosync'] = true;
+        }
+        if (empty($data->noevent)) {
+            $event = \mod_mediagallery\event\gallery_created::create($params);
+            $event->add_record_snapshot('mediagallery_gallery', $result->get_record());
+            $event->trigger();
+        }
 
         return $result;
     }
 
-    public function delete() {
+    public function delete($options = array()) {
         global $DB;
 
         $coll = $this->get_collection();
@@ -100,6 +113,9 @@ class gallery extends base {
             'context' => $coll->context,
             'objectid' => $this->id,
         );
+        if (!empty($options['nosync'])) {
+            $params['other']['nosync'] = true;
+        }
         $event = \mod_mediagallery\event\gallery_deleted::create($params);
         $event->add_record_snapshot('mediagallery_gallery', $this->record);
         $event->trigger();
@@ -161,6 +177,32 @@ class gallery extends base {
         return $this->get_collection()->context;
     }
 
+    /**
+     * If the parent collection forces settings, return those. Otherwise instance settings.
+     *
+     * @return object
+     */
+    public function get_display_settings() {
+        $settings = new \stdClass();
+        $settings->galleryfocus = $this->galleryfocus;
+        $settings->gridcolumns = $this->gridcolumns;
+        $settings->gridrows = $this->gridrows;
+        $settings->galleryview = $this->galleryview;
+
+        $coll = $this->get_collection();
+        if ($coll->enforcedefaults) {
+            $settings->galleryfocus = $coll->galleryfocus;
+            $settings->gridcolumns = $coll->gridcolumns;
+            $settings->gridrows = $coll->gridrows;
+            if ($coll->grid && !$coll->carousel) {
+                $settings->galleryview = MEDIAGALLERY_VIEW_GRID;
+            } else if (!$coll->grid && $coll->carousel) {
+                $settings->galleryview = MEDIAGALLERY_VIEW_CAROUSEL;
+            }
+        }
+        return $settings;
+    }
+
     public function get_items() {
         global $DB;
 
@@ -213,10 +255,15 @@ class gallery extends base {
      * @return array List of items requested.
      */
     public function get_items_by_type($matching = true) {
+        $currentfocus = $this->type();
+        if (isset($this->options['focus']) && !is_null($this->options['focus'])) {
+            $currentfocus = $this->options['focus'];
+        }
+
         $list = array();
         foreach ($this->get_items() as $item) {
             $matches = false;
-            if ($item->type() == $this->gallerytype) {
+            if ($item->type() === $currentfocus) {
                 $matches = true;
             }
             if (($matching && $matches) || (!$matching && !$matches)) {
@@ -244,11 +291,24 @@ class gallery extends base {
      *  Gets the thumbnail src path for this gallery, if any.
      */
     public function get_thumbnail() {
-        global $DB;
-        if (empty($this->record->thumbnail)) {
-            return null;
+        global $DB, $OUTPUT;
+        $record = false;
+        if (empty($this->record->thumbnail) || (!$record = $DB->get_record('mediagallery_item', array('id' => $this->record->thumbnail)))) {
+            // The thumbnail item got deleted, pick the first item as the new thumbnail.
+            $items = $this->get_items();
+            if (empty($items)) {
+                $thumbid = 0;
+            } else {
+                $thumbnail = current($items);
+                $record = $thumbnail->get_record();
+                $thumbid = $record->id;
+            }
+            if ($this->record->thumbnail != $thumbid) {
+                $DB->set_field('mediagallery_gallery', 'thumbnail', $thumbid, array('id' => $this->id));
+            }
         }
-        if (!$record = $DB->get_record('mediagallery_item', array('id' => $this->record->thumbnail))) {
+        if (!$record) {
+            return $OUTPUT->pix_url('galleryicon', 'mediagallery')->out(false);
             return null;
         }
         $item = new item($record, array('gallery' => $this));
@@ -272,6 +332,10 @@ class gallery extends base {
         return !empty($submitted[$this->record->id]);
     }
 
+    public function sync($forcesync = false) {
+        return;
+    }
+
     public function update_sortorder($data) {
         global $DB;
         $flipped = array_flip($data);
@@ -290,17 +354,18 @@ class gallery extends base {
     }
 
     /**
-     * Returns what gallery type this falls into (image, audio, video).
+     * Returns what the focus of this gallery this falls into (image, audio, video).
      * @param bool $text If the function returns the internal or text representation of the item type.
      * @return int|null Returns the MEDIAGALLERY_TYPE_* that most closely matches the content. Otherwise null.
      */
     public function type($text = false) {
-        if ($this->gallerytype == MEDIAGALLERY_TYPE_IMAGE) {
-            return $text ? 'image' : MEDIAGALLERY_TYPE_IMAGE;
-        } else if ($this->gallerytype == MEDIAGALLERY_TYPE_AUDIO) {
-            return $text ? 'audio' : MEDIAGALLERY_TYPE_AUDIO;
-        } else if ($this->gallerytype == MEDIAGALLERY_TYPE_VIDEO) {
+        $view = $this->get_display_settings();
+        if ($this->mode == 'youtube' || $view->galleryfocus == MEDIAGALLERY_TYPE_VIDEO) {
             return $text ? 'video' : MEDIAGALLERY_TYPE_VIDEO;
+        } else if ($view->galleryfocus == MEDIAGALLERY_TYPE_IMAGE) {
+            return $text ? 'image' : MEDIAGALLERY_TYPE_IMAGE;
+        } else if ($view->galleryfocus == MEDIAGALLERY_TYPE_AUDIO) {
+            return $text ? 'audio' : MEDIAGALLERY_TYPE_AUDIO;
         }
 
         return null;
@@ -338,6 +403,10 @@ class gallery extends base {
             if (isset($groups[$this->record->groupid])) {
                 return true;
             }
+        }
+
+        if ($this->mode == 'thebox' && $this->is_thebox_creator_or_agent()) {
+            return true;
         }
 
         return false;
@@ -381,6 +450,16 @@ class gallery extends base {
             }
             return true;
         }
+
+        if (has_capability('mod/mediagallery:viewall', $coll->context)) {
+            return true;
+        }
+
+        // If in assignment mode, and above checks show this belongs to another user/group, then no access.
+        if ($coll->colltype == 'assignment') {
+            return false;
+        }
+
         if (!empty($this->record->visibleother) && !has_capability('mod/mediagallery:viewall', $coll->context)) {
             if (time() < $this->record->visibleother) {
                 return false;
@@ -388,7 +467,8 @@ class gallery extends base {
             return true;
         }
 
-        if (has_capability('mod/mediagallery:viewall', $coll->context)) {
+        // Now that specific vis checks are done and colltype isn't assignment...
+        if ($coll->colltype != 'assignment') {
             return true;
         }
 

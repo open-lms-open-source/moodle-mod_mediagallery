@@ -17,6 +17,31 @@
 namespace mod_mediagallery;
 
 class imagehelper {
+
+    /**
+     * Rough estimate to check if an image will fit in memory for resizing.
+     * We need to check before loading it, otherwise we get a fatal error.
+     *
+     * @param string $path Path to the file.
+     * @static
+     * @access public
+     * @return bool true if there's enough memory to load the image, false otherwise.
+     */
+    public static function memory_check($path) {
+        $limit = @ini_get('memory_limit');
+        $limit = get_real_size($limit);
+        $current = memory_get_usage();
+
+        list($x, $y) = @getimagesize($path);
+        $need = $x * $y * 3 * 1.7; // Bytes needed when uncompressed.
+
+        if ($need < $limit - $current) {
+            return true;
+        }
+
+        return false;
+    }
+
     public static function mirror($image) {
         $width = imagesx($image);
         $height = imagesy($image);

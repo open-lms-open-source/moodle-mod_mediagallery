@@ -16,6 +16,8 @@ Y.extend(MEDIABOX, Y.Base, {
         this._videowidth = 640;
         this._videoheight = 390;
         this._fullscreenavail = screenfull.enabled && !Y.one('body').hasClass('ui-mobile-viewport');
+        this._loadingimage = Y.Node.create('<img/>').setAttribute('src', M.util.image_url('loading', 'mod_mediagallery'));
+
     },
 
     build : function() {
@@ -36,9 +38,12 @@ Y.extend(MEDIABOX, Y.Base, {
         actions += '<img class="mbclose" src="'+M.util.image_url('close', 'mod_mediagallery')+'" title="'+strclose+'" alt="'+strclose+'"/>';
 
         var template = '<div id="mediabox"><div id="mediabox-content-wrap"><div id="mediabox-content"></div></div>';
-        template += '<div id="mediabox-sidebar"><div id="mediabox-sidebar-actions">'+actions+'</div>';
+        template += '<div id="mediabox-sidebar">';
         template += '<div id="mediabox-metainfo"></div><hr/><div id="mediabox-social"></div><hr/><div id="mediabox-comments"></div>';
-        template += '</div><div id="mediabox-navbar"><div id="mediabox-navbar-container"></div></div></div><div id="mediabox-overlay"></div>';
+        template += '</div>';
+        template += '<div id="mediabox-sidebar-actions">'+actions+'</div>';
+        template += '<div id="mediabox-navbar"><div id="mediabox-navbar-container"></div></div></div>';
+        template += '<div id="mediabox-overlay"></div>';
         Y.Node.create(template).appendTo('body');
         this.overlay = Y.one('#mediabox-overlay');
         this.mediabox = Y.one('#mediabox');
@@ -178,6 +183,7 @@ Y.extend(MEDIABOX, Y.Base, {
         var content = Y.one('#mediabox-content');
         var player = this.album[itemnumber].getAttribute('data-player');
         var type = this.album[itemnumber].getAttribute('data-type');
+        var objectid = this.album[itemnumber].getAttribute('data-objectid');
         content.empty();
 
         var current = null;
@@ -189,7 +195,11 @@ Y.extend(MEDIABOX, Y.Base, {
         var image = new Image();
 
         // Player type 2 is for videos. We don't need images for those.
-        if (player !== "2" && type !== 'external') {
+        if (player !== "2" && type !== 'youtube') {
+            // Placeholder image while loading.
+            content.prepend(this._loadingimage);
+            _this.repositionitem(image.width, image.height);
+            // Rendering of new image.
             image.onload = function() {
                 var item = Y.Node.create('<img/>');
                 item.setAttribute('src', _this.album[itemnumber].getAttribute('href'));
@@ -274,7 +284,7 @@ Y.extend(MEDIABOX, Y.Base, {
         }
 
         // YouTube embed.
-        if (this.currentitem.getAttribute('data-type') === 'external') {
+        if (this.currentitem.getAttribute('data-type') === 'youtube') {
             content.empty();
 
             Y.Node.create('<iframe id="mediabox-youtube" type="text/html" width="'+this._videowidth+'" height="'+this._videoheight+'" src="'+this.currentitem.getAttribute('data-url') +'" frameborder="0">').appendTo(content);
@@ -297,11 +307,10 @@ Y.extend(MEDIABOX, Y.Base, {
             on: {
                 success : function (id, response) {
                     var resp = JSON.parse(response.responseText);
+                    Y.one('#mediabox-content').setHTML(resp.html);
                     if (resp.type === 'audio') {
-                        Y.one('#mediabox-content').append(resp.html);
                         M.util.add_audio_player(resp.id, resp.url, false);
-                    } else {
-                        Y.one('#mediabox-content').setHTML(resp.html);
+                    } else if (resp.objectid == '') {
                         M.util.add_video_player(resp.id, resp.url, false);
                     }
                     M.mod_mediagallery.base.load_flowplayer();
@@ -363,8 +372,14 @@ Y.extend(MEDIABOX, Y.Base, {
         var offsetTop, offsetLeft, newwidth, newheight;
         var content = Y.one('#mediabox-content');
         var innercontent = content.get('children').get(0)[0];
+        var dataplayer = 1;
+        var datatype = '';
+        if (this.currentitem !== null) {
+            dataplayer = this.currentitem.getAttribute('data-player');
+            datatype = this.currentitem.getAttribute('data-type');
+        }
 
-        if (this.currentitem.getAttribute('data-player') === "2" || this.currentitem.getAttribute('data-type') === 'external') {
+        if (dataplayer === "2" || datatype === 'youtube') {
             // Flowplayer gets special treatment.
             if (content.one('.mediaplugin.flow')) {
                 width = this._videowidth;
@@ -373,7 +388,7 @@ Y.extend(MEDIABOX, Y.Base, {
                 width = innercontent.get('offsetWidth');
                 height = innercontent.get('offsetHeight');
             }
-        } else if (this.currentitem.getAttribute('data-player') === "0") {
+        } else if (dataplayer === "0") {
             width = this._audiowidth;
             height = this._audioheight;
         } else if (width === undefined) {
@@ -409,7 +424,7 @@ Y.extend(MEDIABOX, Y.Base, {
         }
         innercontent.setStyle('width', newwidth);
         innercontent.setStyle('height', newheight);
-        if (this.currentitem.getAttribute('data-player') === "0") {
+        if (dataplayer === "0") {
             if (content.one('.mediaplugin object')) {
                 content.one('.mediaplugin object').setStyle('width', newwidth);
             }

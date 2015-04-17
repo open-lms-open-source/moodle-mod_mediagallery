@@ -30,18 +30,20 @@ class collection extends base {
     protected $record;
     protected $submitted = null;
     static protected $table = 'mediagallery';
+    private $deleted = false;
 
     public function __construct($recordorid, $options = array()) {
         global $USER;
 
         parent::__construct($recordorid, $options);
         $this->cm = get_coursemodule_from_instance('mediagallery', $this->record->id);
-        $this->context = \context_module::instance($this->cm->id);
-        $this->gallerytypes = explode(',', $this->gallerytype);
 
-        $this->options['currentgroup'] = groups_get_activity_group($this->cm, true);
-        $this->options['groupmode'] = groups_get_activity_groupmode($this->cm);
-        $this->options['groups'] = groups_get_all_groups($this->cm->course, $USER->id, $this->cm->groupingid);
+        if (!empty($this->cm)) {
+            $this->context = \context_module::instance($this->cm->id);
+            $this->options['currentgroup'] = groups_get_activity_group($this->cm, true);
+            $this->options['groupmode'] = groups_get_activity_groupmode($this->cm);
+            $this->options['groups'] = groups_get_all_groups($this->cm->course, $USER->id, $this->cm->groupingid);
+        }
     }
 
     /**
@@ -50,8 +52,56 @@ class collection extends base {
     public static function create(\stdClass $data) {
         global $DB, $USER;
 
+        if (!isset($data->userid)) {
+            $data->userid = $USER->id;
+        }
+
         $data->id = mediagallery_add_instance($data);
         return new collection($data);
+    }
+
+    public function delete($options = array()) {
+        global $DB;
+
+        $params = array(
+            'context' => $this->get_context(),
+            'objectid' => $this->id,
+            'other' => array(
+                'modulename' => 'mediagallery',
+                'instanceid' => $this->id,
+            ),
+        );
+        if (!empty($options['nosync'])) {
+            $params['other']['nosync'] = true;
+        }
+
+        $sql = "DELETE FROM {mediagallery_userfeedback}
+                WHERE itemid IN (
+                    SELECT i.id
+                    FROM {mediagallery_item} i
+                    JOIN {mediagallery_gallery} g ON g.id = i.galleryid
+                    WHERE g.instanceid = ?
+                )";
+        $DB->execute($sql, array($this->id));
+
+        // We trigger this early so observers can handle external deletion.
+        if (!empty($params['context'])) {
+            $event = \mod_mediagallery\event\collection_deleted::create($params);
+            $event->add_record_snapshot(static::$table, $this->get_record());
+            $event->trigger();
+        }
+
+        $sql = "DELETE FROM {mediagallery_item}
+                WHERE galleryid IN (
+                    SELECT id
+                    FROM {mediagallery_gallery}
+                    WHERE instanceid = ?
+                )";
+        $DB->execute($sql, array($this->id));
+        $DB->delete_records('mediagallery_gallery', array('instanceid' => $this->id));
+        $DB->delete_records('mediagallery', array('id' => $this->id));
+
+        return true;
     }
 
     public function get_context() {
@@ -177,11 +227,35 @@ class collection extends base {
         return $galleries;
     }
 
+    /**
+     * Get a list of all the gallery's associated with this collection.
+     *
+     * @access public
+     * @param $filterbymode mixed If this is a non-empty string, only galleries of the specified mode are returned.
+     * @return array of gallery objects
+     */
+    public function get_galleries($filterbymode = false) {
+        global $DB;
+
+        $list = array();
+        $params = array('instanceid' => $this->record->id);
+        if ($filterbymode) {
+            $params['mode'] = $filterbymode;
+        }
+        $records = $DB->get_records('mediagallery_gallery', $params);
+        foreach ($records as $record) {
+            $list[$record->id] = new gallery($record, array('collection' => $this));
+        }
+        return $list;
+    }
+
     public static function get_public_galleries_by_contextid($contextid, $prefix = true) {
         global $DB;
 
         $context = \context::instance_by_id($contextid);
-        $coursecontext = $context->get_course_context();
+        if (!$coursecontext = $context->get_course_context(false)) {
+            return array();
+        }
         $course = $DB->get_record('course', array('id' => $coursecontext->instanceid), '*', MUST_EXIST);
 
         $collections = get_all_instances_in_course('mediagallery', $course);
@@ -216,13 +290,19 @@ class collection extends base {
         global $DB;
 
         $context = \context::instance_by_id($contextid);
-        $coursecontext = $context->get_course_context();
+        if (!$coursecontext = $context->get_course_context(false)) {
+            return array();
+        }
         $course = $DB->get_record('course', array('id' => $coursecontext->instanceid), '*', MUST_EXIST);
 
         $collections = get_all_instances_in_course('mediagallery', $course);
 
         $collids = array();
+        $theboxenabled = false;
         foreach ($collections as $collection) {
+            if (!$theboxenabled && $collection->mode == 'thebox') {
+                continue;
+            }
             $collids[] = $collection->id;
         }
 
@@ -231,11 +311,17 @@ class collection extends base {
         }
 
         list($insql, $params) = $DB->get_in_or_equal($collids, SQL_PARAMS_NAMED);
+        // If theBox is removed, or set to hidden, don't display theBox content.
+        $select = '';
+        $repos = \core\plugininfo\repository::get_enabled_plugins();
+        if (!isset($repos['thebox']) || !$theboxenabled) {
+            $select .= " AND g.mode != 'thebox'";
+        }
         $sql = "SELECT g.*,
                 ".$DB->sql_concat('mg.name', "' > '", 'g.name')." AS label
                 FROM {mediagallery_gallery} g
                 JOIN {mediagallery} mg on (mg.id = g.instanceid)
-                WHERE instanceid $insql";
+                WHERE instanceid $insql $select";
         $list = array();
         foreach ($DB->get_records_sql($sql, $params) as $record) {
             $gallery = new gallery($record);
@@ -260,6 +346,11 @@ class collection extends base {
             return false;
         }
 
+        // If the user doesn't have the manage cap, then instructor mode means they can't edit.
+        if ($this->record->colltype == 'instructor') {
+            return true;
+        }
+
         $from = $this->record->readonlyfrom;
         $till = $this->record->readonlyto;
         $now = time();
@@ -272,6 +363,59 @@ class collection extends base {
         if ($till > $now && $from == 0) {
             return true;
         }
+        return false;
+    }
+
+    public function was_deleted() {
+        return $this->deleted;
+    }
+
+    public function sync($forcesync = false) {
+        return;
+    }
+
+    /**
+     * Retrieve the userid of the collection creator from the log tables
+     *
+     * This function is used to update the new userid field during module
+     * upgrade.
+     *
+     * @param int $collectionid
+     * @param int $courseid
+     * @access public
+     * @return mixed bool|int   Returns the userid of the creator, or false if
+     * not found.
+     */
+    public function get_userid_from_logs() {
+        global $DB;
+        // Look in logs for the course module creation event.
+        // Odds are creation was before 2.7. So we check there first.
+
+        if (empty($this->cm)) {
+            return false;
+        }
+
+        $params = array(
+            'course' => $this->course,
+            'module' => 'mediagallery',
+            'action' => 'add',
+            'cmid' => $this->cm->id,
+        );
+        if ($legacylog = $DB->get_record('log', $params, 'id, userid', IGNORE_MULTIPLE)) {
+            return $legacylog->userid;
+        }
+
+        // It wasn't in the legacy log table, check the new logstore.
+        $params = array(
+            'courseid' => $this->course,
+            'eventname' => '\core\event\course_module_created',
+            'contextinstanceid' => $this->cm->id,
+            'contextlevel' => CONTEXT_MODULE,
+        );
+        if ($standardlog = $DB->get_record('logstore_standard_log', $params, 'id, userid', IGNORE_MULTIPLE)) {
+            return $standardlog->userid;
+        }
+
         return false;
     }
 }

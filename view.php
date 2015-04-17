@@ -31,12 +31,16 @@ $id = optional_param('id', 0, PARAM_INT); // A course_module id.
 $m  = optional_param('m', 0, PARAM_INT); // A mediagallery id.
 $g = optional_param('g', 0, PARAM_INT); // A mediagallery_gallery id.
 $page = optional_param('page', 0, PARAM_INT);
+$focus = optional_param('focus', null, PARAM_INT);
 $editing = optional_param('editing', false, PARAM_BOOL);
+$forcesync = optional_param('sync', false, PARAM_BOOL);
 $viewcontrols = 'gallery';
 $gallery = false;
 
 if ($g) {
-    $gallery = new \mod_mediagallery\gallery($g);
+    $options = array('focus' => $focus);
+    $gallery = new \mod_mediagallery\gallery($g, $options);
+    $gallery->sync($forcesync);
     $m = $gallery->instanceid;
     $viewcontrols = 'item';
     $mediagallery = $gallery->get_collection();
@@ -54,6 +58,24 @@ if ($g) {
     print_error('missingparameter');
 }
 
+$context = context_module::instance($cm->id);
+
+// Request update from theBox (does nothing if synced within the past hour).
+if (!$gallery) {
+    $mediagallery->sync($forcesync);
+}
+if ($mediagallery->was_deleted()) {
+    $coursecontext = $context->get_course_context();
+    $pageurl = new moodle_url('/mod/mediagallery/view.php');
+    $PAGE->set_context($coursecontext);
+    $PAGE->set_pagelayout('incourse');
+    $PAGE->set_url($pageurl);
+    echo $OUTPUT->header();
+    echo $OUTPUT->notification(get_string('collectionwasdeleted', 'mediagallery'));
+    echo $OUTPUT->footer();
+    exit;
+}
+
 $canedit = $gallery && $gallery->user_can_edit();
 
 if ($mediagallery->is_read_only() || !$canedit) {
@@ -61,8 +83,6 @@ if ($mediagallery->is_read_only() || !$canedit) {
 }
 
 require_login($course, true, $cm);
-$context = context_module::instance($cm->id);
-$PAGE->set_context($context);
 
 if ($gallery) {
     $pageurl = new moodle_url('/mod/mediagallery/view.php', array('g' => $g, 'page' => $page));
@@ -71,24 +91,33 @@ if ($gallery) {
     if (empty($navnode)) {
         $navnode = $PAGE->navbar;
     }
-    $node = $navnode->add(format_string($gallery->name), $pageurl);
+    $navurl = clone $pageurl;
+    $node = $navnode->add(format_string($gallery->name), $navurl);
     $node->make_active();
+
+    if ($editing) {
+        $pageurl->param('editing', true);
+    }
 } else {
     $pageurl = new moodle_url('/mod/mediagallery/view.php', array('id' => $cm->id));
 }
 
+$collmode = !empty($mediagallery->objectid) ? 'thebox' : 'standard';
 $jsoptions = new stdClass();
+$jsoptions->mode = $collmode;
 if ($gallery) {
     $jsoptions->enablecomments = $gallery->can_comment();
     $jsoptions->enablelikes = $gallery->can_like();
+    $jsoptions->mode = $gallery->mode;
 }
 
+$PAGE->set_context($context);
 $PAGE->set_url($pageurl);
 $PAGE->set_title(format_string($mediagallery->name));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->requires->js('/mod/mediagallery/js/screenfull.min.js');
 $PAGE->requires->yui_module('moodle-mod_mediagallery-base', 'M.mod_mediagallery.base.init',
-    array($mediagallery->id, $viewcontrols, $editing, $g, $jsoptions));
+    array($course->id, $mediagallery->id, $viewcontrols, $editing, $g, $jsoptions));
 
 $mediaboxparams = array(
     'metainfouri' => $CFG->wwwroot.'/mod/mediagallery/rest.php',
@@ -110,10 +139,16 @@ $jsstrs = array('confirmgallerydelete', 'confirmitemdelete', 'deletegallery',
     'addsamplegallery', 'mediagallery', 'information', 'caption',
     'moralrights', 'originalauthor', 'productiondate', 'medium', 'collection',
     'publisher', 'galleryname', 'creator', 'filename', 'filesize', 'datecreated',
-    'viewfullsize', 'you', 'togglesidebar', 'close', 'togglefullscreen');
+    'viewfullsize', 'you', 'togglesidebar', 'close', 'togglefullscreen', 'tags',
+    'reference', 'broadcaster', 'confirmcollectiondelete',
+    'deleteorremovecollection', 'deleteorremovecollectionwarn',
+    'deleteorremovegallery', 'deleteorremovegallerywarn',
+    'deleteorremoveitem', 'deleteorremoveitemwarn',
+    'removecollectionconfirm', 'removegalleryconfirm', 'removeitemconfirm',
+    'youmusttypedelete', 'copyright');
 $PAGE->requires->strings_for_js($jsstrs, 'mod_mediagallery');
 $PAGE->requires->strings_for_js(array(
-    'move', 'add', 'description', 'no', 'yes', 'group', 'fullnameuser', 'username', 'next', 'previous'
+    'move', 'add', 'description', 'no', 'yes', 'group', 'fullnameuser', 'username', 'next', 'previous', 'submit',
 ), 'moodle');
 
 if ($gallery && $canedit) {
@@ -149,12 +184,11 @@ if (!$gallery) {
     echo $output->gallery_list_page($mediagallery, $galleries);
 
     if (!$mediagallery->is_read_only()) {
+        $maxreached = false;
         if ($mediagallery->maxgalleries == 0 || count($mediagallery->get_my_galleries()) < $mediagallery->maxgalleries) {
-            echo html_writer::link(new moodle_url('/mod/mediagallery/gallery.php', array('m' => $mediagallery->id)),
-                get_string('addagallery', 'mediagallery'));
-        } else {
-            echo html_writer::span(get_string('maxgalleriesreached', 'mediagallery'));
+            $maxreached = true;
         }
+        echo $output->collection_editing_actions($mediagallery, $maxreached);
     }
 } else {
     $params = array(
@@ -180,6 +214,7 @@ if (!$gallery) {
             comment::init();
         }
         $options['page'] = $page;
+        $options['focus'] = $focus;
         echo $output->gallery_page($gallery, $editing, $options);
     } else {
         print_error('nopermissions', 'error', $pageurl, 'view gallery');

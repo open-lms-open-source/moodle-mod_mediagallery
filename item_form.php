@@ -27,6 +27,9 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir.'/formslib.php');
 require_once($CFG->dirroot.'/mod/mediagallery/locallib.php');
+require_once($CFG->dirroot.'/mod/mediagallery/classes/quickform/limitedurl.php');
+require_once($CFG->dirroot.'/mod/mediagallery/classes/quickform/uploader.php');
+require_once($CFG->dirroot.'/mod/mediagallery/classes/quickform/uploader_standard.php');
 
 /**
  * Module instance settings form
@@ -41,6 +44,8 @@ class mod_mediagallery_item_form extends moodleform {
 
         $mform = $this->_form;
         $gallery = $this->_customdata['gallery'];
+        $tags = $this->_customdata['tags'];
+        $item = $this->_customdata['item'];
 
         // General settings.
         $mform->addElement('header', 'general', get_string('general', 'form'));
@@ -68,21 +73,42 @@ class mod_mediagallery_item_form extends moodleform {
 
         $mform->addElement('static', 'filecheck', '', get_string('choosecontent', 'mediagallery'));
 
-        $mform->addElement('filepicker', 'content', get_string('content', 'mediagallery'), '0',
-            mediagallery_filepicker_options($gallery));
-        $mform->addHelpButton('content', 'content', 'mediagallery');
+        if ($gallery->mode == 'standard') {
+            $mform->addElement('uploader_standard', 'content', get_string('content', 'mediagallery'), '0',
+                mediagallery_filepicker_options($gallery));
+            $mform->addHelpButton('content', 'content', 'mediagallery');
 
-        $mform->addElement('url', 'externalurl', get_string('externalurl', 'mediagallery'), array('size' => '60'),
-            array('usefilepicker' => true));
-        $mform->setType('externalurl', PARAM_TEXT);
-        $mform->addHelpButton('externalurl', 'externalurl', 'mediagallery');
-
-        if ($gallery->gallerytype != MEDIAGALLERY_TYPE_IMAGE) {
             $fpoptions = mediagallery_filepicker_options($gallery);
             $fpoptions['accepted_types'] = array('web_image');
             $fpoptions['return_types'] = FILE_INTERNAL;
             $mform->addElement('filepicker', 'customthumbnail', get_string('thumbnail', 'mediagallery'), '0', $fpoptions);
             $mform->addHelpButton('customthumbnail', 'thumbnail', 'mediagallery');
+        } else if ($gallery->mode == 'youtube') {
+            $mform->addElement('limitedurl', 'externalurl', get_string('youtubeurl', 'mediagallery'), array('size' => '60'),
+                array('usefilepicker' => true, 'repo' => 'youtube'));
+            $mform->setType('externalurl', PARAM_TEXT);
+            $mform->addHelpButton('externalurl', 'externalurl', 'mediagallery');
+        } else if ($gallery->mode == 'thebox') {
+            if (empty($item->objectid)) {
+                $mform->addElement('uploader', 'content', get_string('content', 'mediagallery'), '0',
+                    array('maxfiles' => 1, 'return_types' => FILE_REFERENCE, 'repo' => 'thebox'));
+                $mform->addHelpButton('content', 'content', 'mediagallery');
+            } else {
+                $mform->removeElement('filecheck');
+                $mform->addElement('static', 'contentlinked', get_string('content', 'mediagallery'),
+                    get_string('contentlinkedinfo', 'mediagallery', $item->get_file()->get_filename()));
+                $mform->addHelpButton('contentlinked', 'contentlinked', 'mediagallery');
+            }
+        }
+
+        $lockfields = $item && !$item->user_can_edit()? true : false;
+
+        mediagallery_add_tag_field($mform, $tags, false, !$lockfields);
+
+        if ($lockfields) {
+            $mform->hardFreeze('caption');
+            $mform->hardFreeze('description');
+            $mform->hardFreeze('tags');
         }
 
         // Advanced settings.
@@ -95,16 +121,32 @@ class mod_mediagallery_item_form extends moodleform {
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
 
+        $mform->addElement('hidden', 'source', 'moodle');
+        $mform->setType('source', PARAM_ALPHA);
+        $mform->hardFreeze('source');
+
+        $mform->addElement('hidden', 'extpath', '');
+        $mform->setType('extpath', PARAM_RAW);
+
+        $mform->addElement('hidden', 'theme_id', '');
+        $mform->setType('theme_id', PARAM_ALPHANUMEXT);
+
+        $mform->addElement('hidden', 'copyright_id', '');
+        $mform->setType('copyright_id', PARAM_ALPHANUMEXT);
+
+        $mform->addElement('hidden', 'objectid', '');
+        $mform->setType('objectid', PARAM_ALPHANUMEXT);
+
         $this->add_action_buttons();
     }
 
     public function validation($data, $files) {
         global $CFG;
         $errors = parent::validation($data, $files);
-        $info = file_get_draft_area_info($data['content']);
-        $url = trim($data['externalurl']);
+        $info = isset($data['content']) ? file_get_draft_area_info($data['content']) : array('filecount' => 0);
+        $url = isset($data['externalurl']) ? trim($data['externalurl']) : '';
 
-        if (empty($data['externalurl']) && $info['filecount'] == 0) {
+        if (empty($data['externalurl']) && $info['filecount'] == 0 && empty($data['objectid'])) {
             $errors['filecheck'] = get_string('required');
         } else if (!empty($url)) {
             if (preg_match('|^/|', $url)) {
