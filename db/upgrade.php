@@ -215,6 +215,29 @@ function xmldb_mediagallery_upgrade($oldversion) {
     }
 
     if ($oldversion < 2014111801) {
+        // Check these are added again - out of order version bumps means they
+        // might've been missed.
+        $table = new xmldb_table('mediagallery');
+        $field = new xmldb_field('objectid');
+        $field->set_attributes(XMLDB_TYPE_CHAR, '36', null, null, null, null, 'allowlikes');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $table = new xmldb_table('mediagallery_gallery');
+        $field = new xmldb_field('objectid');
+        $field->set_attributes(XMLDB_TYPE_CHAR, '36', null, null, null, null, 'thumbnail');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $table = new xmldb_table('mediagallery_item');
+        $field = new xmldb_field('objectid');
+        $field->set_attributes(XMLDB_TYPE_CHAR, '36', null, null, null, null, 'timecreated');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
         $table = new xmldb_table('mediagallery_gallery');
         $field = new xmldb_field('mode');
         $field->set_attributes(XMLDB_TYPE_CHAR, '10', null, XMLDB_NOTNULL, null, 'standard', 'objectid');
