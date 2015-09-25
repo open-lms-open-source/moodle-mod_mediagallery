@@ -69,9 +69,20 @@ class mod_mediagallery_mod_form extends moodleform_mod {
         $opts = array(
             'standard' => get_string('modestandard', 'mod_mediagallery'),
         );
-        $mform->addElement('select', 'mode', get_string('collmode', 'mod_mediagallery'), $opts);
-        $mform->addHelpButton('mode', 'collmode', 'mediagallery');
-        $mform->disabledIf('mode', 'instance', 'neq', '' );
+        if (!empty($config->disablestandardgallery) && (empty($this->_instance) || $this->current->mode == 'thebox')) {
+            unset($opts['standard']);
+        }
+
+        if (count($opts) == 1) {
+            $key = key($opts);
+            $mform->addElement('hidden', 'mode', $key);
+            $mform->setType('mode', PARAM_ALPHA);
+            $mform->hardFreeze('mode');
+        } else {
+            $mform->addElement('select', 'mode', get_string('collmode', 'mod_mediagallery'), $opts);
+            $mform->addHelpButton('mode', 'collmode', 'mediagallery');
+            $mform->disabledIf('mode', 'instance', 'neq', '' );
+        }
 
         $options = array(
             'instructor' => get_string('colltypeinstructor', 'mediagallery'),
@@ -96,6 +107,25 @@ class mod_mediagallery_mod_form extends moodleform_mod {
         $mform->addHelpButton('maxitems', 'maxitems', 'mediagallery');
         $mform->disabledIf('maxitems', 'colltype', 'eq', 'instructor');
 
+        $options = array(
+            0 => get_string('unlimited'),
+            '-1' => 0,
+            1 => 1,
+            2 => 2,
+            3 => 3,
+            4 => 4,
+            5 => 5,
+            6 => 6,
+            7 => 7,
+            8 => 8,
+            9 => 9,
+            10 => 10,
+            20 => 20,
+            30 => 30,
+            40 => 40,
+            50 => 50,
+            100 => 100,
+        );
         $mform->addElement('select', 'maxgalleries', get_string('maxgalleries', 'mediagallery'), $options);
         $mform->setType('maxgalleries', PARAM_INT);
         $mform->setDefault('maxgalleries', 1);
@@ -131,8 +161,8 @@ class mod_mediagallery_mod_form extends moodleform_mod {
         $mform->addElement('selectyesno', 'displayfullcaption', get_string('displayfullcaption', 'mediagallery'));
 
         $options = array(
-            MEDIAGALLERY_POS_BOTTOM => get_string('bottom', 'mediagallery'),
-            MEDIAGALLERY_POS_TOP => get_string('top', 'mediagallery'),
+            \mod_mediagallery\base::POS_BOTTOM => get_string('bottom', 'mediagallery'),
+            \mod_mediagallery\base::POS_TOP => get_string('top', 'mediagallery'),
         );
         $mform->addElement('select', 'captionposition', get_string('captionposition', 'mediagallery'), $options);
 
@@ -140,9 +170,10 @@ class mod_mediagallery_mod_form extends moodleform_mod {
         $mform->addElement('header', 'display', get_string('settingsgallery', 'mediagallery'));
 
         $typeoptgroup = array();
-        $typeoptgroup[] = $mform->createElement('radio', 'focus', '', get_string('typeimage', 'mediagallery'), MEDIAGALLERY_TYPE_IMAGE);
-        $typeoptgroup[] = $mform->createElement('radio', 'focus', '', get_string('typevideo', 'mediagallery'), MEDIAGALLERY_TYPE_VIDEO);
-        $typeoptgroup[] = $mform->createElement('radio', 'focus', '', get_string('typeaudio', 'mediagallery'), MEDIAGALLERY_TYPE_AUDIO);
+        $typeoptgroup[] = $mform->createElement('radio', 'focus', '', get_string('typeall', 'mediagallery'), \mod_mediagallery\base::TYPE_ALL);
+        $typeoptgroup[] = $mform->createElement('radio', 'focus', '', get_string('typeimage', 'mediagallery'), \mod_mediagallery\base::TYPE_IMAGE);
+        $typeoptgroup[] = $mform->createElement('radio', 'focus', '', get_string('typevideo', 'mediagallery'), \mod_mediagallery\base::TYPE_VIDEO);
+        $typeoptgroup[] = $mform->createElement('radio', 'focus', '', get_string('typeaudio', 'mediagallery'), \mod_mediagallery\base::TYPE_AUDIO);
         $mform->addGroup($typeoptgroup, 'gallerytypeoptions', get_string('galleryfocus', 'mediagallery'));
         $mform->addHelpButton('gallerytypeoptions', 'galleryfocus', 'mediagallery');
         $mform->addRule('gallerytypeoptions', null, 'required', null, 'client');
@@ -195,13 +226,16 @@ class mod_mediagallery_mod_form extends moodleform_mod {
         $toform['galleryviewoptions']['grid'] = isset($toform['grid']) ? $toform['grid'] : '';
 
         $toform['gallerytypeoptions'] = array();
-        $toform['gallerytypeoptions']['focus'] = isset($toform['galleryfocus']) ? $toform['galleryfocus'] : MEDIAGALLERY_TYPE_IMAGE;
+        $toform['gallerytypeoptions']['focus'] = isset($toform['galleryfocus']) ? $toform['galleryfocus'] : \mod_mediagallery\base::TYPE_IMAGE;
     }
 
     public function set_data($data) {
         if (!empty($data->id)) {
             $collection = new \mod_mediagallery\collection($data);
             $data->tags = $collection->get_tags();
+            if ($collection->count_galleries() && $collection->is_assessable()) {
+                $this->_form->hardFreeze('colltype');
+            }
         }
         parent::set_data($data);
     }

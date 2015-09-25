@@ -22,14 +22,14 @@ Y.extend(MEDIABOX, Y.Base, {
         var _this = this;
         var strnext = M.str.moodle.next;
         var strprev = M.str.moodle.previous;
-        var strviewfull = M.str.mod_mediagallery.viewfullsize;
+        var strdownload = M.util.get_string('download', 'mod_mediagallery');
         var strtoggle = M.str.mod_mediagallery.togglesidebar;
         var strfullscreen = M.str.mod_mediagallery.togglefullscreen;
         var strclose = M.str.mod_mediagallery.close;
         var actions = '<img class="sidebartoggle" src="'+M.util.image_url('toggle', 'mod_mediagallery')+'" title="'+strtoggle+'" alt="'+strtoggle+'"/>';
         actions += '<img class="prev" src="'+M.util.image_url('left', 'mod_mediagallery')+'" title="'+strprev+'" alt="'+strprev+'"/>';
         actions += '<img class="next" src="'+M.util.image_url('right', 'mod_mediagallery')+'" title="'+strnext+'" alt="'+strnext+'"/>';
-        actions += '<img class="open" src="'+M.util.image_url('download', 'mod_mediagallery')+'" title="'+strviewfull+'" alt="'+strviewfull+'"/>';
+        actions += '<img class="open" src="'+M.util.image_url('download', 'mod_mediagallery')+'" title="'+strdownload+'" alt="'+strdownload+'"/>';
         if (this._fullscreenavail) {
             actions += '<img class="fullscreen" src="'+M.util.image_url('fullscreen', 'mod_mediagallery')+'" title="'+strfullscreen+'" alt="'+strfullscreen+'"/>';
         }
@@ -154,7 +154,7 @@ Y.extend(MEDIABOX, Y.Base, {
         });
 
         Y.one('#mediabox-sidebar-actions .open').on('click', function() {
-            window.open(_this.album[_this.currentitemindex].getAttribute('data-url'), '_blank');
+            window.open(_this.album[_this.currentitemindex].getAttribute('data-url') + '?forcedownload=1', '_blank');
             return false;
         });
 
@@ -170,6 +170,8 @@ Y.extend(MEDIABOX, Y.Base, {
                 return false;
             });
         }
+
+        this.setup_info_toggle();
 
     },
 
@@ -481,6 +483,38 @@ Y.extend(MEDIABOX, Y.Base, {
             imgurl = M.util.image_url('fullscreenexit', 'mod_mediagallery');
         }
         Y.one('#mediabox-sidebar-actions .fullscreen').setAttribute('src', imgurl);
+    },
+
+    setup_info_toggle : function() {
+        var title = M.util.get_string('mediainformation', 'mod_mediagallery');
+        var collapsed = M.util.image_url('t/collapsed', 'moodle');
+        var expanded = M.util.image_url('t/expanded', 'moodle');
+
+        var imagenode = Y.Node.create('<img title="'+title+'"/>');
+        imagenode.setAttribute('src', collapsed);
+
+        var node = Y.Node.create('<a href="#" class="toggle">'+title+'</a>');
+        node.prepend(imagenode);
+
+        var container = Y.Node.create('<div class="metainfo-toggle"></div>');
+        container.prepend(node);
+        Y.one('#mediabox-sidebar').insertBefore(container, Y.one('#mediabox-metainfo'));
+
+        var metainfo = Y.one('#mediabox-metainfo');
+        metainfo.toggleView();
+
+        Y.delegate('click', function(e) {
+            e.preventDefault();
+            var ishidden = metainfo.getAttribute('hidden') === 'hidden';
+
+            if (ishidden) {
+                imagenode.setAttribute('src', expanded);
+            } else {
+                imagenode.setAttribute('src', collapsed);
+            }
+            metainfo.toggleView();
+
+        }, '#mediabox', '#mediabox-sidebar .metainfo-toggle a.toggle');
     },
 
     stop : function() {

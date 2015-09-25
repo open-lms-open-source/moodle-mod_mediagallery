@@ -62,12 +62,12 @@ Feature: Users can tag items, galleries and collections
       | YouTube URL | https://www.youtube.com/watch?v=CuKhBKAgQcA |
     And I press "Save changes"
     Then I should see "Some video"
-    When I click on ".gallery_items a.action-icon.edit" "css_element"
+    When I click on ".gallery_items .controls .edit" "css_element"
     And I set the field "Tags" to "tag6, tag7"
     And I press "Save changes"
-    When I click on ".gallery_items a.action-icon.edit" "css_element"
+    When I click on ".gallery_items .controls .edit" "css_element"
     And "//*[@id=\"id_tags\"][contains(@value, 'tag6, tag7')]" "xpath_element" should exist
     And I set the field "Tags" to ""
     And I press "Save changes"
-    When I click on ".gallery_items a.action-icon.edit" "css_element"
+    When I click on ".gallery_items .controls .edit" "css_element"
     And "//*[@id=\"id_tags\"][contains(@value, 'tag6, tag7')]" "xpath_element" should not exist

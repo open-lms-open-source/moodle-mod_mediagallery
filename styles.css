@@ -46,23 +46,31 @@
 .path-mod-mediagallery .item .title {
     margin-left: 5px;
     float: left;
-    max-height: 20px;
     overflow: hidden;
+    max-width: 170px;
+    word-break: break-word;
 }
 
 .path-mod-mediagallery .gallery_list_item .title h6,
 .path-mod-mediagallery .item .title h6 {
     margin-top: 0px;
+    margin-bottom: 0px;
 }
 
 .path-mod-mediagallery .gallery_list_item .controls,
 .path-mod-mediagallery .item .controls {
     margin-right: 5px;
+    margin-bottom: 5px;
     float: right;
 }
 
 .path-mod-mediagallery .item .controls .move {
     cursor: pointer;
+}
+
+.path-mod-mediagallery .gallery_items .controls .moodle-actionmenu,
+.path-mod-mediagallery .gallery_list_item .controls .moodle-actionmenu {
+    display: inline-block;
 }
 
 .path-mod-mediagallery div.grid_item {
@@ -78,6 +86,7 @@
 .path-mod-mediagallery div.grid_item .caption {
     text-align: center;
     position: relative;
+    overflow: hidden;
 }
 
 .path-mod-mediagallery div.grid_item div.item-wrapper {
@@ -92,6 +101,37 @@
     height: 250px;
 }
 
+
+.path-mod-mediagallery .gallery.small .item-thumb img {
+    width: 125px;
+    height: 125px;
+}
+
+.path-mod-mediagallery .gallery.small .grid_item .item-thumb {
+    height: 125px;
+}
+
+.path-mod-mediagallery .gallery.small .grid_item {
+    width: 125px;
+}
+
+.path-mod-mediagallery .gallery.large .item-thumb img {
+    width: 375px;
+    height: 375px;
+}
+
+.path-mod-mediagallery .gallery.large .grid_item .item-thumb {
+    height: 375px;
+}
+
+.path-mod-mediagallery .gallery.large .grid_item {
+    width: 375px;
+}
+
+.path-mod-mediagallery .gallery.large .grid_item img {
+    max-width: 375px;
+}
+
 .path-mod-mediagallery div.grid_item div.item-thumb:before {
     content: ' ';
     display: inline-block;
@@ -103,16 +143,22 @@
     float: left;
 }
 
-.path-mod-mediagallery .focus_selector {
+.path-mod-mediagallery .focus_selector,
+.path-mod-mediagallery .mediasize_selector {
     float: right;
     height: 30px;
     line-height: 30px;
     margin-right: 5px;
 }
 
+.path-mod-mediagallery .mediasize_selector label,
 .path-mod-mediagallery .focus_selector label {
     display: inline-block;
     margin-right: 5px;
+}
+
+.path-mod-mediagallery .menumediasize {
+    margin-bottom: 0px;
 }
 
 .path-mod-mediagallery .moralrights {
@@ -138,6 +184,11 @@
 .path-mod-mediagallery .actions {
     float: left;
     clear: both;
+}
+
+.path-mod-mediagallery .actions div {
+    float: left;
+    padding-right: 4px;
 }
 
 .path-mod-mediagallery .lb-outerContainer {
@@ -209,6 +260,10 @@
 #page-mod-mediagallery-item .felement.fstatic {
     border: none;
     box-shadow: none;
+}
+
+.path-mod-mediagallery .metainfo-toggle {
+    padding: 5px;
 }
 
 .path-mod-mediagallery .metainfo {
@@ -626,4 +681,84 @@ body.mediaboxactive .gallery .mediaplugin object {
 .path-mod-mediagallery .lastsync {
     float: left;
     clear: both;
+    margin: 0.5em 0 0 0.4em;
+}
+
+.path-mod-mediagallery .actions.collection > span,
+.path-mod-mediagallery a.maction {
+    font-family: Lato,"Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    -webkit-font-smoothing: subpixel-antialiased;
+    text-transform: uppercase;
+}
+
+.path-mod-mediagallery .mgfa,
+.path-mod-mediagallery a.maction {
+    color: #000;
+}
+
+.path-mod-mediagallery a:hover .mgfa,
+.path-mod-mediagallery a.maction:hover {
+    color: #2196f3;
+    text-decoration: none;
+}
+
+.path-mod-mediagallery .controls {
+    font-family: Lato,"Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    -webkit-font-smoothing: subpixel-antialiased;
+    white-space: nowrap;
+}
+
+.path-mod-mediagallery .controls .moodle-actionmenu[data-enhanced].show .menu a {
+    padding: 2px 0.5em 2px 0.5em;
+}
+
+.path-mod-mediagallery .controls .moodle-actionmenu[data-enhanced].show .menu a .mgfa-fw {
+    text-align: left;
+}
+
+.path-mod-mediagallery .controls .moodle-actionmenu[data-enhanced] .toggle-display img {
+    padding: 0;
+}
+
+#page-mod-mediagallery-view #searchform .fitem label {
+    display: inline;
+    padding-right: .3em;
+    line-height: 20px;
+}
+
+#page-mod-mediagallery-view #searchform input,
+#page-mod-mediagallery-view #searchform select {
+    margin-bottom: 0;
+}
+
+#page-mod-mediagallery-view #searchform div,
+#page-mod-mediagallery-view #searchform fieldset {
+    display: inline;
+    float: none;
+    width: auto;
+    margin: 0;
+    clear: none;
+}
+
+#page-mod-mediagallery-view #searchform .fitem {
+    display: inline-block;
+    margin-right: .3em;
+    line-height: 40px;
+    white-space: nowrap;
+}
+
+#page-mod-mediagallery-view #searchform {
+    display: inline-block;
+    min-height: 20px;
+    padding: 9px;
+    margin-bottom: 20px;
+    background-color: #f5f5f5;
+    border: 1px solid #e3e3e3;
+    border-color: #e3e3e3;
+    border-radius: 3px;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,0.05);
 }

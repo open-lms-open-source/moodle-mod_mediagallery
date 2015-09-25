@@ -108,8 +108,13 @@ class collection extends base {
         return $this->context;
     }
 
-    public function get_my_galleries() {
+    public function get_my_galleries($userid = null) {
         global $DB, $USER;
+
+        if (is_null($userid)) {
+            $userid = $USER->id;
+        }
+
         $galleries = array();
 
         $select = "instanceid = :instanceid AND (userid = :userid";
@@ -122,7 +127,7 @@ class collection extends base {
         }
         $select .= ")";
         $params['instanceid'] = $this->record->id;
-        $params['userid'] = $USER->id;
+        $params['userid'] = $userid;
         if ($records = $DB->get_records_select('mediagallery_gallery', $select, $params)) {
             foreach ($records as $record) {
                 $galleries[$record->id] = new gallery($record, array('collection' => $this));
@@ -143,9 +148,7 @@ class collection extends base {
             return $this->submitted;
         }
 
-        $installed = get_config('assignsubmission_mediagallery', 'version');
-        $path = $CFG->dirroot.'/mod/assign/submission/mediagallery/locallib.php';
-        if (!$installed || !file_exists($path)) {
+        if (!self::is_assignsubmission_mediagallery_installed()) {
             return false;
         }
         require_once($CFG->dirroot.'/mod/assign/locallib.php');
@@ -225,6 +228,11 @@ class collection extends base {
         }
 
         return $galleries;
+    }
+
+    public function count_galleries() {
+        global $DB;
+        return $DB->count_records('mediagallery_gallery', array('instanceid' => $this->record->id));
     }
 
     /**
@@ -333,6 +341,68 @@ class collection extends base {
     }
 
     /**
+     * Has the current user submitted this to the linked assignment?
+     *
+     * @access public
+     * @return bool
+     */
+    public function has_submitted() {
+        global $DB, $USER;
+
+        if (!$this->is_assessable() || !self::is_assignsubmission_mediagallery_installed()) {
+            return false;
+        }
+
+        $groupselect = '';
+        $params = array('collection' => $this->record->id, 'userid' => $USER->id);
+        if ($this->options['groupmode'] != NOGROUPS) {
+            if (!empty($this->options['groups'])) {
+                list($insql, $gparams) = $DB->get_in_or_equal(array_keys($this->options['groups']), SQL_PARAMS_NAMED);
+                $params = array_merge($params, $gparams);
+                $groupselect = " OR asub.groupid $insql";
+            }
+        }
+
+        $sql = "SELECT asub.id
+                FROM {assign_submission} asub
+                JOIN {assign_plugin_config} apc ON apc.assignment = asub.assignment
+                JOIN {assign} a ON a.id = asub.assignment
+                LEFT JOIN {assign_user_flags} uf ON a.id = uf.assignment AND uf.userid = asub.userid
+                WHERE apc.plugin = 'mediagallery' AND apc.subtype = 'assignsubmission' AND apc.name = 'mediagallery'
+                    AND apc.value = :collection AND (asub.userid = :userid $groupselect)";
+        return $DB->record_exists_sql($sql, $params);
+    }
+
+    /**
+     * Get the ID of the linked assign coursemodule if one exists.
+     *
+     * @access public
+     * @return int|bool Returns the cmid of the linked assign, false otherwise.
+     */
+    public function get_linked_assignid() {
+        global $DB;
+
+        $sql = "SELECT cm.id
+                FROM {course_modules} cm
+                JOIN {modules} m ON m.id = cm.module
+                JOIN {assign_plugin_config} apc ON apc.assignment = cm.instance
+                WHERE apc.plugin = 'mediagallery' AND apc.name = 'mediagallery'
+                    AND m.name = 'assign' AND ".$DB->sql_compare_text('apc.value')." = ?";
+        $params = array($this->record->id);
+        return $DB->get_field_sql($sql, $params, IGNORE_MULTIPLE);
+    }
+
+    /**
+     * Is this collection able to be used as part of an assignment.
+     *
+     * @access public
+     * @return bool
+     */
+    public function is_assessable() {
+        return $this->colltype == 'assignment' || $this->colltype == 'peerreviewed';
+    }
+
+    /**
      * is_read_only
      *
      * Returns true if this collection is readonly for the current user.
@@ -417,5 +487,70 @@ class collection extends base {
         }
 
         return false;
+    }
+
+    public function user_can_remove($userid = null) {
+        global $USER;
+
+        if (is_null($userid)) {
+            $userid = $USER->id;
+        }
+
+        $theboxowner = $this->mode == 'thebox' && $this->is_thebox_creator_or_agent($userid);
+        return $theboxowner || has_capability('mod/mediagallery:manage', $this->get_context(), $userid);
+    }
+
+    /**
+     * Can a given user add a gallery?
+     *
+     * Accounts for the max gallery limit and how many they or their group already has.
+     *
+     * @param int $userid
+     * @access public
+     * @return bool
+     */
+    public function user_can_add_children($userid = null) {
+        global $USER;
+
+        if (is_null($userid)) {
+            $userid = $USER->id;
+        }
+
+        $max = $this->record->maxgalleries;
+        $manager = has_capability('mod/mediagallery:manage', $this->context, $userid);
+        if ($max != 0 && !$manager) {
+            if ($this->options['groupmode'] != NOGROUPS) {
+                // Compare user group count to galleries for those groups.
+                $groupings = groups_get_user_groups($this->record->course, $userid);
+                $groups = $groupings[0];
+                if (empty($groups)) {
+                    return false;
+                }
+                $groupkeyed = array_flip($groups);
+
+                $galleries = $this->get_group_gallery_counts();
+                foreach ($galleries as $count) {
+                    if ($count->count >= $max) {
+                        unset($groupkeyed[$count->groupid]);
+                    }
+                }
+                return !empty($groupkeyed);
+            }
+
+            return count($this->get_my_galleries($userid)) < $max;
+        }
+        return true;
+    }
+
+    public function get_group_gallery_counts() {
+        global $DB;
+
+        $sql = "SELECT groupid, count(1) AS count
+                FROM {mediagallery_gallery}
+                WHERE instanceid = ?
+                GROUP BY groupid";
+        $params[] = $this->record->id;
+        $galleries = $DB->get_records_sql($sql, $params);
+        return $galleries;
     }
 }

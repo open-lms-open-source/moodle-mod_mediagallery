@@ -28,14 +28,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-define('MEDIAGALLERY_POS_BOTTOM', 0);
-define('MEDIAGALLERY_POS_TOP', 1);
-define('MEDIAGALLERY_TYPE_AUDIO', 0);
-define('MEDIAGALLERY_TYPE_IMAGE', 1);
-define('MEDIAGALLERY_TYPE_VIDEO', 2);
-define('MEDIAGALLERY_VIEW_CAROUSEL', 0);
-define('MEDIAGALLERY_VIEW_GRID', 1);
-
 require_once(dirname(__FILE__).'/classes/base.php');
 require_once(dirname(__FILE__).'/classes/collection.php');
 require_once(dirname(__FILE__).'/classes/gallery.php');

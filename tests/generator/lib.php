@@ -66,6 +66,8 @@ class mod_mediagallery_generator extends testing_module_generator {
             'readonlyfrom'       => 0,
             'readonlyto'         => 0,
             'mode'               => 'standard',
+            'contributable'      => 0,
+            'maxgalleries'       => 0,
         );
         $defaultsettings['gallerytypeoptions']['focus'] = 1;
 
@@ -75,22 +77,17 @@ class mod_mediagallery_generator extends testing_module_generator {
             }
         }
 
-        $record->coursemodule = $this->precreate_course_module($record->course, $options);
-        $id = mediagallery_add_instance($record, null);
-        rebuild_course_cache($record->course, true);
-        return $this->post_add_instance($id, $record->coursemodule);
+        return parent::create_instance($record, $options);
     }
 
     public function create_gallery($record = null) {
         global $CFG, $USER;
 
-        require_once($CFG->dirroot.'/mod/mediagallery/locallib.php');
-
         $record = (object)(array)$record;
         $defaults = array(
             'groupid' => 0,
-            'galleryfocus' => MEDIAGALLERY_TYPE_IMAGE,
-            'galleryview' => MEDIAGALLERY_VIEW_GRID,
+            'galleryfocus' => \mod_mediagallery\base::TYPE_IMAGE,
+            'galleryview' => \mod_mediagallery\gallery::VIEW_GRID,
             'userid' => $USER->id,
             'mode' => 'standard',
             'tags' => '',
@@ -110,5 +107,27 @@ class mod_mediagallery_generator extends testing_module_generator {
             }
         }
         return \mod_mediagallery\gallery::create($record);
+    }
+
+    public function create_item($record = null) {
+        global $CFG, $USER;
+
+        $record = (object)(array)$record;
+        $defaults = array(
+            'caption' => '',
+            'userid' => $USER->id,
+            'tags' => '',
+        );
+
+        if (!isset($record->galleryid)) {
+            throw new coding_exception('galleryid must be present in $record');
+        }
+
+        foreach ($defaults as $key => $value) {
+            if (!isset($record->$key)) {
+                $record->$key = $value;
+            }
+        }
+        return \mod_mediagallery\item::create($record);
     }
 }

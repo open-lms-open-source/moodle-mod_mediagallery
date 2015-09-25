@@ -54,7 +54,7 @@ class MoodleQuickForm_uploader extends MoodleQuickForm_filepicker {
         $args->accepted_types = $this->_options['accepted_types']?$this->_options['accepted_types']:'*';
         $args->return_types = $this->_options['return_types'];
         $args->itemid = $draftitemid;
-        $args->maxbytes = $this->_options['maxbytes'];
+        $args->maxbytes = 0;
         $args->context = $PAGE->context;
         $args->buttonname = $elname.'choose';
         $args->elementname = $elname;
@@ -90,7 +90,7 @@ class MoodleQuickForm_uploader extends MoodleQuickForm_filepicker {
             'action'=>'browse',
             'itemid'=>$draftitemid,
             'subdirs'=>0,
-            'maxbytes'=>$options->maxbytes,
+            'maxbytes'=>0,
             'maxfiles'=>1,
             'ctx_id'=>$PAGE->context->id,
             'course'=>$PAGE->course->id,

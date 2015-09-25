@@ -14,23 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Defines the version of mediagallery
- *
- * This code fragment is called by moodle_needs_upgrading() and
- * /admin/index.php
- *
- * @package    mod_mediagallery
- * @copyright  2014 NetSpot Pty Ltd
- * @author     Adam Olley <adam.olley@netspot.com.au>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+namespace mod_mediagallery\output\searchresults;
 
-defined('MOODLE_INTERNAL') || die();
+class renderable implements \renderable {
 
-$plugin->version   = 2015082600;
-$plugin->requires  = 2014050800;
-$plugin->cron      = 0;
-$plugin->component = 'mod_mediagallery';
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '2.7.2.0';
+    public $results = array();
+    public $pageurl;
+    public $totalcount;
+    public $page;
+    public $perpage;
+
+    public function __construct($results, $pageurl, $totalcount = 0, $page = 1, $perpage = 0) {
+        $this->results = $results;
+        $this->pageurl = $pageurl;
+        $this->totalcount = $totalcount;
+        $this->page = $page;
+        $this->perpage = $perpage;
+    }
+}

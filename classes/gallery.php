@@ -20,6 +20,9 @@ require_once(dirname(__FILE__).'/../locallib.php');
 
 class gallery extends base {
 
+    const VIEW_CAROUSEL = 0;
+    const VIEW_GRID = 1;
+
     protected $collection = null;
     protected $context;
     protected $items = null;
@@ -81,7 +84,7 @@ class gallery extends base {
 
     public static function create(\stdClass $data) {
         if ($data->mode == 'youtube') {
-            $data->galleryfocus = MEDIAGALLERY_TYPE_VIDEO;
+            $data->galleryfocus = self::TYPE_VIDEO;
         }
         if (empty($data->groupid)) {
             $data->groupid = 0;
@@ -195,9 +198,9 @@ class gallery extends base {
             $settings->gridcolumns = $coll->gridcolumns;
             $settings->gridrows = $coll->gridrows;
             if ($coll->grid && !$coll->carousel) {
-                $settings->galleryview = MEDIAGALLERY_VIEW_GRID;
+                $settings->galleryview = self::VIEW_GRID;
             } else if (!$coll->grid && $coll->carousel) {
-                $settings->galleryview = MEDIAGALLERY_VIEW_CAROUSEL;
+                $settings->galleryview = self::VIEW_CAROUSEL;
             }
         }
         return $settings;
@@ -263,10 +266,13 @@ class gallery extends base {
         $list = array();
         foreach ($this->get_items() as $item) {
             $matches = false;
-            if ($item->type() === $currentfocus) {
+            $type = $item->type();
+            $allandmediatype = $currentfocus == self::TYPE_ALL && !is_null($type);
+            $matchesfocus = $type === $currentfocus;
+            if ($allandmediatype || $matchesfocus) {
                 $matches = true;
             }
-            if (($matching && $matches) || (!$matching && !$matches)) {
+            if (!($matching xor $matches)) {
                 $list[] = $item;
             }
         }
@@ -356,21 +362,39 @@ class gallery extends base {
     /**
      * Returns what the focus of this gallery this falls into (image, audio, video).
      * @param bool $text If the function returns the internal or text representation of the item type.
-     * @return int|null Returns the MEDIAGALLERY_TYPE_* that most closely matches the content. Otherwise null.
+     * @return int|null Returns the self::TYPE_* that most closely matches the content. Otherwise null.
      */
     public function type($text = false) {
         $view = $this->get_display_settings();
-        if ($this->mode == 'youtube' || $view->galleryfocus == MEDIAGALLERY_TYPE_VIDEO) {
-            return $text ? 'video' : MEDIAGALLERY_TYPE_VIDEO;
-        } else if ($view->galleryfocus == MEDIAGALLERY_TYPE_IMAGE) {
-            return $text ? 'image' : MEDIAGALLERY_TYPE_IMAGE;
-        } else if ($view->galleryfocus == MEDIAGALLERY_TYPE_AUDIO) {
-            return $text ? 'audio' : MEDIAGALLERY_TYPE_AUDIO;
+        if ($this->mode == 'youtube' || $view->galleryfocus == self::TYPE_VIDEO) {
+            return $text ? 'video' : self::TYPE_VIDEO;
+        } else if ($view->galleryfocus == self::TYPE_IMAGE) {
+            return $text ? 'image' : self::TYPE_IMAGE;
+        } else if ($view->galleryfocus == self::TYPE_AUDIO) {
+            return $text ? 'audio' : self::TYPE_AUDIO;
+        } else if ($view->galleryfocus == self::TYPE_ALL) {
+            return $text ? 'all' : self::TYPE_ALL;
         }
 
         return null;
     }
 
+    public function user_can_contribute($userid = null) {
+        global $USER;
+        if (is_null($userid)) {
+            $userid = $USER->id;
+        }
+
+        if ($this->get_collection()->is_read_only()) {
+            return false;
+        }
+
+        $submitted = $this->submitted_for_grading();
+        if ($this->contributable && !$submitted) {
+            return true;
+        }
+        return $this->user_can_edit($userid);
+    }
 
     /**
      * Determines if a given user can edit this gallery.
@@ -405,11 +429,25 @@ class gallery extends base {
             }
         }
 
-        if ($this->mode == 'thebox' && $this->is_thebox_creator_or_agent()) {
+        if ($this->mode == 'thebox' && $this->is_thebox_creator_or_agent($userid)) {
             return true;
         }
 
         return false;
+    }
+
+    public function user_can_remove($userid = null) {
+        global $USER;
+
+        if (is_null($userid)) {
+            $userid = $USER->id;
+        }
+
+        $theboxowner = $this->get_collection()->mode == 'thebox' && $this->get_collection()->is_thebox_creator_or_agent($userid);
+        if ($this->user_can_edit($userid, true) || $theboxowner) {
+            return true;
+        }
+        return has_capability('mod/mediagallery:manage', $this->get_context(), $userid);
     }
 
     public function user_can_view($userid = null) {

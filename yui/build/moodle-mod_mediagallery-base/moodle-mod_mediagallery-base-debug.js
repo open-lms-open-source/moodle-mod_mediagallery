@@ -3,6 +3,8 @@ YUI.add('moodle-mod_mediagallery-base', function (Y, NAME) {
 M.mod_mediagallery = M.mod_mediagallery || {};
 M.mod_mediagallery.base = {
 
+    defaultitemwidth: 187,
+
     courseid: 0,
     mid : 0,
     gallery: 0,
@@ -38,7 +40,13 @@ M.mod_mediagallery.base = {
             this.add_remove_collection_handler();
         }
 
+        if (!editing) {
+            this.watch_mediasize();
+        }
+
         this.setup_sample_link();
+
+        this.watch_resize();
     },
 
     add_remove_collection_handler : function() {
@@ -110,7 +118,7 @@ M.mod_mediagallery.base = {
             closeButtonTitle : M.str.moodle.cancel
         };
 
-        Y.all(selector + ' .action-icon.delete').each(function() {
+        Y.all(selector + ' .controls .delete').each(function() {
             this._confirmationListener = this._confirmationListener || this.on('click', function(e) {
                 // Prevent the default event (submit) from firing
                 e.preventDefault();
@@ -166,7 +174,7 @@ M.mod_mediagallery.base = {
             closeButtonTitle : M.str.moodle.cancel
         };
 
-        Y.all(selector + ' .action-icon.delete').each(function() {
+        Y.all(selector + ' .controls .delete').each(function() {
             this._confirmationListener = this._confirmationListener || this.on('click', function(e) {
                 // Prevent the default event (submit) from firing
                 e.preventDefault();
@@ -186,6 +194,37 @@ M.mod_mediagallery.base = {
                 confirm.show();
             }, this);
         });
+    },
+
+    watch_mediasize: function() {
+        var selector = '.mediasize_selector select';
+        var gallery = '.gallery';
+
+        if (!Y.one(selector)) {
+            return;
+        }
+
+        Y.one(selector).on('change', function(e) {
+            e.preventDefault();
+
+            var g = Y.one(gallery);
+            g.removeClass('small');
+            g.removeClass('large');
+
+            var size = e.target.get('value');
+            var newclass = '';
+            if (size === '0') {
+                newclass = 'small';
+            } else if (size === '2') {
+                newclass = 'large';
+            }
+            if (newclass !== '') {
+                g.addClass(newclass);
+            }
+
+            M.util.set_user_preference('mod_mediagallery_mediasize', size);
+        });
+
     },
 
     add_gallery_info_modal : function(courseid, data) {
@@ -719,6 +758,27 @@ M.mod_mediagallery.base = {
                 confirm.show();
             });
         }
+    },
+
+    watch_resize: function() {
+        var gallery = Y.one('.gallery_items.editing');
+        if (!gallery) {
+            return;
+        }
+
+        gallery.on('windowresize', function() {
+            var width = gallery.get('offsetWidth');
+            var itemfit = Math.floor(width / M.mod_mediagallery.base.defaultitemwidth);
+
+            var rowdivider = Y.Node.create('<div class="rowdivider clearfix"></div>')
+
+            gallery.all('.rowdivider').remove();
+            gallery.all('.item').each(function(node, idx) {
+                if (idx % itemfit === 0) {
+                    node.insert(rowdivider, 'before');
+                }
+            });
+        });
     }
 };
 M.mod_mediagallery = M.mod_mediagallery || {};
@@ -870,6 +930,7 @@ M.mod_mediagallery.dragdrop = {
         "dd-proxy",
         "dd-drop",
         "dd-plugin",
-        "moodle-core-notification"
+        "moodle-core-notification",
+        "event"
     ]
 });

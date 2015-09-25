@@ -40,6 +40,9 @@ $item = false;
 if ($i) {
     $item = new \mod_mediagallery\item($i);
     $g = $item->galleryid;
+    if (!$item->user_can_edit()) {
+        print_error('nopermissions', 'error', null, 'edit item');
+    }
 }
 
 $gallery = new \mod_mediagallery\gallery($g);
@@ -50,7 +53,7 @@ $cm = get_coursemodule_from_instance('mediagallery', $mediagallery->id, $course-
 require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
 $pageurl = new moodle_url('/mod/mediagallery/item.php', array('g' => $gallery->id));
-if (!$gallery->user_can_edit()) {
+if (!$gallery->user_can_contribute()) {
     print_error('nopermissions', 'error', $pageurl, 'edit gallery');
 }
 
@@ -104,7 +107,7 @@ if ($mform->is_cancelled()) {
             file_save_draft_area_files($data->content, $context->id, 'mod_mediagallery', 'item', $item->id, $fmoptions);
 
             $storedfile = null;
-            if ($gallery->galleryfocus != MEDIAGALLERY_TYPE_IMAGE && $gallery->mode != 'thebox') {
+            if ($gallery->galleryfocus != \mod_mediagallery\base::TYPE_IMAGE && $gallery->mode != 'thebox') {
                 $draftid = file_get_submitted_draft_itemid('customthumbnail');
                 if ($files = $fs->get_area_files(
                     context_user::instance($USER->id)->id, 'user', 'draft', $draftid, 'id DESC', false)) {
@@ -136,7 +139,7 @@ if ($mform->is_cancelled()) {
     $draftitemid = file_get_submitted_draft_itemid('content');
     file_prepare_draft_area($draftitemid, $context->id, 'mod_mediagallery', 'item', $data->id);
 
-    if ($gallery->galleryfocus == MEDIAGALLERY_TYPE_AUDIO) {
+    if ($gallery->galleryfocus == \mod_mediagallery\base::TYPE_AUDIO) {
         $draftitemidthumb = file_get_submitted_draft_itemid('customthumbnail');
         $data->customthumbnail = $draftitemidthumb;
     }

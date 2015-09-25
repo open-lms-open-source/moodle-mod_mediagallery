@@ -99,14 +99,14 @@ switch($requestmethod) {
         $isowner = $object->is_thebox_creator_or_agent();
 
         if ($class == 'collection') {
-            if (!has_capability('mod/mediagallery:manage', $object->get_context())) {
+            if (!has_capability('mod/mediagallery:manage', $object->get_context()) && !$object->user_can_remove()) {
                 throw new moodle_exception("no permission");
             }
             $success = true;
         } else {
             if (empty($object->objectid)) {
                 // Non-box.
-                if ($object->delete()) {
+                if ($object->user_can_remove() && $object->delete()) {
                     $success = true;
                 }
             } else {

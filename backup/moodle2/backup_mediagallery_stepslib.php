@@ -51,6 +51,7 @@ class backup_mediagallery_activity_structure_step extends backup_activity_struct
             'instanceid', 'name', 'userid', 'nameposition', 'exportable', 'galleryview',
             'gridrows', 'gridcolumns', 'visibleinstructor', 'visibleother', 'thumbnail',
             'galleryfocus', 'groupid', 'mode', 'objectid', 'source', 'creator',
+            'contributable',
         ));
 
         $items = new backup_nested_element('items');

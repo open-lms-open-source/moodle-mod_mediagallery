@@ -32,6 +32,7 @@ defined('MOODLE_INTERNAL') || die();
 $string['addagallery'] = 'Add a gallery';
 $string['addanitem'] = 'Add an item';
 $string['addbulkitems'] = 'Add items in bulk';
+$string['addfiles'] = 'Add file(s)';
 $string['addsamplegallery'] = 'Add a sample gallery';
 $string['allowcomments'] = 'Allow comments';
 $string['allowcomments_help'] = 'Allow users to comment on items and galleries.';
@@ -41,6 +42,9 @@ $string['areaitem'] = 'Items';
 $string['arealowres'] = 'Low resolution';
 $string['areathumbnail'] = 'Thumbnails';
 $string['areagallery'] = 'Galleries';
+$string['assignedit'] = 'Edit assignment';
+$string['assignsubmit'] = 'Submit assignment';
+$string['assignsubmitted'] = 'Assignment submitted';
 $string['automatic'] = 'Automatic';
 $string['beingprocessed'] = 'being processed';
 $string['bottom'] = 'Bottom';
@@ -91,6 +95,8 @@ $string['contentbulk_help'] = 'You can select a zip archive containing multiple 
 $string['contentlinked'] = 'Content';
 $string['contentlinkedinfo'] = 'This item is linked to the file {$a} in theBox.';
 $string['contentlinked_help'] = 'Once an item is linked to content in theBox, you cannot change the linked file.';
+$string['contributable'] = 'Contributable';
+$string['contributable_help'] = 'When a gallery is contributable, it allows other users to add content to your gallery. They\'ll only be limited to editing their own items. The gallery creator will have the ability to remove items from the gallery.';
 $string['copyright'] = 'Copyright';
 $string['copyright_help'] = 'This defines which copyright license is set for all the items you upload via this form.';
 $string['createdby'] = 'Created by: {$a}';
@@ -98,6 +104,7 @@ $string['creator'] = 'Creator';
 $string['datecreated'] = 'Date created';
 $string['deletegallery'] = 'Delete gallery';
 $string['deleteitem'] = 'Delete item';
+$string['deleteitemtype'] = 'Delete {$a}';
 $string['deleteorremovecollection'] = 'If you wish to remove the link to the collection without deleting the content click submit.<br/><br/>
 
 If you wish to remove the link to the collection and delete the content within type DELETE in the textbox below and click submit.';
@@ -111,18 +118,22 @@ $string['deleteorremovegallery'] = 'If you wish to remove the link to the galler
 If you wish to remove the link to the gallery and delete the content within type DELETE in the textbox below and click submit.';
 $string['deleteorremovegallerywarn'] = 'By deleting you acknowledge you are:<br/>
 - removing this link to the media gallery<br/>
-- deleting the media gallery and all content<br/>
+- deleting the media gallery and all content from theBox<br/>
 - disabling all links made in other courses to this media gallery or its content';
 $string['deleteorremoveitem'] = 'If you wish to remove the item from the gallery without deleting the content click submit.<br/><br/>
 
 If you wish to remove the link to the gallery and delete the content type DELETE in the textbox below and click submit.';
 $string['deleteorremoveitemwarn'] = 'By deleting you acknowledge you are:<br/>
 - removing this link to the media item<br/>
-- deleting the media item<br/>
+- deleting the media item from theBox<br/>
 - disabling all links made in other courses to this media item';
 $string['disablestandardgallery'] = 'Disable standard galleries';
 $string['displayfullcaption'] = 'Display full caption text';
-$string['editgallery'] = 'Edit gallery settings';
+$string['download'] = 'Download';
+$string['editgallery'] = 'Edit gallery';
+$string['editgallerysettings'] = 'Edit gallery settings';
+$string['edititem'] = 'Edit item';
+$string['edititemtype'] = 'Edit {$a}';
 $string['editthisgallery'] = 'Edit this gallery';
 $string['enablethebox'] = 'Enable theBox';
 $string['enforcedefaults'] = 'Enforce gallery defaults';
@@ -141,6 +152,7 @@ $string['eventitemdeleted'] = 'Item deleted';
 $string['eventitemupdated'] = 'Item updated';
 $string['eventgalleryviewed'] = 'Gallery viewed';
 $string['export'] = 'Export';
+$string['exportascsv'] = 'Export as CSV';
 $string['exportgallery'] = 'Export gallery';
 $string['externalurl'] = 'External URL';
 $string['externalurl_help'] = 'Currently links to images and youtube videos are supported.';
@@ -178,6 +190,7 @@ $string['maxitems_help'] = 'The maximum number of items a user can put in a gall
 
 Note: for Instructor collections, this is always unlimited.';
 $string['maxitemsreached'] = 'Maximum number of items added';
+$string['mediatype'] = 'Media type';
 $string['modulename'] = 'Media collection';
 $string['modulenameplural'] = 'Media collections';
 $string['modulename_help'] = 'Use the Media collection module for creating galleries of media content.
@@ -197,6 +210,11 @@ $string['mediagalleryfieldset'] = 'Custom example fieldset';
 $string['mediagalleryname'] = 'Media collection name';
 $string['mediagalleryname_help'] = 'The name you want to give your media collection.';
 $string['mediagallery'] = 'Media collection';
+$string['mediainformation'] = 'Media information';
+$string['mediasize'] = 'Media size';
+$string['mediasizesm'] = 'Small';
+$string['mediasizemd'] = 'Medium';
+$string['mediasizelg'] = 'Large';
 $string['medium'] = 'Medium';
 $string['medium_help'] = 'The medium used to create the work (i.e. painting, photography, sound, etc).';
 $string['metainfobulkheader'] = 'The below values will be used as the initial metadata for each of the items added above.';
@@ -233,6 +251,8 @@ $string['reference_help'] = 'Reference to the collection (if any) the work is fr
 $string['removethecollection'] = 'Remove/delete the collection';
 $string['removecollectionconfirm'] = 'Are you sure you wish to remove the link to this collection?';
 $string['removegalleryconfirm'] = 'Are you sure you wish to remove the link to this gallery?';
+$string['removefromcollection'] = 'Remove from collection';
+$string['removefromgallery'] = 'Remove from gallery';
 $string['removeitemconfirm'] = 'Are you sure you wish to remove the link to this item?';
 $string['restrictavailableinfo'] = 'To restrict the dates this activity is available between, use the Restrict access section below.';
 $string['sample'] = 'Sample';
@@ -266,12 +286,12 @@ $string['thumbnailsperrow'] = 'Thumbnails per row';
 $string['togglefullscreen'] = 'Toggle fullscreen';
 $string['togglesidebar'] = 'Toggle sidebar';
 $string['top'] = 'Top';
+$string['typeall'] = 'All files';
 $string['typeaudio'] = 'Audio';
 $string['typeimage'] = 'Image';
 $string['typevideo'] = 'Video';
 $string['unlike'] = 'Unlike';
 $string['uploader'] = 'Uploader';
-$string['viewfullsize'] = 'View full size image';
 $string['viewgallery'] = 'View gallery';
 $string['visibleinstructor'] = 'Visible to instructors only after';
 $string['visibleinstructor_help'] = 'Define the gallery as visible to course instructors after the specified date. This can be useful for allowing instructors to access before all other users. Course managers with appropriate permissions will always be able to see the gallery.';

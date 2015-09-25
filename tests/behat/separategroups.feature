@@ -72,10 +72,10 @@ Feature: Separate users galleries based on groups
     And I follow "Test mg groups visi"
     And I go to view with all groups
     Then I should see "Gallery1"
-    And ".gallery_list_item[data-title=\"Gallery1\"] .action-icon.delete" "css_element" should not exist
+    And ".gallery_list_item[data-title=\"Gallery1\"] .controls .delete" "css_element" should not exist
     When I log out
     And I log in as "student3"
     And I follow "Course 1"
     And I follow "Test mg groups visi"
     Then I should see "Gallery1"
-    And ".gallery_list_item[data-title=\"Gallery1\"] .action-icon.delete" "css_element" should exist
+    And ".gallery_list_item[data-title=\"Gallery1\"] .controls .delete" "css_element" should exist

@@ -18,6 +18,13 @@ namespace mod_mediagallery;
 
 abstract class base {
 
+    const POS_BOTTOM = 0;
+    const POS_TOP = 1;
+    const TYPE_AUDIO = 0;
+    const TYPE_IMAGE = 1;
+    const TYPE_VIDEO = 2;
+    const TYPE_ALL = 3;
+
     protected $options;
     protected $record;
     static protected $table;
@@ -79,6 +86,7 @@ abstract class base {
     }
 
     abstract public function get_context();
+    abstract public function user_can_remove();
 
     /**
      * Get a copy of the record as it appears in the db.
@@ -156,7 +164,7 @@ abstract class base {
                     'context' => $this->get_context(),
                     'objectid' => $this->id,
                 );
-                if ($data->nosync) {
+                if (isset($data->nosync) && $data->nosync) {
                     $params['other']['nosync'] = true;
                 }
                 $class = get_called_class();
@@ -171,10 +179,17 @@ abstract class base {
         return false;
     }
 
-    public function is_thebox_creator_or_agent() {
-        global $USER;
+    public function is_thebox_creator_or_agent($userid = null) {
+        global $DB, $USER;
 
-        if ($USER->username == $this->creator || $this->creator == 'z9999999') {
+        $username = $USER->username;
+        if (is_null($userid)) {
+            $userid = $USER->id;
+        } else if ($userid != $USER->id) {
+            $username = $DB->get_field('user', 'username', array('id' => $userid));
+        }
+
+        if ($username == $this->creator || $this->creator == 'z9999999') {
             return true;
         }
 
@@ -184,6 +199,20 @@ abstract class base {
 
         // We're not the creator, but the item has agents assigned. Are we one of them?
         $agents = explode(',', $this->agents);
-        return in_array($USER->username, $agents);
+        return in_array($username, $agents);
+    }
+
+    /**
+     * Checks for the assignsubmission_mediagallery plugin.
+     *
+     * @static
+     * @access public
+     * @return bool
+     */
+    public static function is_assignsubmission_mediagallery_installed() {
+        global $CFG;
+        $installed = get_config('assignsubmission_mediagallery', 'version');
+        $path = $CFG->dirroot.'/mod/assign/submission/mediagallery/locallib.php';
+        return $installed && file_exists($path);
     }
 }

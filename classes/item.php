@@ -52,6 +52,9 @@ class item extends base {
         }
 
         parent::__construct($recordorid, $options);
+        if (empty($this->gallery) && empty($options['nogallery'])) {
+            $this->gallery = new gallery($this->galleryid);
+        }
     }
 
     public function copy($targetid) {
@@ -94,7 +97,9 @@ class item extends base {
             }
         }
         $data->timecreated = time();
-        $data->userid = $USER->id;
+        if (!isset($data->userid)) {
+            $data->userid = $USER->id;
+        }
         $result = parent::create($data);
         if (!empty($data->thumbnail)) {
             $sql = "UPDATE {mediagallery_gallery}
@@ -443,7 +448,7 @@ class item extends base {
         $embed = '';
         if ($id = $this->get_youtube_videoid()) {
             $embed = "http://www.youtube.com/embed/{$id}";
-        } else if ($this->type() == MEDIAGALLERY_TYPE_IMAGE) {
+        } else if ($this->type() == self::TYPE_IMAGE) {
             $embed = $this->get_image_url_by_type();
         } else {
             if (!empty($this->objectid)) {
@@ -602,7 +607,7 @@ class item extends base {
         }
 
         $type = $preview ? 'thumbnail' : 'item';
-        if (!empty($this->objectid) && ($this->type() !== MEDIAGALLERY_TYPE_AUDIO && $this->type() !== null || $type == 'item')) {
+        if (!empty($this->objectid) && ($this->type() !== self::TYPE_AUDIO && $this->type() !== null || $type == 'item')) {
             return $this->get_box_url($type);
         }
 
@@ -621,7 +626,7 @@ class item extends base {
             $path .= '?preview=bigthumb';
         }
 
-        if (!$preview && $this->type() != MEDIAGALLERY_TYPE_IMAGE) {
+        if (!$preview && $this->type() != self::TYPE_IMAGE) {
             $path = $this->get_image_url(true);
         }
 
@@ -659,7 +664,7 @@ class item extends base {
         }
 
         // Fetch the box url for thumbnails of images and video. Documents and audio don't need it.
-        if (!empty($this->objectid) && ($this->type() !== MEDIAGALLERY_TYPE_AUDIO && $this->type() !== null || $type == 'item')) {
+        if (!empty($this->objectid) && ($this->type() !== self::TYPE_AUDIO && $this->type() !== null || $type == 'item')) {
             return $this->get_box_url($type);
         }
 
@@ -683,7 +688,7 @@ class item extends base {
             $path .= '?preview=bigthumb';
         }
 
-        if ($type != 'thumbnail' && $this->type() != MEDIAGALLERY_TYPE_IMAGE) {
+        if ($type != 'thumbnail' && $this->type() != self::TYPE_IMAGE) {
             $path = $this->get_image_url_by_type('thumbnail');
         }
 
@@ -777,15 +782,15 @@ class item extends base {
     /**
      * Returns what gallery type this falls into (image, audio, video).
      * @param bool $text If the function returns the internal or text representation of the item type.
-     * @return int|null Returns the MEDIAGALLERY_TYPE_* that most closely matches the content. Otherwise null.
+     * @return int|null Returns the self::TYPE_* that most closely matches the content. Otherwise null.
      */
     public function type($text = false) {
         if ($this->record->externalurl != '') {
             // External URLs are either youtube videos or images.
             if ($this->get_youtube_videoid()) {
-                return $text ? 'video' : MEDIAGALLERY_TYPE_VIDEO;
+                return $text ? 'video' : self::TYPE_VIDEO;
             }
-            return $text ? 'image' : MEDIAGALLERY_TYPE_IMAGE;
+            return $text ? 'image' : self::TYPE_IMAGE;
         }
 
         if (!$file = $this->get_file()) {
@@ -799,17 +804,17 @@ class item extends base {
 
         $mimetype = $this->file->get_mimetype();
         if (file_mimetype_in_typegroup($mimetype, 'web_image')) {
-            return $text ? 'image' : MEDIAGALLERY_TYPE_IMAGE;
+            return $text ? 'image' : self::TYPE_IMAGE;
         } else if (file_mimetype_in_typegroup($mimetype, 'web_audio')) {
-            return $text ? 'audio' : MEDIAGALLERY_TYPE_AUDIO;
+            return $text ? 'audio' : self::TYPE_AUDIO;
         } else if (file_mimetype_in_typegroup($mimetype, $videogroups)) {
-            return $text ? 'video' : MEDIAGALLERY_TYPE_VIDEO;
+            return $text ? 'video' : self::TYPE_VIDEO;
         }
 
         $texttotype = array(
-            'audio' => MEDIAGALLERY_TYPE_AUDIO,
-            'image' => MEDIAGALLERY_TYPE_IMAGE,
-            'video' => MEDIAGALLERY_TYPE_VIDEO,
+            'audio' => self::TYPE_AUDIO,
+            'image' => self::TYPE_IMAGE,
+            'video' => self::TYPE_VIDEO,
         );
 
 
@@ -860,16 +865,40 @@ class item extends base {
     public function user_can_edit($userid = null) {
         global $USER;
 
-        if (empty($this->objectid)) {
+        if (is_null($userid)) {
+            $userid = $USER->id;
+        }
+
+        if ($userid == $this->record->userid) {
             return true;
         }
 
-        $username = $USER->username;
-        if (!is_null($userid)) {
-            $username = $DB->get_field('user', 'username', array('id' => $userid));
+        $coll = $this->gallery->get_collection();
+        if ($this->gallery->record->groupid != 0 && $coll->options['groupmode'] != NOGROUPS) {
+            if ($userid != $USER->id) {
+                $groups = groups_get_all_groups($coll->cm->course, $USER->id, $coll->cm->groupingid);
+            } else {
+                $groups = $coll->options['groups'];
+            }
+            if (isset($groups[$this->gallery->record->groupid])) {
+                return true;
+            }
         }
 
-        return $this->is_thebox_creator_or_agent();
+        return $this->gallery->mode == 'thebox' && $this->is_thebox_creator_or_agent();
+    }
+
+    public function user_can_remove($userid = null) {
+        global $USER;
+
+        if (is_null($userid)) {
+            $userid = $USER->id;
+        }
+
+        if ($this->user_can_edit($userid)) {
+            return true;
+        }
+        return has_capability('mod/mediagallery:manage', $this->get_context(), $userid);
     }
 
     public function thebox_processed() {

@@ -48,7 +48,7 @@ require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
 
 $maxgalleries = $mediagallery->maxgalleries;
-if (!$gallery && $maxgalleries != 0 && count($mediagallery->get_my_galleries()) >= $maxgalleries) {
+if (!$gallery && !$mediagallery->user_can_add_children()) {
     print_error('errortoomanygalleries', 'mediagallery', '', $maxgalleries);
 }
 
@@ -72,6 +72,9 @@ $mform = new mod_mediagallery_gallery_form(null, array('mediagallery' => $mediag
 if ($mform->is_cancelled()) {
     redirect(new moodle_url('/mod/mediagallery/view.php', array('m' => $mediagallery->id, 'editing' => 1)));
 } else if ($data = $mform->get_data()) {
+    if (!isset($data->contributable) || $mediagallery->colltype == 'instructor') {
+        $data->contributable = 0;
+    }
     if (!empty($data->id)) {
         $gallery = new \mod_mediagallery\gallery($data->id);
         $gallery->update($data);
@@ -85,9 +88,9 @@ if ($mform->is_cancelled()) {
             $data->gridcolumns = $mediagallery->gridcolumns;
             $data->gridrows = $mediagallery->gridrows;
             if ($mediagallery->grid && !$mediagallery->carousel) {
-                $data->galleryview = MEDIAGALLERY_VIEW_GRID;
+                $data->galleryview = \mod_mediagallery\gallery::VIEW_GRID;
             } else if (!$mediagallery->grid && $mediagallery->carousel) {
-                $data->galleryview = MEDIAGALLERY_VIEW_CAROUSEL;
+                $data->galleryview = \mod_mediagallery\gallery::VIEW_CAROUSEL;
             }
         }
 

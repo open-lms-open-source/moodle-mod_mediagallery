@@ -8,7 +8,8 @@
         "dd-proxy",
         "dd-drop",
         "dd-plugin",
-        "moodle-core-notification"
+        "moodle-core-notification",
+        "event"
     ]
   }
 }
