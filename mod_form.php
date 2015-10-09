@@ -65,7 +65,7 @@ class mod_mediagallery_mod_form extends moodleform_mod {
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
         $mform->addHelpButton('name', 'mediagalleryname', 'mediagallery');
 
-        $this->add_intro_editor();
+        $this->standard_intro_elements();
         $opts = array(
             'standard' => get_string('modestandard', 'mod_mediagallery'),
         );
