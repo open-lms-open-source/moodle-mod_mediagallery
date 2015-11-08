@@ -384,6 +384,13 @@
     right: 15px;
 }
 
+.dir-rtl .jcarousel-control-prev {
+    direction: ltr;
+}
+
+.dir-rtl .jcarousel-control-next {
+    direction: rtl;
+}
 
 /** Carousel Pagination **/
 
