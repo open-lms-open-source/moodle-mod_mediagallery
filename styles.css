@@ -345,6 +345,9 @@
 .jcarousel li {
     float: left;
 }
+.dir-rtl .jcarousel li {
+    float: right;
+}
 
 .jcarousel li img {
     max-width: 250px;
