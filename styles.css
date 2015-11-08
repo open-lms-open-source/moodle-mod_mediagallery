@@ -389,7 +389,7 @@
 }
 
 .dir-rtl .jcarousel-control-next {
-    direction: rtl;
+    direction: ltr;
 }
 
 /** Carousel Pagination **/
