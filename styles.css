@@ -345,6 +345,9 @@
 .jcarousel li {
     float: left;
 }
+.dir-rtl .jcarousel li {
+    float: right;
+}
 
 .jcarousel li img {
     max-width: 250px;
@@ -381,6 +384,13 @@
     right: 15px;
 }
 
+.dir-rtl .jcarousel-control-prev {
+    direction: ltr;
+}
+
+.dir-rtl .jcarousel-control-next {
+    direction: ltr;
+}
 
 /** Carousel Pagination **/
 
