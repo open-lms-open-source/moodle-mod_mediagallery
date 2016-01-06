@@ -75,6 +75,7 @@ $string['colltype_help'] = 'The collection type determines what level users can 
 <li>Assignment collection: Users are only able to see the galleries they or their group (if in group mode) have created. Can be used as part of an assignment submission.</li>
 <li>Peer reviewed assignment collection: Users are able to view other users/groups galleries and like/comment on them if those features are enabled. Can be used as part of an assignment submission.</li></ul>';
 $string['colltypeinstructor'] = 'Instructor collection';
+$string['colltypesingle'] = 'Single collection';
 $string['colltypecontributed'] = 'Contributed collection';
 $string['colltypeassignment'] = 'Assignment collection';
 $string['colltypepeerreviewed'] = 'Peer reviewed assignment collection';
@@ -285,6 +286,7 @@ $string['thumbnailsperpage'] = 'Thumbnails per page';
 $string['thumbnailsperrow'] = 'Thumbnails per row';
 $string['togglefullscreen'] = 'Toggle fullscreen';
 $string['togglesidebar'] = 'Toggle sidebar';
+$string['toomany'] = 'Too many galleries, please delete or change collection type';
 $string['top'] = 'Top';
 $string['typeall'] = 'All files';
 $string['typeaudio'] = 'Audio';
