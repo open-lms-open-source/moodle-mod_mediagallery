@@ -62,29 +62,32 @@ if ($g) {
     $cm         = get_coursemodule_from_id('mediagallery', $id, 0, false, MUST_EXIST);
     $course     = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
     $mediagallery = new \mod_mediagallery\collection($cm->instance);
-    if($mediagallery->colltype == "single") {
-        // instantiate gallery as well
-	switch($mediagallery->count_galleries()){
-	    case 0:
-		// redirect to adding a gallery
-		redirect($CFG->wwwroot . '/mod/mediagallery/gallery.php?m=' . $mediagallery->id);
-		break;
-	    case 1: // instantiate
-		$galleries = $mediagallery->get_visible_galleries();
-		$gallery = reset($galleries);
-    		$options['action'] = 'viewgallery';
-    		$options['viewcontrols'] = 'item';
-		break;
-	    default: // more than one, delete others
-		print_error('toomany', 'mod_mediagallery');
-	}
-    }
 } else if ($m) {
     $mediagallery = new \mod_mediagallery\collection($m);
     $course     = $DB->get_record('course', array('id' => $mediagallery->course), '*', MUST_EXIST);
     $cm         = get_coursemodule_from_instance('mediagallery', $mediagallery->id, $course->id, false, MUST_EXIST);
 } else {
     print_error('missingparameter');
+}
+
+// The single collection type was contributed by github user eSrem.
+// It is not officially supported by UNSW.
+if ($mediagallery->colltype == "single") {
+    switch($mediagallery->count_galleries()) {
+        case 0:
+            // Redirect to adding a gallery.
+            redirect(new moodle_url('/mod/mediagallery/gallery.php', array('m' => $mediagallery->id)));
+            break;
+        case 1:
+            $galleries = $mediagallery->get_visible_galleries();
+            $gallery = reset($galleries);
+            $options['action'] = 'viewgallery';
+            $options['viewcontrols'] = 'item';
+            break;
+        default: // More than one, delete others.
+            print_error('toomany', 'mod_mediagallery');
+            break;
+    }
 }
 
 $context = context_module::instance($cm->id);

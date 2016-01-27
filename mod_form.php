@@ -107,7 +107,7 @@ class mod_mediagallery_mod_form extends moodleform_mod {
         $mform->setDefault('maxitems', 0);
         $mform->addHelpButton('maxitems', 'maxitems', 'mediagallery');
         $mform->disabledIf('maxitems', 'colltype', 'eq', 'instructor');
-	$mform->disabledIf('maxitems', 'colltype', 'eq', 'single');
+        $mform->disabledIf('maxitems', 'colltype', 'eq', 'single');
 
         $options = array(
             0 => get_string('unlimited'),
@@ -133,7 +133,7 @@ class mod_mediagallery_mod_form extends moodleform_mod {
         $mform->setDefault('maxgalleries', 1);
         $mform->addHelpButton('maxgalleries', 'maxgalleries', 'mediagallery');
         $mform->disabledIf('maxgalleries', 'colltype', 'eq', 'instructor');
-	$mform->disabledIf('maxgalleries', 'colltype', 'eq', 'single');
+        $mform->disabledIf('maxgalleries', 'colltype', 'eq', 'single');
 
         if ($CFG->usecomments) {
             $mform->addElement('selectyesno', 'allowcomments', get_string('allowcomments', 'mediagallery'));
