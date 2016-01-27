@@ -62,6 +62,23 @@ if ($g) {
     $cm         = get_coursemodule_from_id('mediagallery', $id, 0, false, MUST_EXIST);
     $course     = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
     $mediagallery = new \mod_mediagallery\collection($cm->instance);
+    if($mediagallery->colltype == "single") {
+        // instantiate gallery as well
+	switch($mediagallery->count_galleries()){
+	    case 0:
+		// redirect to adding a gallery
+		redirect($CFG->wwwroot . '/mod/mediagallery/gallery.php?m=' . $mediagallery->id);
+		break;
+	    case 1: // instantiate
+		$galleries = $mediagallery->get_visible_galleries();
+		$gallery = reset($galleries);
+    		$options['action'] = 'viewgallery';
+    		$options['viewcontrols'] = 'item';
+		break;
+	    default: // more than one, delete others
+		print_error('toomany', 'mod_mediagallery');
+	}
+    }
 } else if ($m) {
     $mediagallery = new \mod_mediagallery\collection($m);
     $course     = $DB->get_record('course', array('id' => $mediagallery->course), '*', MUST_EXIST);
