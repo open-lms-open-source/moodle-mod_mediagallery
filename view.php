@@ -113,24 +113,31 @@ if ($mediagallery->is_read_only() || !$canedit) {
     $options['editing'] = false;
 }
 
-require_login($course, true, $cm);
 
 if ($gallery) {
     $pageurl = new moodle_url('/mod/mediagallery/view.php', array('g' => $g, 'page' => $page));
-
-    $navnode = $PAGE->navigation->find($cm->id, navigation_node::TYPE_ACTIVITY);
-    if (empty($navnode)) {
-        $navnode = $PAGE->navbar;
-    }
-    $navurl = clone $pageurl;
-    $node = $navnode->add(format_string($gallery->name), $navurl);
-    $node->make_active();
 
     if ($options['editing']) {
         $pageurl->param('editing', true);
     }
 } else {
     $pageurl = new moodle_url('/mod/mediagallery/view.php', array('id' => $cm->id));
+}
+
+$PAGE->set_cm($cm, $course);
+$PAGE->set_url($pageurl);
+require_login($course, true, $cm);
+
+if ($gallery) {
+    $navnode = $PAGE->navigation->find($cm->id, navigation_node::TYPE_ACTIVITY);
+    if (empty($navnode)) {
+        $navnode = $PAGE->navbar;
+    }
+    $navurl = clone $pageurl;
+    $navurl->remove_params('editing');
+    $node = $navnode->add(format_string($gallery->name), $navurl);
+    $node->make_active();
+
 }
 
 $controller = new \mod_mediagallery\viewcontroller($context, $cm, $course, $mediagallery, $gallery, $pageurl, $options);
