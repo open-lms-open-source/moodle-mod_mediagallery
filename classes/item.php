@@ -869,7 +869,7 @@ class item extends base {
             $userid = $USER->id;
         }
 
-        if ($userid == $this->record->userid) {
+        if ($userid == $this->record->userid || has_capability('mod/mediagallery:manage', $this->get_context(), $userid)) {
             return true;
         }
 
