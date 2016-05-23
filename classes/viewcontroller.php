@@ -89,7 +89,7 @@ class viewcontroller {
             'context' => $this->context,
         ));
 
-        $search = new search($params);
+        $search = new mcsearch($params);
         $results = $search->get_results();
 
         if (optional_param('exportbutton', 0, PARAM_ALPHA)) {

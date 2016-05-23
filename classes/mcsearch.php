@@ -19,7 +19,7 @@ namespace mod_mediagallery;
 
 require_once($CFG->libdir.'/csvlib.class.php');
 
-class search {
+class mcsearch {
     public $params;
     public $results;
 
