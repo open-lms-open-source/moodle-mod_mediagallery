@@ -341,12 +341,12 @@ function mediagallery_add_metainfo_fields(&$mform) {
     $mform->addHelpButton('reference', 'reference', 'mediagallery');
 }
 
-function mediagallery_add_tag_field($mform, array $tags, $useajax = false, $loadjs = true) {
+function mediagallery_add_tag_field($mform, array $tags, $useajax = false, $loadjs = true, $element = 'tags') {
     global $PAGE;
-    $mform->addElement('text', 'tags', get_string('tags', 'mediagallery'));
-    $mform->setType('tags', PARAM_TAGLIST);
+    $mform->addElement('text', $element, get_string('tags', 'mediagallery'));
+    $mform->setType($element, PARAM_TAGLIST);
     if ($loadjs) {
         $PAGE->requires->yui_module('moodle-mod_mediagallery-tagselector', 'M.mod_mediagallery.tagselector.init',
-            array('id_tags', $tags, $useajax), null, true);
+            array('id_'.$element, $tags, $useajax), null, true);
     }
 }

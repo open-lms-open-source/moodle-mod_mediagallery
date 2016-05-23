@@ -104,7 +104,7 @@ abstract class base {
      * @return string CSV list of tags.
      */
     public function get_tags() {
-        return tag_get_tags_csv(static::$table, $this->id, TAG_RETURN_TEXT);
+        return implode(', ', \core_tag_tag::get_item_tags_array('mod_mediagallery', static::$table, $this->id, null, 0, false));
     }
 
     public static function get_tags_possible() {
@@ -136,10 +136,11 @@ abstract class base {
         } else {
             $list = $tags;
         }
+        $list = array_filter($list);
 
         $ctx = $this->get_context();
-        $tagcontext = !empty($ctx) ? $this->get_context()->id : \context_system::instance()->id;
-        tag_set(static::$table, $this->id, $list, 'mod_mediagallery', $tagcontext);
+        $tagcontext = !empty($ctx) ? $ctx : \context_system::instance();
+        \core_tag_tag::set_item_tags('mod_mediagallery', static::$table, $this->id, $tagcontext, $list);
     }
 
     public function set_option($key, $value) {

@@ -85,9 +85,9 @@ function mediagallery_add_instance(stdClass $mediagallery, mod_mediagallery_mod_
 
     $mediagallery->id = $DB->insert_record('mediagallery', $mediagallery);
 
-    if (isset($mediagallery->tags)) {
+    if (isset($mediagallery->mctags)) {
         $collection = new \mod_mediagallery\collection($mediagallery);
-        $collection->set_tags($mediagallery->tags);
+        $collection->set_tags($mediagallery->mctags);
     }
 
     return $mediagallery->id;
@@ -120,7 +120,7 @@ function mediagallery_update_instance(stdClass $mediagallery, mod_mediagallery_m
     $result = $DB->update_record('mediagallery', $mediagallery);
 
     $collection = new \mod_mediagallery\collection($mediagallery);
-    $collection->set_tags($mediagallery->tags);
+    $collection->set_tags($mediagallery->mctags);
 
     return $result;
 }
