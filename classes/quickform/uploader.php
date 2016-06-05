@@ -22,9 +22,24 @@ class MoodleQuickForm_uploader extends MoodleQuickForm_filepicker {
 
     public $repo = '';
 
-    public function MoodleQuickForm_uploader($elementName = null, $elementLabel = null, $attributes = null, $options = null) {
-        parent::MoodleQuickForm_filepicker($elementName, $elementLabel, $attributes, $options);
+    public function __construct($elementName = null, $elementLabel = null, $attributes = null, $options = null) {
+        parent::__construct($elementName, $elementLabel, $attributes, $options);
         $this->repo = $options['repo'];
+    }
+
+    /**
+     * Legacy style constructor, for BC.
+     * @deprecated since 2.9, use MoodleQuickForm_uploader::__construct instead
+     */
+    public function MoodleQuickForm_uploader() {
+        $msg = 'Legacy constructor called, please update your code to call php5 constructor!';
+        if (function_exists('debugging')) {
+            debugging($msg, DEBUG_DEVELOPER);
+        } else {
+            trigger_error($msg, E_USER_DEPRECATED);
+        }
+        $args = func_get_args();
+        call_user_func_array('self::__construct', $args);
     }
 
     public function toHtml() {

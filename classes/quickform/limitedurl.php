@@ -31,8 +31,23 @@ class MoodleQuickForm_limitedurl extends MoodleQuickForm_url {
      * @param mixed $attributes Either a typical HTML attribute string or an associative array.
      * @param array $options data which need to be posted.
      */
-    function MoodleQuickForm_limitedurl($elementName = null, $elementLabel = null, $attributes = null, $options = null) {
-        parent::MoodleQuickForm_url($elementName, $elementLabel, $attributes, $options);
+    function __construct($elementName = null, $elementLabel = null, $attributes = null, $options = null) {
+        parent::__construct($elementName, $elementLabel, $attributes, $options);
+    }
+
+    /**
+     * Legacy style constructor, for BC.
+     * @deprecated since 2.9, use MoodleQuickForm_limitedurl::__construct instead
+     */
+    public function MoodleQuickForm_limitedurl() {
+        $msg = 'Legacy constructor called, please update your code to call php5 constructor!';
+        if (function_exists('debugging')) {
+            debugging($msg, DEBUG_DEVELOPER);
+        } else {
+            trigger_error($msg, E_USER_DEPRECATED);
+        }
+        $args = func_get_args();
+        call_user_func_array('self::__construct', $args);
     }
 
     /**
