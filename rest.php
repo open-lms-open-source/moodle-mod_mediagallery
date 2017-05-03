@@ -17,9 +17,10 @@
 /**
  * Provide interface for AJAX mod_mediagallery requests.
  *
- * @package    mod_mediagallery
- * @copyright  NetSpot Pty Ltd
- * @author     Adam Olley <adam.olley@netspot.com.au>
+ * @package   mod_mediagallery
+ * @copyright Copyright (c) 2017 Blackboard Inc.
+ * @author    Adam Olley <adam.olley@netspot.com.au>
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 define('AJAX_SCRIPT', true);

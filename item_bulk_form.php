@@ -30,6 +30,9 @@ require_once($CFG->dirroot.'/mod/mediagallery/locallib.php');
 
 /**
  * Module instance settings form
+ *
+ * @copyright Copyright (c) 2017 Blackboard Inc.
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_mediagallery_item_bulk_form extends moodleform {
 
@@ -67,6 +70,13 @@ class mod_mediagallery_item_bulk_form extends moodleform {
         $this->add_action_buttons(false, get_string('submit'));
     }
 
+    /**
+     * Validate the user input.
+     *
+     * @param mixed $data The submitted data.
+     * @param mixed $files The submitted files.
+     * @return array A list of errors, if any.
+     */
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
         $info = file_get_draft_area_info($data['content']);

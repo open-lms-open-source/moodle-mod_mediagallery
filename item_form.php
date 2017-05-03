@@ -32,7 +32,10 @@ require_once($CFG->dirroot.'/mod/mediagallery/classes/quickform/uploader.php');
 require_once($CFG->dirroot.'/mod/mediagallery/classes/quickform/uploader_standard.php');
 
 /**
- * Module instance settings form
+ * Module instance settings form.
+ *
+ * @copyright Copyright (c) 2017 Blackboard Inc.
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_mediagallery_item_form extends moodleform {
 
@@ -140,6 +143,13 @@ class mod_mediagallery_item_form extends moodleform {
         $this->add_action_buttons();
     }
 
+    /**
+     * Validate user input.
+     *
+     * @param mixed $data The submitted form data.
+     * @param mixed $files The submitted files.
+     * @return array List of errors, if any.
+     */
     public function validation($data, $files) {
         global $CFG;
         $errors = parent::validation($data, $files);

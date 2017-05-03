@@ -17,11 +17,10 @@
 /**
  * Library of interface functions and constants for module mediagallery
  *
- * @package    mod
- * @subpackage mediagallery
- * @copyright  2013 NetSpot Pty Ltd
- * @author     Adam Olley <adam.olley@netspot.com.au>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   mod_mediagallery
+ * @copyright 2013 NetSpot Pty Ltd
+ * @author    Adam Olley <adam.olley@netspot.com.au>
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
@@ -72,7 +71,7 @@ function mediagallery_supports($feature) {
  * will create a new instance and return the id number
  * of the new instance.
  *
- * @param object $mediagallery An object from the form in mod_form.php
+ * @param stdClass $mediagallery An object from the form in mod_form.php
  * @param mod_mediagallery_mod_form $mform
  * @return int The id of the newly inserted mediagallery record
  */
@@ -100,7 +99,7 @@ function mediagallery_add_instance(stdClass $mediagallery, mod_mediagallery_mod_
  * (defined by the form in mod_form.php) this function
  * will update an existing instance with new data.
  *
- * @param object $mediagallery An object from the form in mod_form.php
+ * @param stdClass $mediagallery An object from the form in mod_form.php
  * @param mod_mediagallery_mod_form $mform
  * @return boolean Success/Fail
  */
@@ -128,7 +127,7 @@ function mediagallery_update_instance(stdClass $mediagallery, mod_mediagallery_m
 /**
  * Transform the optgroups in the form to the relevant format for storing in the DB.
  *
- * @param object $mediagallery An object from the form in mod_form.php
+ * @param stdClass $mediagallery An object from the form in mod_form.php
  */
 function mediagallery_formfield_transform(stdClass $mediagallery) {
     $mediagallery->carousel = 0;
@@ -188,6 +187,10 @@ function mediagallery_delete_instance($id) {
  * $return->time = the time they did it
  * $return->info = a short text description
  *
+ * @param object $course
+ * @param object $user
+ * @param object $mod
+ * @param object $mediagallery
  * @return stdClass|null
  */
 function mediagallery_user_outline($course, $user, $mod, $mediagallery) {
@@ -216,6 +219,9 @@ function mediagallery_user_complete($course, $user, $mod, $mediagallery) {
  * that has occurred in mediagallery activities and print it out.
  * Return true if there was output, or false is there was none.
  *
+ * @param object $course
+ * @param bool $viewfullnames capability
+ * @param int $timestart
  * @return boolean
  */
 function mediagallery_print_recent_activity($course, $viewfullnames, $timestart) {
@@ -242,8 +248,14 @@ function mediagallery_get_recent_mod_activity(&$activities, &$index, $timestart,
 }
 
 /**
- * Prints single activity item prepared by {@see mediagallery_get_recent_mod_activity()}
+ * Prints single activity item prepared by mediagallery_get_recent_mod_activity.
  *
+ * @see mediagallery_get_recent_mod_activity()
+ * @param stdClass $activity
+ * @param int $courseid
+ * @param bool $detail
+ * @param array $modnames
+ * @param object $viewfullnames
  * @return void
  */
 function mediagallery_print_recent_mod_activity($activity, $courseid, $detail, $modnames, $viewfullnames) {
@@ -264,7 +276,6 @@ function mediagallery_cron () {
 /**
  * Returns all other caps used in the module
  *
- * @example return array('moodle/site:accessallgroups');
  * @return array
  */
 function mediagallery_get_extra_capabilities() {
@@ -282,6 +293,7 @@ function mediagallery_get_extra_capabilities() {
  * as reference.
  *
  * @param int $mediagalleryid ID of an instance of this module
+ * @param int $scaleid
  * @return bool true if the scale is used by the given mediagallery instance
  */
 function mediagallery_scale_used($mediagalleryid, $scaleid) {
@@ -293,7 +305,7 @@ function mediagallery_scale_used($mediagalleryid, $scaleid) {
  *
  * This is used to find out if scale used anywhere.
  *
- * @param $scaleid int
+ * @param int $scaleid
  * @return boolean true if the scale is used by any mediagallery instance
  */
 function mediagallery_scale_used_anywhere($scaleid) {
@@ -448,7 +460,7 @@ function mediagallery_pluginfile($course, $cm, $context, $filearea, array $args,
 /**
  * Validate comment parameter before perform other comments actions
  *
- * @param stdClass $comment_param {
+ * @param stdClass $commentparam {
  *              context  => context the context object
  *              courseid => int course id
  *              cm       => stdClass course module object
@@ -470,7 +482,7 @@ function mediagallery_comment_validate($commentparam) {
 /**
  * Running addtional permission check on plugins
  *
- * @package  mediagallery
+ * @package  mod_mediagallery
  * @category comment
  *
  * @param stdClass $args
@@ -483,10 +495,10 @@ function mediagallery_comment_permissions($args) {
 /**
  * Validate comment data before displaying comments
  *
- * @package  mediagallery
+ * @package  mod_mediagallery
  * @category comment
  *
- * @param stdClass $comment
+ * @param stdClass $comments
  * @param stdClass $args
  * @return boolean
  */

@@ -32,13 +32,18 @@ use \mod_mediagallery\collection,
 use \mod_mediagallery\output\collection\renderable as rencollection;
 use \mod_mediagallery\output\gallery\renderable as rengallery;
 
+/**
+ * Main renderer.
+ *
+ * @copyright Copyright (c) 2017 Blackboard Inc.
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class mod_mediagallery_renderer extends plugin_renderer_base {
 
     /**
      * Setup the basic page settings.
      *
      * @param \mod_mediagallery\viewcontroller $controller
-     * @access public
      * @return void
      */
     public function setup_page($controller) {
@@ -51,8 +56,7 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
     /**
      * Setup the required js/css for the page and return the header html.
      *
-     * @param $controller
-     * @access public
+     * @param \mod_mediagallery\viewcontroller $controller
      * @return string
      */
     public function view_header($controller) {
@@ -115,9 +119,8 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
     /**
      * Setup and init the mediabox JS.
      *
-     * @param $collection
-     * @param $gallery
-     * @access protected
+     * @param \mod_mediagallery\collection $collection
+     * @param \mod_mediagallery\gallery $gallery
      * @return void
      */
     protected function setup_mediabox($collection, $gallery) {
@@ -140,8 +143,7 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
     /**
      * Render a list of galleries for the user to browse through.
      *
-     * @param \mod_mediagallery\output\collection\renderable $renderable
-     * @access public
+     * @param rencollection $renderable
      * @return string
      */
     public function render_collection(rencollection $renderable) {
@@ -188,6 +190,12 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
         return $o;
     }
 
+    /**
+     * Render a gallery for display on a collection page.
+     *
+     * @param \mod_mediagallery\gallery $gallery
+     * @return string
+     */
     public function gallery_list_item($gallery) {
         global $COURSE, $USER;
         $o = html_writer::start_tag('div',
@@ -217,6 +225,12 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
         return $o;
     }
 
+    /**
+     * Render the action icons for a gallery.
+     *
+     * @param \mod_mediagallery\gallery $gallery
+     * @return string
+     */
     public function gallery_list_item_actions($gallery) {
         $actions = array();
 
@@ -235,6 +249,12 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
         return $actions;
     }
 
+    /**
+     * Generate an action menu from a list of actions.
+     *
+     * @param array $actions
+     * @return string
+     */
     protected function action_menu($actions) {
         if (empty($actions)) {
             return '';
@@ -251,12 +271,24 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
         return str_replace('iconsmall', '', $output);
     }
 
+    /**
+     * Heading for gallery pages.
+     *
+     * @param gallery $gallery
+     * @return string
+     */
     public function gallery_heading(gallery $gallery) {
         $name = format_string($gallery->get_collection()->name).' '.$this->output->rarrow().' '.format_string($gallery->name);
         $head = $this->output->heading($name);
         return html_writer::div($head, 'heading');
     }
 
+    /**
+     * Render the focus selector.
+     *
+     * @param int $currentfocus
+     * @return string
+     */
     private function focus_selector($currentfocus) {
         $options = array(
             mcbase::TYPE_ALL => get_string('typeall', 'mediagallery'),
@@ -271,6 +303,13 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
         return html_writer::div($this->output->render($select), 'focus_selector');
     }
 
+    /**
+     * Render the media size selector, lets users select thumbnail size to
+     * display.
+     *
+     * @param int $currentsize
+     * @return string
+     */
     private function mediasize_selector($currentsize = rengallery::MEDIASIZE_MD) {
         $options = array(
             rengallery::MEDIASIZE_SM => get_string('mediasizesm', 'mediagallery'),
@@ -285,8 +324,7 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
     /**
      * Render a gallery.
      *
-     * @param \mod_mediagallery\output\gallery\renderable $renderable Gallery renderable details.
-     * @access public
+     * @param rengallery $renderable Gallery renderable details.
      * @return void
      */
     public function render_gallery(rengallery $renderable) {
@@ -354,8 +392,7 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
     /**
      * Get the display of items for a gallery when not in editing mode.
      *
-     * @param \mod_mediagallery\output\gallery\renderable $renderable
-     * @access protected
+     * @param rengallery $renderable
      * @return string
      */
     protected function gallery_viewing_page(rengallery $renderable) {
@@ -379,7 +416,7 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
     /**
      * Render editing interface for a specific gallery.
      *
-     * @param $gallery \mod_mediagallery\gallery The gallery to display.
+     * @param gallery $gallery The gallery to display.
      */
     public function gallery_editing_page(gallery $gallery) {
         $o = html_writer::start_tag('div', array('class' => 'gallery_items editing'));
@@ -390,6 +427,12 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
         return $o;
     }
 
+    /**
+     * Render the editing actions for a collection.
+     *
+     * @param rencollection $renderable
+     * @return string
+     */
     public function collection_editing_actions(rencollection $renderable) {
         $links = $this->collection_editing_actions_list($renderable);
         $content = implode(' &nbsp; ', $links);
@@ -399,6 +442,12 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
         return $o;
     }
 
+    /**
+     * Build the editing actions list for a collection.
+     *
+     * @param rencollection $renderable
+     * @return array A list of actions.
+     */
     public function collection_editing_actions_list(rencollection $renderable) {
         $links = array();
 
@@ -429,12 +478,23 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
         return $links;
     }
 
+    /**
+     * Render a sync link for an external service.
+     *
+     * @return string
+     */
     protected function sync_link() {
         $url = $this->page->url;
         $url->param('sync', true);
         return $this->iconlink(get_string('syncwiththebox', 'mediagallery'), $url, 'refresh');
     }
 
+    /**
+     * Render the last synced timestamp for an external service.
+     *
+     * @param int $timestamp
+     * @return string
+     */
     public function last_synced($timestamp) {
         if (!$timestamp) {
             return '';
@@ -448,8 +508,7 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
      * Action links shown when editing a gallery.
      *
      * @param gallery $gallery
-     * @access public
-     * @return void
+     * @return string
      */
     public function gallery_editing_actions(gallery $gallery) {
         $actions = $this->gallery_editing_actions_list($gallery);
@@ -461,6 +520,12 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
         return $o;
     }
 
+    /**
+     * Build a list of gallery editing actions.
+     *
+     * @param \mod_mediagallery\gallery $gallery
+     * @return array A list of actions.
+     */
     protected function gallery_editing_actions_list($gallery) {
         $additemurl = new moodle_url('/mod/mediagallery/item.php', array('g' => $gallery->id));
         $addbulkitemurl = new moodle_url('/mod/mediagallery/item.php', array('g' => $gallery->id, 'bulk' => 1));
@@ -489,6 +554,16 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
         return $actions;
     }
 
+    /**
+     * Render an action icon.
+     *
+     * @param string $text
+     * @param moodle_url $link
+     * @param string $fa A fontawesome icon string.
+     * @param string $linkclass Any classes to add to the tag.
+     * @param boolean $actionmenu Is this an actionmenu?
+     * @return string
+     */
     protected function iconlink($text, $link = null, $fa = null, $linkclass = '', $actionmenu = false) {
         $o = '';
         if ($fa) {
@@ -505,6 +580,13 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
         return $o;
     }
 
+    /**
+     * Render an item edit card.
+     *
+     * @param item $item
+     * @param gallery $gallery
+     * @return string
+     */
     public function item_editing(item $item, $gallery) {
         global $USER;
         $o = html_writer::start_tag('div', array('class' => 'item', 'data-id' => $item->id, 'data-title' => $item->caption));
@@ -533,6 +615,13 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
         return $o;
     }
 
+    /**
+     * Build a list of item editing actions.
+     *
+     * @param item $item
+     * @param gallery $gallery
+     * @return array A list of actions.
+     */
     protected function item_editing_actions_list($item, $gallery) {
         $actions = array();
 
@@ -557,6 +646,13 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
         return $actions;
     }
 
+    /**
+     * Render a list of the items not displayed in the main area.
+     *
+     * @param array $items
+     * @param gallery $gallery
+     * @return string
+     */
     protected function list_other_items($items, $gallery) {
         $o = html_writer::start_tag('ul');
         foreach ($items as $item) {
@@ -576,6 +672,13 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
         return $o;
     }
 
+    /**
+     * Render a carousel of items.
+     *
+     * @param \mod_mediagallery\gallery $gallery
+     * @param array $options
+     * @return string
+     */
     public function view_carousel(gallery $gallery, array $options = array()) {
         $o = html_writer::start_tag('div', array('class' => 'jcarousel-wrapper'));
         $o .= html_writer::start_tag('div',
@@ -617,11 +720,24 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
         return $o;
     }
 
+    /**
+     * Get the embed url using the mediarenderer.
+     *
+     * @param \mod_mediagallery\item $item
+     * @return string
+     */
     public function embed_html($item) {
         $mediarenderer = $this->page->get_renderer('core', 'media');
         return $mediarenderer->embed_url(new moodle_url($item->get_embed_url()), '', 670, 377);
     }
 
+    /**
+     * Build a list of attributes to attach to a displayed item.
+     *
+     * @param \mod_mediagallery\gallery $gallery
+     * @param \mod_mediagallery\item $item
+     * @return array A list of attributes.
+     */
     protected function linkattribs($gallery, $item) {
         $type = $item->type();
         $player = $type == mcbase::TYPE_AUDIO || ($type == mcbase::TYPE_VIDEO && $item->externalurl == '') ? $type : 1;
@@ -637,6 +753,13 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
         return $attribs;
     }
 
+    /**
+     * Render a grid of items.
+     *
+     * @param \mod_mediagallery\gallery $gallery
+     * @param array $options
+     * @return string
+     */
     protected function view_grid(gallery $gallery, array $options) {
         $o = '';
 
@@ -723,7 +846,6 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
      *
      * @param \mod_mediagallery\form\search $mform
      * @param \mod_mediagallery\output\searchresults\renderable $results
-     * @access public
      * @return string
      */
     public function search_page($mform, $results) {
@@ -739,7 +861,6 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
      * Render the search results table.
      *
      * @param \mod_mediagallery\output\searchresults\renderable $renderable
-     * @access public
      * @return string
      */
     public function render_searchresults($renderable) {
@@ -797,6 +918,12 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
 
     /**
      * Search results for course level search via block_mediagallery.
+     *
+     * @param array $items
+     * @param int $totalcount
+     * @param int $page
+     * @param int $perpage
+     * @return string
      */
     public function search_results($items, $totalcount, $page, $perpage) {
         $counts = new stdClass();
@@ -819,6 +946,12 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
         return $o;
     }
 
+    /**
+     * Renders some data usage statistics.
+     *
+     * @param array $usagedata
+     * @return string
+     */
     public function storage_report($usagedata) {
 
         $size = $this->convert_size($usagedata['total']);
@@ -848,6 +981,12 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
         return $o;
     }
 
+    /**
+     * Get the human readable conversion for a number of bytes.
+     *
+     * @param int $size
+     * @return string
+     */
     private function convert_size($size) {
         // TODO: Load once only.
         $gb = ' ' . get_string('sizegb');
@@ -866,6 +1005,12 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
         return $size;
     }
 
+    /**
+     * Render the tagselector module.
+     *
+     * @param array $tags
+     * @return string
+     */
     public function tags($tags) {
         $this->page->requires->yui_module('moodle-mod_mediagallery-tagselector', 'M.mod_mediagallery.tagselector.init',
             array('tagentry', $tags), null, true);
@@ -877,7 +1022,20 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
     }
 }
 
+/**
+ * Overrides for standard galleries.
+ *
+ * @copyright Copyright (c) 2017 Blackboard Inc.
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class mod_mediagallery_standard_renderer extends mod_mediagallery_renderer {
+
+    /**
+     * Render the action icons for a gallery.
+     *
+     * @param \mod_mediagallery\gallery $gallery
+     * @return string
+     */
     public function gallery_list_item_actions($gallery) {
         $actions = parent::gallery_list_item_actions($gallery);
 

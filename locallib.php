@@ -39,6 +39,12 @@ require_once($CFG->libdir.'/filelib.php');
 require_once($CFG->dirroot.'/repository/lib.php');
 require_once($CFG->dirroot.'/tag/lib.php');
 
+/**
+ * Options to pass to the filepicker when adding items to a gallery.
+ *
+ * @param \mod_mediagallery\gallery $gallery
+ * @return array
+ */
 function mediagallery_filepicker_options($gallery) {
     $pickeroptions = array(
         'maxbytes' => $gallery->get_collection()->maxbytes,
@@ -52,7 +58,10 @@ function mediagallery_filepicker_options($gallery) {
 /**
  * Get a list of mediagallery's the current user has permission to import a
  * gallery into.
- * @return array List of mediagallery's.'
+ *
+ * @param stdClass $course
+ * @param \mod_mediagallery\gallery $gallery
+ * @return array List of mediagallery's.
  */
 function mediagallery_get_sample_targets($course, $gallery) {
     $list = array();
@@ -72,7 +81,7 @@ function mediagallery_get_sample_targets($course, $gallery) {
  *
  * Code taken from mod_url.
  *
- * @param $url
+ * @param string $url
  * @return bool true is seems valid, false if definitely not valid URL
  */
 function mediagallery_appears_valid_url($url) {
@@ -84,6 +93,11 @@ function mediagallery_appears_valid_url($url) {
     }
 }
 
+/**
+ * Calculate disk usage by collections.
+ *
+ * @return array Usage data.
+ */
 function mediagallery_get_file_storage_usage() {
     global $DB;
     $usagedata = array('course' => array(), 'total' => 0);
@@ -129,6 +143,12 @@ function mediagallery_get_file_storage_usage() {
     return $usagedata;
 }
 
+/**
+ * Get all the collections for a list of courses.
+ *
+ * @param array $courses
+ * @return array
+ */
 function mediagallery_get_readable_collections($courses) {
     $instances = get_all_instances_in_courses('mediagallery', $courses);
     $list = array();
@@ -139,6 +159,16 @@ function mediagallery_get_readable_collections($courses) {
     return $list;
 }
 
+/**
+ * Search media collections for given terms.
+ *
+ * @param array $searchterms
+ * @param array $courses
+ * @param int $limitfrom
+ * @param int $limitnum
+ * @param string $extrasql
+ * @return array
+ */
 function mediagallery_search_items($searchterms, $courses, $limitfrom = 0, $limitnum = 50, $extrasql = '') {
     global $CFG, $DB, $USER;
     require_once($CFG->libdir.'/searchlib.php');
@@ -230,6 +260,12 @@ function mediagallery_search_items($searchterms, $courses, $limitfrom = 0, $limi
     return array($records, $totalcount);
 }
 
+/**
+ * Build the search query based off the parsetree.
+ *
+ * @param array $parsetree
+ * @return array A list containing the SQL and parameters list.
+ */
 function mediagallery_generate_search_sql($parsetree) {
     global $CFG, $DB;
     static $p = 0;
@@ -306,6 +342,12 @@ function mediagallery_generate_search_sql($parsetree) {
 
 }
 
+/**
+ * Add metainfo fields to a moodleform.
+ *
+ * @param moodleform $mform
+ * @return void
+ */
 function mediagallery_add_metainfo_fields(&$mform) {
     $mform->addElement('selectyesno', 'moralrights', get_string('moralrights', 'mediagallery'));
     $mform->addHelpButton('moralrights', 'moralrights', 'mediagallery');
@@ -341,6 +383,16 @@ function mediagallery_add_metainfo_fields(&$mform) {
     $mform->addHelpButton('reference', 'reference', 'mediagallery');
 }
 
+/**
+ * Add a tag field to a given moodleform.
+ *
+ * @param moodleform $mform
+ * @param array $tags
+ * @param bool $useajax
+ * @param bool $loadjs
+ * @param string $element
+ * @return void
+ */
 function mediagallery_add_tag_field($mform, array $tags, $useajax = false, $loadjs = true, $element = 'tags') {
     global $PAGE;
     $mform->addElement('text', $element, get_string('tags', 'mediagallery'));
