@@ -316,7 +316,7 @@ class gallery extends base {
             }
         }
         if (!$record) {
-            return $OUTPUT->pix_url('galleryicon', 'mediagallery')->out(false);
+            return $OUTPUT->image_url('galleryicon', 'mediagallery')->out(false);
             return null;
         }
         $item = new item($record, array('gallery' => $this));
