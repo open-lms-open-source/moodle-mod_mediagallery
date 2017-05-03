@@ -6,7 +6,7 @@ M.mod_mediagallery.base = {
     defaultitemwidth: 187,
 
     courseid: 0,
-    mid : 0,
+    mid: 0,
     gallery: 0,
     lbg_setup_ran: false,
     options: {
@@ -76,7 +76,7 @@ M.mod_mediagallery.base = {
             if (!owner) {
                 confirm = new M.core.confirm(config);
                 itemdata.action = 'remove';
-                confirm.on('complete-yes', function(e) {
+                confirm.on('complete-yes', function() {
                     this._confirmationListener.detach();
                     M.mod_mediagallery.base.delete_object(itemdata);
                 }, this);
@@ -84,9 +84,9 @@ M.mod_mediagallery.base = {
                 var question = M.str.mod_mediagallery.deleteorremovecollection;
                 question += '<br/><input type="textbox" name="deleteorremove"/><br/>';
                 question += M.str.mod_mediagallery.deleteorremovecollectionwarn;
-                config.question = '<div class="deleteorremove">'+question+'</div>';
+                config.question = '<div class="deleteorremove">' + question + '</div>';
                 confirm = new M.core.confirm(config);
-                confirm.on('complete-yes', function(e) {
+                confirm.on('complete-yes', function() {
                     itemdata.action = 'remove';
                     var deleteinput = Y.one('input[name="deleteorremove"]');
                     if (deleteinput) {
@@ -112,7 +112,7 @@ M.mod_mediagallery.base = {
         }
 
         var config = {
-            title : M.str.mod_mediagallery['confirm'+type+'delete'],
+            title : M.str.mod_mediagallery['confirm' + type + 'delete'],
             yesLabel : M.str.moodle.submit,
             noLabel : M.str.moodle.cancel,
             closeButtonTitle : M.str.moodle.cancel
@@ -120,29 +120,29 @@ M.mod_mediagallery.base = {
 
         Y.all(selector + ' .controls .delete').each(function() {
             this._confirmationListener = this._confirmationListener || this.on('click', function(e) {
-                // Prevent the default event (submit) from firing
+                // Prevent the default event (submit) from firing.
                 e.preventDefault();
 
                 var owner = this.hasClass('owner');
-                var itemdata = this.ancestor("div"+selector).getData();
+                var itemdata = this.ancestor("div" + selector).getData();
                 itemdata.class = type;
 
                 var confirm;
                 if (!owner) {
-                    config.question = M.str.mod_mediagallery['remove'+type+'confirm'];
+                    config.question = M.str.mod_mediagallery['remove' + type + 'confirm'];
                     confirm = new M.core.confirm(config);
                     itemdata.action = 'remove';
-                    confirm.on('complete-yes', function(e) {
+                    confirm.on('complete-yes', function() {
                         this._confirmationListener.detach();
                         M.mod_mediagallery.base.delete_object(itemdata, selector);
                     }, this);
                 } else {
-                    var question = M.str.mod_mediagallery['deleteorremove'+type];
+                    var question = M.str.mod_mediagallery['deleteorremove' + type];
                     question += '<br/><input type="textbox" name="deleteorremove"/><br/>';
-                    question += M.str.mod_mediagallery['deleteorremove'+type+'warn'];
-                    config.question = '<div class="deleteorremove">'+question+'</div>';
+                    question += M.str.mod_mediagallery['deleteorremove' + type + 'warn'];
+                    config.question = '<div class="deleteorremove">' + question + '</div>';
                     confirm = new M.core.confirm(config);
-                    confirm.on('complete-yes', function(e) {
+                    confirm.on('complete-yes', function() {
                         itemdata.action = 'remove';
                         var deleteinput = Y.one('input[name="deleteorremove"]');
                         if (deleteinput) {
@@ -167,8 +167,8 @@ M.mod_mediagallery.base = {
             selector = '.item';
         }
         var config = {
-            title : M.str.mod_mediagallery["confirm"+type+"delete"],
-            origquestion : M.str.mod_mediagallery["delete"+type] + ' ',
+            title : M.str.mod_mediagallery["confirm" + type + "delete"],
+            origquestion : M.str.mod_mediagallery["delete" + type] + ' ',
             yesLabel : M.str.moodle.yes,
             noLabel : M.str.moodle.cancel,
             closeButtonTitle : M.str.moodle.cancel
@@ -176,21 +176,21 @@ M.mod_mediagallery.base = {
 
         Y.all(selector + ' .controls .delete').each(function() {
             this._confirmationListener = this._confirmationListener || this.on('click', function(e) {
-                // Prevent the default event (submit) from firing
+                // Prevent the default event (submit) from firing.
                 e.preventDefault();
-                // Create the confirm box
-                var itemdata = this.ancestor("div"+selector).getData();
+                // Create the confirm box.
+                var itemdata = this.ancestor("div" + selector).getData();
                 config.question = config.origquestion + itemdata.title + '?';
                 var confirm = new M.core.confirm(config);
-                // If the user clicks yes
-                confirm.on('complete-yes', function(e) {
+                // If the user clicks yes.
+                confirm.on('complete-yes', function() {
                     // Detach the listener for the confirm box so it doesn't fire again.
                     this._confirmationListener.detach();
-                    // Simulate the original cancel button click
+                    // Simulate the original cancel button click.
                     itemdata["class"] = type;
                     M.mod_mediagallery.base.delete_object(itemdata, selector);
                 }, this);
-                // Show the confirm box
+                // Show the confirm box.
                 confirm.show();
             }, this);
         });
@@ -229,8 +229,8 @@ M.mod_mediagallery.base = {
 
     add_gallery_info_modal : function(courseid, data) {
         var metainfo = Y.Node.create('<div class="metainfo"></div>');
-        var userlink = '<a href="' + M.cfg.wwwroot + '/user/view.php?id=' + data.userid +
-            '&course=' + courseid + '">' + data.firstname + ' ' + data.lastname + '</a>';
+        var userlink = '<a href="' + M.cfg.wwwroot + '/user/view.php?id=' + data.userid;
+        userlink += '&course=' + courseid + '">' + data.firstname + ' ' + data.lastname + '</a>';
 
         var list = [
             [M.str.mod_mediagallery.galleryname, data.name],
@@ -241,14 +241,14 @@ M.mod_mediagallery.base = {
         }
 
         Y.each(list, function(v) {
-            Y.Node.create('<div class="field">'+v[0]+'</div><div class="value">'+v[1]+'</div>').appendTo(metainfo);
+            Y.Node.create('<div class="field">' + v[0] + '</div><div class="value">' + v[1] + '</div>').appendTo(metainfo);
         });
         var config = {
             headerContent : M.str.mod_mediagallery.information,
             bodyContent : metainfo,
             modal : true
-        }
-        Y.one('.gallery_list_item[data-id='+data.id+'] .action-icon.info').on('click', function(e) {
+        };
+        Y.one('.gallery_list_item[data-id=' + data.id + '] .action-icon.info').on('click', function(e) {
             e.preventDefault();
             var dialogue = new M.core.dialogue(config);
             dialogue.show();
@@ -261,7 +261,7 @@ M.mod_mediagallery.base = {
         var list = [
             [M.str.mod_mediagallery.caption, data.caption],
             [M.str.mod_mediagallery.datecreated, data.timecreatedformatted],
-            [M.str.moodle.fullnameuser, data.firstname+' '+data.lastname],
+            [M.str.moodle.fullnameuser, data.firstname + ' ' + data.lastname],
             [M.str.moodle.username, data.username],
             [M.str.moodle.group, data.groupname],
             [M.str.moodle.description, data.description],
@@ -282,15 +282,15 @@ M.mod_mediagallery.base = {
                 display = false;
             }
             if (display) {
-                Y.Node.create('<div class="field">'+v[0]+'</div><div class="value">'+v[1]+'</div>').appendTo(metainfo);
+                Y.Node.create('<div class="field">' + v[0] + '</div><div class="value">' + v[1] + '</div>').appendTo(metainfo);
             }
         });
         var config = {
             headerContent : M.str.mod_mediagallery.information,
             bodyContent : metainfo,
             modal : true
-        }
-        Y.one('.item[data-id='+data.id+'] .action-icon.info').on('click', function(e) {
+        };
+        Y.one('.item[data-id=' + data.id + '] .action-icon.info').on('click', function(e) {
             e.preventDefault();
             var dialogue = new M.core.dialogue(config);
             dialogue.show();
@@ -310,7 +310,7 @@ M.mod_mediagallery.base = {
             on: {
                 success: function(tid, response) {
                     try {
-                        responsetext = Y.JSON.parse(response.responseText);
+                        var responsetext = Y.JSON.parse(response.responseText);
                         if (responsetext.error) {
                             new M.core.ajaxException(responsetext);
                         }
@@ -319,19 +319,19 @@ M.mod_mediagallery.base = {
                     }
 
                     if (statusspinner) {
-                        window.setTimeout(function(e) {
+                        window.setTimeout(function() {
                             statusspinner.hide();
                         }, 400);
                     }
                     if (selector) {
-                        Y.one(selector+'[data-id='+data.id+']').remove();
+                        Y.one(selector + '[data-id=' + data.id + ']').remove();
                     }
                     if (data['class'] === 'collection') {
                         // Redirect to course.
-                        window.location.href = M.cfg.wwwroot+'/course/view.php?id='+this.courseid;
+                        window.location.href = M.cfg.wwwroot + '/course/view.php?id=' + this.courseid;
                     }
                 },
-                failure : function(tid, response) {
+                failure : function() {
                     if (statusspinner) {
                         statusspinner.hide();
                     }
@@ -356,7 +356,8 @@ M.mod_mediagallery.base = {
         var node = Y.one('.lb-social');
         var template = '<div class="lb-extradetails"></div><div class="lb-socialactions">';
         if (this.options.enablelikes) {
-            template += '<a class="like" href="#"><div class="like"></div>'+M.str.mod_mediagallery.like+'</a><span id="lb-likedby"></span>';
+            template += '<a class="like" href="#"><div class="like"></div>';
+            template += M.str.mod_mediagallery.like + '</a><span id="lb-likedby"></span>';
         }
         template += '<span id="lb-fullsize"></span></div><div id="lb-comments"></div>';
         node.setHTML(template);
@@ -408,12 +409,12 @@ M.mod_mediagallery.base = {
         var str = '';
         if (likes > 0) {
             str = '&nbsp;&bull;&nbsp;';
-            str += M.str.mod_mediagallery.likedby+': '
+            str += M.str.mod_mediagallery.likedby + ': ';
             if (likedbyme) {
                 likes = likes - 1;
                 str += M.str.mod_mediagallery.you + ', ';
             }
-            str += likes+' ';
+            str += likes + ' ';
             if (likes != 1) {
                 str += M.str.mod_mediagallery.others;
             } else {
@@ -473,13 +474,13 @@ M.mod_mediagallery.base = {
                         M.mod_mediagallery.base.update_likes(resp.likes, resp.likedbyme);
                     }
 
-                    str = '';
+                    var str = '';
                     if (item.player === "1") {
                         if (this.options.enablelikes) {
                             str += '&nbsp;&bull;&nbsp;';
                         }
-                        str += '<a href="'+item.url+'?forcedownload=0" target="_blank">' +
-                            M.str.mod_mediagallery.viewfullsize+'</a>';
+                        str += '<a href="' + item.url + '?forcedownload=0" target="_blank">';
+                        str += M.str.mod_mediagallery.viewfullsize + '</a>';
                     }
                     Y.one('#lb-fullsize').setHTML(str);
 
@@ -536,13 +537,17 @@ M.mod_mediagallery.base = {
         var embed_function = function() {
 
             var controls = {
-                    autoHide: true
-            }
+                autoHide: true
+            };
 
-            for(var i=0; i<M.util.video_players.length; i++) {
+            for(var i = 0; i < M.util.video_players.length; i++) {
                 var video = M.util.video_players[i];
                 if (video.width > 0 && video.height > 0) {
-                    var src = {src: M.cfg.wwwroot + '/lib/flowplayer/flowplayer-3.2.18.swf', width: video.width, height: video.height};
+                    var src = {
+                        src: M.cfg.wwwroot + '/lib/flowplayer/flowplayer-3.2.18.swf',
+                        width: video.width,
+                        height: video.height
+                    };
                 } else {
                     var src = M.cfg.wwwroot + '/lib/flowplayer/flowplayer-3.2.18.swf';
                 }
@@ -556,14 +561,14 @@ M.mod_mediagallery.base = {
                                 var width = 0;
                                 var height = 0;
                                 if (typeof(clip.metaData.width) == 'undefined' || typeof(clip.metaData.height) == 'undefined') {
-                                    // bad luck, we have to guess - we may not get metadata at all
+                                    // Bad luck, we have to guess - we may not get metadata at all.
                                     width = clip.width;
                                     height = clip.height;
                                 } else {
                                     width = clip.metaData.width;
                                     height = clip.metaData.height;
                                 }
-                                var minwidth = 300; // controls are messed up in smaller objects
+                                var minwidth = 300; // Controls are messed up in smaller objects.
                                 if (width < minwidth) {
                                     height = (height * minwidth) / width;
                                     width = minwidth;
@@ -582,22 +587,21 @@ M.mod_mediagallery.base = {
                 return;
             }
             var controls = {
-                    autoHide: false,
-                    fullscreen: false,
-                    next: false,
-                    previous: false,
-                    scrubber: true,
-                    play: true,
-                    pause: true,
-                    volume: true,
-                    mute: false,
-                    backgroundGradient: [0.5,0,0.3]
-                };
+                autoHide: false,
+                fullscreen: false,
+                next: false,
+                previous: false,
+                scrubber: true,
+                play: true,
+                pause: true,
+                volume: true,
+                mute: false,
+                backgroundGradient: [0.5,0,0.3]
+            };
 
             var rule;
-            for (var j=0; j < document.styleSheets.length; j++) {
-
-                // To avoid javascript security violation accessing cross domain stylesheets
+            for (var j = 0; j < document.styleSheets.length; j++) {
+                // To avoid javascript security violation accessing cross domain stylesheets.
                 var allrules = false;
                 try {
                     if (typeof (document.styleSheets[j].rules) != 'undefined') {
@@ -605,19 +609,18 @@ M.mod_mediagallery.base = {
                     } else if (typeof (document.styleSheets[j].cssRules) != 'undefined') {
                         allrules = document.styleSheets[j].cssRules;
                     } else {
-                        // why??
                         continue;
                     }
                 } catch (e) {
                     continue;
                 }
 
-                // On cross domain style sheets Chrome V8 allows access to rules but returns null
+                // On cross domain style sheets Chrome V8 allows access to rules but returns null.
                 if (!allrules) {
                     continue;
                 }
 
-                for(var i=0; i<allrules.length; i++) {
+                for(var i = 0; i < allrules.length; i++) {
                     rule = '';
                     if (/^\.mp3flowplayer_.*Color$/.test(allrules[i].selectorText)) {
                         if (typeof(allrules[i].cssText) != 'undefined') {
@@ -635,7 +638,7 @@ M.mod_mediagallery.base = {
                 allrules = false;
             }
 
-            for(i=0; i<M.util.audio_players.length; i++) {
+            for(var i = 0; i < M.util.audio_players.length; i++) {
                 var audio = M.util.audio_players[i];
                 if (audio.small) {
                     controls.controlall = false;
@@ -652,7 +655,7 @@ M.mod_mediagallery.base = {
                 });
             }
             M.util.audio_players = [];
-        }
+        };
 
         if (typeof(flowplayer) == 'undefined') {
             if (M.cfg.jsrev == -1) {
@@ -674,7 +677,7 @@ M.mod_mediagallery.base = {
     setup_sample_link : function() {
         var config = {
             title : M.str.mod_mediagallery.addsamplegallery,
-            question : '<img src="'+M.util.image_url('i/loading_small')+'" title="Processing..." />',
+            question : '<img src="' + M.util.image_url('i/loading_small') + '" title="Processing..." />',
             yesLabel : M.str.moodle.add,
             noLabel : M.str.moodle.cancel,
             closeButtonTitle : M.str.moodle.cancel
@@ -699,18 +702,20 @@ M.mod_mediagallery.base = {
                     on: {
                         success: function(tid, response) {
                             try {
-                                responsetext = Y.JSON.parse(response.responseText);
+                                var responsetext = Y.JSON.parse(response.responseText);
                                 if (responsetext.error) {
                                     new M.core.ajaxException(responsetext);
                                 }
                             } catch (e) {
                                 new M.core.ajaxException();
                             }
-                            var node = Y.Node.create('<div class="sample_target_wrapper"><span>'+M.str.mod_mediagallery.mediagallery+':</span></div>');
+                            var node = Y.Node.create(
+                                '<div class="sample_target_wrapper"><span>' + M.str.mod_mediagallery.mediagallery + ':</span></div>'
+                            );
                             var select = Y.Node.create('<select id="sample_target"/>');
                             node.append(select);
                             Y.Object.each(responsetext, function(v, k) {
-                                Y.Node.create('<option value="'+k+'">'+v+'</option>').appendTo(select);
+                                Y.Node.create('<option value="' + k + '">' + v + '</option>').appendTo(select);
                             });
                             confirm.bodyNode.one('.confirmation-message').setHTML(node);
                         },
@@ -723,7 +728,7 @@ M.mod_mediagallery.base = {
                 Y.io(M.mod_mediagallery.base.uri, ioconfig);
 
                 // If the user clicks add.
-                confirm.on('complete-yes', function(e) {
+                confirm.on('complete-yes', function() {
                     var target = Y.one('#sample_target').get('value');
                     var ioconfig = {
                         method: 'POST',
@@ -738,7 +743,7 @@ M.mod_mediagallery.base = {
                         on: {
                             success: function(tid, response) {
                                 try {
-                                    responsetext = Y.JSON.parse(response.responseText);
+                                    var responsetext = Y.JSON.parse(response.responseText);
                                     if (responsetext.error) {
                                         new M.core.ajaxException(responsetext);
                                     }
@@ -746,7 +751,7 @@ M.mod_mediagallery.base = {
                                     new M.core.ajaxException();
                                 }
                             },
-                            failure : function(tid, response) {
+                            failure : function() {
                             }
                         },
                         context: this,
@@ -754,7 +759,7 @@ M.mod_mediagallery.base = {
                     };
                     Y.io(M.mod_mediagallery.base.uri, ioconfig);
                 }, this);
-                // Show the confirm box
+                // Show the confirm box.
                 confirm.show();
             });
         }
@@ -770,7 +775,7 @@ M.mod_mediagallery.base = {
             var width = gallery.get('offsetWidth');
             var itemfit = Math.floor(width / M.mod_mediagallery.base.defaultitemwidth);
 
-            var rowdivider = Y.Node.create('<div class="rowdivider clearfix"></div>')
+            var rowdivider = Y.Node.create('<div class="rowdivider clearfix"></div>');
 
             gallery.all('.rowdivider').remove();
             gallery.all('.item').each(function(node, idx) {
@@ -798,14 +803,14 @@ M.mod_mediagallery.dragdrop = {
             component: 'moodle'
         };
 
-        //Static Vars
+        // Static Vars.
         var goingUp = false, lastX = 0, lastY = 0;
 
         var list = Y.Node.all(this.CSS.ITEMS);
         list.each(function(v, k) {
             var CSS = M.mod_mediagallery.dragdrop.CSS;
             // Replace move link and image with move_2d image.
-            var imagenode = Y.Node.create('<img class="smallicon move action-icon" title="'+M.str.moodle.move+'"/>');
+            var imagenode = Y.Node.create('<img class="smallicon move action-icon" title="' + M.str.moodle.move + '"/>');
             imagenode.setAttribute('src', M.util.image_url(MOVEICON.pix, MOVEICON.component));
             imagenode.addClass('cursor');
             v.one(CSS.CONTROLCONTAINER).prepend(imagenode);
@@ -825,9 +830,9 @@ M.mod_mediagallery.dragdrop = {
 
         Y.DD.DDM.on('drag:start', function(e) {
             e.preventDefault();
-            //Get our drag object
+            // Get our drag object.
             var drag = e.target;
-            //Set some styles here
+            // Set some styles here.
             drag.get('node').setStyle('opacity', '.25');
             drag.get('dragNode').addClass('mod_mediagallery item');
             drag.get('dragNode').set('innerHTML', drag.get('node').get('innerHTML'));
@@ -840,7 +845,7 @@ M.mod_mediagallery.dragdrop = {
 
         Y.DD.DDM.on('drag:end', function(e) {
             var drag = e.target;
-            //Put our styles back
+            // Put our styles back.
             drag.get('node').setStyles({
                 visibility: '',
                 opacity: '1'
@@ -849,24 +854,24 @@ M.mod_mediagallery.dragdrop = {
         });
 
         Y.DD.DDM.on('drag:drag', function(e) {
-            //Get the last y point
+            // Get the last y point.
             var x = e.target.lastXY[0];
             var y = e.target.lastXY[1];
             if (x < lastX) {
-                //We are going up
+                // We are going up.
                 goingUp = true;
             } else {
-                //We are going down.
+                // We are going down.
                 goingUp = false;
             }
-            //Cache for next check
+            // Cache for next check.
             lasyX = x;
             lastY = y;
 
         });
 
         Y.DD.DDM.on('drop:over', function(e) {
-            //Get a reference to our drag and drop nodes
+            // Get a reference to our drag and drop nodes.
             var drag = e.drag.get('node'),
                 drop = e.drop.get('node');
 
@@ -878,13 +883,13 @@ M.mod_mediagallery.dragdrop = {
             }
 
             if (drop.hasClass('item')) {
-                //Are we not going up?
+                // Are we not going up?
                 if (!goingUp) {
                     drop = drop.get('nextSibling');
                 }
-                //Add the node to this list
+                // Add the node to this list.
                 e.drop.get('node').get('parentNode').insertBefore(drag, drop);
-                //Resize this nodes shim, so we can drop on it later.
+                // Resize this nodes shim, so we can drop on it later.
                 e.drop.sizeShim();
             }
         });
@@ -893,7 +898,7 @@ M.mod_mediagallery.dragdrop = {
             var drop = e.drop.get('node'),
                 drag = e.drag.get('node');
 
-            //if we are not on an li, we must have been dropped on a ul
+            // If we are not on an li, we must have been dropped on a ul.
             if (!drop.hasClass('item')) {
                 if (!drop.contains(drag)) {
                     drop.appendChild(drag);
@@ -912,7 +917,7 @@ M.mod_mediagallery.dragdrop = {
             id : M.mod_mediagallery.base.gallery,
             action : 'sortorder'
         };
-        Y.io(M.cfg.wwwroot+'/mod/mediagallery/rest.php', {
+        Y.io(M.cfg.wwwroot + '/mod/mediagallery/rest.php', {
             method: 'POST',
             data: build_querystring(params),
             context: this

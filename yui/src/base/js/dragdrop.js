@@ -15,14 +15,14 @@ M.mod_mediagallery.dragdrop = {
             component: 'moodle'
         };
 
-        //Static Vars
+        // Static Vars.
         var goingUp = false, lastX = 0, lastY = 0;
 
         var list = Y.Node.all(this.CSS.ITEMS);
         list.each(function(v, k) {
             var CSS = M.mod_mediagallery.dragdrop.CSS;
             // Replace move link and image with move_2d image.
-            var imagenode = Y.Node.create('<img class="smallicon move action-icon" title="'+M.str.moodle.move+'"/>');
+            var imagenode = Y.Node.create('<img class="smallicon move action-icon" title="' + M.str.moodle.move + '"/>');
             imagenode.setAttribute('src', M.util.image_url(MOVEICON.pix, MOVEICON.component));
             imagenode.addClass('cursor');
             v.one(CSS.CONTROLCONTAINER).prepend(imagenode);
@@ -42,9 +42,9 @@ M.mod_mediagallery.dragdrop = {
 
         Y.DD.DDM.on('drag:start', function(e) {
             e.preventDefault();
-            //Get our drag object
+            // Get our drag object.
             var drag = e.target;
-            //Set some styles here
+            // Set some styles here.
             drag.get('node').setStyle('opacity', '.25');
             drag.get('dragNode').addClass('mod_mediagallery item');
             drag.get('dragNode').set('innerHTML', drag.get('node').get('innerHTML'));
@@ -57,7 +57,7 @@ M.mod_mediagallery.dragdrop = {
 
         Y.DD.DDM.on('drag:end', function(e) {
             var drag = e.target;
-            //Put our styles back
+            // Put our styles back.
             drag.get('node').setStyles({
                 visibility: '',
                 opacity: '1'
@@ -66,24 +66,24 @@ M.mod_mediagallery.dragdrop = {
         });
 
         Y.DD.DDM.on('drag:drag', function(e) {
-            //Get the last y point
+            // Get the last y point.
             var x = e.target.lastXY[0];
             var y = e.target.lastXY[1];
             if (x < lastX) {
-                //We are going up
+                // We are going up.
                 goingUp = true;
             } else {
-                //We are going down.
+                // We are going down.
                 goingUp = false;
             }
-            //Cache for next check
+            // Cache for next check.
             lasyX = x;
             lastY = y;
 
         });
 
         Y.DD.DDM.on('drop:over', function(e) {
-            //Get a reference to our drag and drop nodes
+            // Get a reference to our drag and drop nodes.
             var drag = e.drag.get('node'),
                 drop = e.drop.get('node');
 
@@ -95,13 +95,13 @@ M.mod_mediagallery.dragdrop = {
             }
 
             if (drop.hasClass('item')) {
-                //Are we not going up?
+                // Are we not going up?
                 if (!goingUp) {
                     drop = drop.get('nextSibling');
                 }
-                //Add the node to this list
+                // Add the node to this list.
                 e.drop.get('node').get('parentNode').insertBefore(drag, drop);
-                //Resize this nodes shim, so we can drop on it later.
+                // Resize this nodes shim, so we can drop on it later.
                 e.drop.sizeShim();
             }
         });
@@ -110,7 +110,7 @@ M.mod_mediagallery.dragdrop = {
             var drop = e.drop.get('node'),
                 drag = e.drag.get('node');
 
-            //if we are not on an li, we must have been dropped on a ul
+            // If we are not on an li, we must have been dropped on a ul.
             if (!drop.hasClass('item')) {
                 if (!drop.contains(drag)) {
                     drop.appendChild(drag);
@@ -129,7 +129,7 @@ M.mod_mediagallery.dragdrop = {
             id : M.mod_mediagallery.base.gallery,
             action : 'sortorder'
         };
-        Y.io(M.cfg.wwwroot+'/mod/mediagallery/rest.php', {
+        Y.io(M.cfg.wwwroot + '/mod/mediagallery/rest.php', {
             method: 'POST',
             data: build_querystring(params),
             context: this

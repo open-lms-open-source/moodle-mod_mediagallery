@@ -28,27 +28,27 @@ Y.extend(MEDIABOX, Y.Base, {
         var strtoggle = M.str.mod_mediagallery.togglesidebar;
         var strfullscreen = M.str.mod_mediagallery.togglefullscreen;
         var strclose = M.str.mod_mediagallery.close;
-        var actions = '<img class="sidebartoggle" src="' +
-            M.util.image_url('toggle', 'mod_mediagallery') + '" title="' + strtoggle + '" alt="' + strtoggle + '"/>';
-        actions += '<img class="prev" src="' +
-            M.util.image_url('left', 'mod_mediagallery') + '" title="' + strprev + '" alt="' + strprev + '"/>';
-        actions += '<img class="next" src="' +
-            M.util.image_url('right', 'mod_mediagallery') + '" title="' + strnext + '" alt="' + strnext + '"/>';
-        actions += '<img class="open" src="' +
-            M.util.image_url('download', 'mod_mediagallery') + '" title="' + strdownload + '" alt="' + strdownload + '"/>';
+        var actions = '<img class="sidebartoggle" src="';
+        actions += M.util.image_url('toggle', 'mod_mediagallery') + '" title="' + strtoggle + '" alt="' + strtoggle + '"/>';
+        actions += '<img class="prev" src="';
+        actions += M.util.image_url('left', 'mod_mediagallery') + '" title="' + strprev + '" alt="' + strprev + '"/>';
+        actions += '<img class="next" src="';
+        actions += M.util.image_url('right', 'mod_mediagallery') + '" title="' + strnext + '" alt="' + strnext + '"/>';
+        actions += '<img class="open" src="';
+        actions += M.util.image_url('download', 'mod_mediagallery') + '" title="' + strdownload + '" alt="' + strdownload + '"/>';
         if (this._fullscreenavail) {
-            actions += '<img class="fullscreen" src="' + M.util.image_url('fullscreen', 'mod_mediagallery') +
-                '" title="' + strfullscreen + '" alt="' + strfullscreen + '"/>';
+            actions += '<img class="fullscreen" src="' + M.util.image_url('fullscreen', 'mod_mediagallery');
+            actions += '" title="' + strfullscreen + '" alt="' + strfullscreen + '"/>';
         }
-        actions += '<img class="mbclose" src="' +
-            M.util.image_url('close', 'mod_mediagallery') + '" title="' + strclose + '" alt="' + strclose + '"/>';
+        actions += '<img class="mbclose" src="';
+        actions += M.util.image_url('close', 'mod_mediagallery') + '" title="' + strclose + '" alt="' + strclose + '"/>';
 
         var template = '<div id="mediabox"><div id="mediabox-content-wrap"><div id="mediabox-content"></div></div>';
         template += '<div id="mediabox-sidebar">';
         template += '<div id="mediabox-metainfo"></div><hr/>';
         template += '<div id="mediabox-social"></div><hr/><div id="mediabox-comments"></div>';
         template += '</div>';
-        template += '<div id="mediabox-sidebar-actions">'+actions+'</div>';
+        template += '<div id="mediabox-sidebar-actions">' + actions + '</div>';
         template += '<div id="mediabox-navbar"><div id="mediabox-navbar-container"></div></div></div>';
         template += '<div id="mediabox-overlay"></div>';
         Y.Node.create(template).appendTo('body');
@@ -93,10 +93,9 @@ Y.extend(MEDIABOX, Y.Base, {
 
         // Like button and text.
         if (this.get('enablelikes')) {
-            Y.Node.create(
-                '<a class="like" href="#"><div class="like"></div>' +
-                M.str.mod_mediagallery.like + '</a><span id="mediabox-likedby"></span>'
-            ).appendTo('#mediabox-social');
+            var likenode = '<a class="like" href="#"><div class="like"></div>';
+            likenode += M.str.mod_mediagallery.like + '</a><span id="mediabox-likedby"></span>';
+            Y.Node.create(likenode).appendTo('#mediabox-social');
         }
 
         // Like action.
@@ -243,10 +242,10 @@ Y.extend(MEDIABOX, Y.Base, {
                         if (resp.fields[i].value === '') {
                             continue;
                         }
-                        Y.Node.create('<div class="metafield '+resp.fields[i].name+'"></div>').append(
-                            '<div class="metaname">'+resp.fields[i].displayname+'</div>'
+                        Y.Node.create('<div class="metafield ' + resp.fields[i].name + '"></div>').append(
+                            '<div class="metaname">' + resp.fields[i].displayname + '</div>'
                         ).append(
-                            '<div class="metavalue">'+resp.fields[i].value+'</div>'
+                            '<div class="metavalue">' + resp.fields[i].value + '</div>'
                         ).appendTo(metainfo);
                     }
 
@@ -295,9 +294,10 @@ Y.extend(MEDIABOX, Y.Base, {
         if (this.currentitem.getAttribute('data-type') === 'youtube') {
             content.empty();
 
-            Y.Node.create('<iframe id="mediabox-youtube" type="text/html" width="' +
-                this._videowidth + '" height="' + this._videoheight + '" src="' +
-                this.currentitem.getAttribute('data-url') + '" frameborder="0">').appendTo(content);
+            var ytframe = '<iframe id="mediabox-youtube" type="text/html" width="';
+            ytframe += this._videowidth + '" height="' + this._videoheight + '" src="';
+            ytframe += this.currentitem.getAttribute('data-url') + '" frameborder="0">';
+            Y.Node.create(ytframe).appendTo(content);
             this.repositionitem();
         }
 
@@ -501,10 +501,10 @@ Y.extend(MEDIABOX, Y.Base, {
         var collapsed = M.util.image_url('t/collapsed', 'moodle');
         var expanded = M.util.image_url('t/expanded', 'moodle');
 
-        var imagenode = Y.Node.create('<img title="'+title+'"/>');
+        var imagenode = Y.Node.create('<img title="' + title + '"/>');
         imagenode.setAttribute('src', collapsed);
 
-        var node = Y.Node.create('<a href="#" class="toggle">'+title+'</a>');
+        var node = Y.Node.create('<a href="#" class="toggle">' + title + '</a>');
         node.prepend(imagenode);
 
         var container = Y.Node.create('<div class="metainfo-toggle"></div>');
@@ -547,7 +547,7 @@ Y.extend(MEDIABOX, Y.Base, {
                 likes = likes - 1;
                 str += M.str.mod_mediagallery.you + ', ';
             }
-            str += likes+' ';
+            str += likes + ' ';
             if (likes !== 1) {
                 str += M.str.mod_mediagallery.others;
             } else {

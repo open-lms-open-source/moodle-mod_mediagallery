@@ -44,8 +44,6 @@ class MoodleQuickForm_uploader_standard extends MoodleQuickForm_filepicker {
             $context = context_course::instance($COURSE->id);
         }
 
-        $client_id = uniqid();
-
         $args = new stdClass();
         // Need these three to filter repositories list.
         $args->accepted_types = $this->_options['accepted_types'] ? $this->_options['accepted_types'] : '*';
