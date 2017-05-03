@@ -191,10 +191,9 @@ function xmldb_mediagallery_upgrade($oldversion) {
             $rs = $DB->get_recordset('mediagallery');
             foreach ($rs as $record) {
                 $types = explode(',', $record->gallerytype);
-                // "1" means default to image focus.
-                $focus = !empty($types) ? $types[0] : 1;
+                $focus = !empty($types) ? $types[0] : \mod_mediagallery\collection::TYPE_IMAGE;
                 if (empty($focus)) {
-                    $focus = 1;
+                    $focus = \mod_mediagallery\collection::TYPE_IMAGE;
                 }
                 $record->galleryfocus = $focus;
                 $DB->update_record('mediagallery', $record);

@@ -68,10 +68,9 @@ class restore_mediagallery_activity_structure_step extends restore_activity_stru
         $data->timemodified = $this->apply_date_offset($data->timemodified);
         if (isset($data->gallerytype)) {
             $types = explode(',', $data->gallerytype);
-            // "1" means default to image focus.
-            $focus = !empty($types) ? $types[0] : 1;
+            $focus = !empty($types) ? $types[0] : \mod_mediagallery\collection::TYPE_IMAGE;
             if (empty($focus)) {
-                $focus = 1;
+                $focus = \mod_mediagallery\collection::TYPE_IMAGE;
             }
             $data->galleryfocus = $focus;
         }
