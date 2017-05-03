@@ -15,11 +15,15 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Backup activity for mod_mediagallery
+ *
  * @package    mod_mediagallery
  * @copyright  2014 NetSpot Pty Ltd
  * @author     Adam Olley <adam.olley@netspot.com.au>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/mod/mediagallery/backup/moodle2/backup_mediagallery_stepslib.php');
 
@@ -47,6 +51,8 @@ class backup_mediagallery_activity_task extends backup_activity_task {
     /**
      * Code the transformations to perform in the activity in
      * order to get transportable (encoded) links
+     * @param string $content
+     * @return string
      */
     static public function encode_content_links($content) {
         global $CFG;

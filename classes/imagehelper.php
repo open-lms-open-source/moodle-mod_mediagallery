@@ -16,6 +16,8 @@
 
 namespace mod_mediagallery;
 
+defined('MOODLE_INTERNAL') || die();
+
 class imagehelper {
 
     /**
@@ -46,7 +48,7 @@ class imagehelper {
         $width = imagesx($image);
         $height = imagesy($image);
 
-        $srcx = $width -  1;
+        $srcx = $width - 1;
         $srcy = 0;
         $srcwidth = -$width;
         $srcheight = $height;

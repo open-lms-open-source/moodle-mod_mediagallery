@@ -56,7 +56,12 @@ class mod_mediagallery_collection_testcase extends advanced_testcase {
     }
 
     public function test_user_can_add_children() {
-        $options = array('colltype' => 'contributed', 'course' => $this->course->id, 'groupmode' => VISIBLEGROUPS, 'maxgalleries' => 1);
+        $options = [
+            'colltype' => 'contributed',
+            'course' => $this->course->id,
+            'groupmode' => VISIBLEGROUPS,
+            'maxgalleries' => 1
+        ];
         $record = $this->getDataGenerator()->create_module('mediagallery', $options);
         $collection = new \mod_mediagallery\collection($record);
 

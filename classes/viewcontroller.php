@@ -17,6 +17,8 @@
 
 namespace mod_mediagallery;
 
+defined('MOODLE_INTERNAL') || die();
+
 class viewcontroller {
 
     public $cm;

@@ -101,7 +101,7 @@ class mod_mediagallery_item_form extends moodleform {
             }
         }
 
-        $lockfields = $item && !$item->user_can_edit()? true : false;
+        $lockfields = $item && !$item->user_can_edit() ? true : false;
 
         mediagallery_add_tag_field($mform, $tags, false, !$lockfields);
 

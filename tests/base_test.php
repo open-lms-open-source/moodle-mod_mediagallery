@@ -98,7 +98,6 @@ class mod_mediagallery_base_testcase extends advanced_testcase {
 
         // Instructor mode. Users can see all galleries.
 
-
         // Contributable flag on a gallery in contributed mode.
         $generator = self::getDataGenerator()->get_plugin_generator('mod_mediagallery');
         $teaid = $this->teachers[0]->id;

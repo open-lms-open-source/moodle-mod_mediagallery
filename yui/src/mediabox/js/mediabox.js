@@ -3,7 +3,7 @@ var MEDIABOX = function() {
 };
 
 Y.extend(MEDIABOX, Y.Base, {
-    initializer : function(config) {
+    initializer: function() {
         this.enable();
         this.build();
         this._sidebarwidth = 300;
@@ -18,7 +18,7 @@ Y.extend(MEDIABOX, Y.Base, {
 
     },
 
-    build : function() {
+    build: function() {
         var _this = this;
         var strnext = M.str.moodle.next;
         var strprev = M.str.moodle.previous;
@@ -26,18 +26,25 @@ Y.extend(MEDIABOX, Y.Base, {
         var strtoggle = M.str.mod_mediagallery.togglesidebar;
         var strfullscreen = M.str.mod_mediagallery.togglefullscreen;
         var strclose = M.str.mod_mediagallery.close;
-        var actions = '<img class="sidebartoggle" src="'+M.util.image_url('toggle', 'mod_mediagallery')+'" title="'+strtoggle+'" alt="'+strtoggle+'"/>';
-        actions += '<img class="prev" src="'+M.util.image_url('left', 'mod_mediagallery')+'" title="'+strprev+'" alt="'+strprev+'"/>';
-        actions += '<img class="next" src="'+M.util.image_url('right', 'mod_mediagallery')+'" title="'+strnext+'" alt="'+strnext+'"/>';
-        actions += '<img class="open" src="'+M.util.image_url('download', 'mod_mediagallery')+'" title="'+strdownload+'" alt="'+strdownload+'"/>';
+        var actions = '<img class="sidebartoggle" src="' +
+            M.util.image_url('toggle', 'mod_mediagallery') + '" title="' + strtoggle + '" alt="' + strtoggle + '"/>';
+        actions += '<img class="prev" src="' +
+            M.util.image_url('left', 'mod_mediagallery') + '" title="' + strprev + '" alt="' + strprev + '"/>';
+        actions += '<img class="next" src="' +
+            M.util.image_url('right', 'mod_mediagallery') + '" title="' + strnext + '" alt="' + strnext + '"/>';
+        actions += '<img class="open" src="' +
+            M.util.image_url('download', 'mod_mediagallery') + '" title="' + strdownload + '" alt="' + strdownload + '"/>';
         if (this._fullscreenavail) {
-            actions += '<img class="fullscreen" src="'+M.util.image_url('fullscreen', 'mod_mediagallery')+'" title="'+strfullscreen+'" alt="'+strfullscreen+'"/>';
+            actions += '<img class="fullscreen" src="' + M.util.image_url('fullscreen', 'mod_mediagallery') +
+                '" title="' + strfullscreen + '" alt="' + strfullscreen + '"/>';
         }
-        actions += '<img class="mbclose" src="'+M.util.image_url('close', 'mod_mediagallery')+'" title="'+strclose+'" alt="'+strclose+'"/>';
+        actions += '<img class="mbclose" src="' +
+            M.util.image_url('close', 'mod_mediagallery') + '" title="' + strclose + '" alt="' + strclose + '"/>';
 
         var template = '<div id="mediabox"><div id="mediabox-content-wrap"><div id="mediabox-content"></div></div>';
         template += '<div id="mediabox-sidebar">';
-        template += '<div id="mediabox-metainfo"></div><hr/><div id="mediabox-social"></div><hr/><div id="mediabox-comments"></div>';
+        template += '<div id="mediabox-metainfo"></div><hr/>';
+        template += '<div id="mediabox-social"></div><hr/><div id="mediabox-comments"></div>';
         template += '</div>';
         template += '<div id="mediabox-sidebar-actions">'+actions+'</div>';
         template += '<div id="mediabox-navbar"><div id="mediabox-navbar-container"></div></div></div>';
@@ -62,7 +69,6 @@ Y.extend(MEDIABOX, Y.Base, {
         }, '#mediabox', '#mediabox-navbar, #mediabox-navbar-container');
 
         // Sidebar hide/expand button.
-        var sidebar = Y.one('#mediabox-sidebar');
         Y.one('#mediabox-sidebar-actions .sidebartoggle').on('click', function() {
             _this.mediabox.toggleClass('sidebarhidden');
             _this.resizeoverlay();
@@ -86,7 +92,8 @@ Y.extend(MEDIABOX, Y.Base, {
         // Like button and text.
         if (this.get('enablelikes')) {
             Y.Node.create(
-                '<a class="like" href="#"><div class="like"></div>'+M.str.mod_mediagallery.like+'</a><span id="mediabox-likedby"></span>'
+                '<a class="like" href="#"><div class="like"></div>' +
+                M.str.mod_mediagallery.like + '</a><span id="mediabox-likedby"></span>'
             ).appendTo('#mediabox-social');
         }
 
@@ -127,11 +134,11 @@ Y.extend(MEDIABOX, Y.Base, {
 
         }, '#mediabox', '#mediabox-social a.like');
 
-        Y.delegate('blur', function(e) {
+        Y.delegate('blur', function() {
             _this.enablenav();
         }, '#mediabox', '#mediabox-comments textarea');
 
-        Y.delegate('focus', function(e) {
+        Y.delegate('focus', function() {
             _this.disablenav();
         }, '#mediabox', '#mediabox-comments textarea');
 
@@ -183,14 +190,13 @@ Y.extend(MEDIABOX, Y.Base, {
         var content = Y.one('#mediabox-content');
         var player = this.album[itemnumber].getAttribute('data-player');
         var type = this.album[itemnumber].getAttribute('data-type');
-        var objectid = this.album[itemnumber].getAttribute('data-objectid');
         content.empty();
 
-        var current = null;
-        if (current = this.navbar.one('.navitem.current')) {
+        var current = this.navbar.one('.navitem.current');
+        if (current) {
             current.removeClass('current');
         }
-        this.navbar.one('.navitem[data-id="'+itemnumber+'"]').addClass('current');
+        this.navbar.one('.navitem[data-id="' + itemnumber + '"]').addClass('current');
 
         var image = new Image();
 
@@ -210,7 +216,7 @@ Y.extend(MEDIABOX, Y.Base, {
             image.src = this.album[itemnumber].getAttribute('href');
         }
 
-        this.currentitemindex = parseInt(itemnumber);
+        this.currentitemindex = parseInt(itemnumber, 10);
         this.currentitem = this.album[itemnumber];
 
         var metainfo = Y.one('#mediabox-metainfo');
@@ -287,7 +293,9 @@ Y.extend(MEDIABOX, Y.Base, {
         if (this.currentitem.getAttribute('data-type') === 'youtube') {
             content.empty();
 
-            Y.Node.create('<iframe id="mediabox-youtube" type="text/html" width="'+this._videowidth+'" height="'+this._videoheight+'" src="'+this.currentitem.getAttribute('data-url') +'" frameborder="0">').appendTo(content);
+            Y.Node.create('<iframe id="mediabox-youtube" type="text/html" width="' +
+                this._videowidth + '" height="' + this._videoheight + '" src="' +
+                this.currentitem.getAttribute('data-url') + '" frameborder="0">').appendTo(content);
             this.repositionitem();
         }
 
@@ -310,7 +318,7 @@ Y.extend(MEDIABOX, Y.Base, {
                     Y.one('#mediabox-content').setHTML(resp.html);
                     if (resp.type === 'audio') {
                         M.util.add_audio_player(resp.id, resp.url, false);
-                    } else if (resp.objectid == '') {
+                    } else if (resp.objectid === '') {
                         M.util.add_video_player(resp.id, resp.url, false);
                     }
                     M.mod_mediagallery.base.load_flowplayer();
@@ -334,7 +342,8 @@ Y.extend(MEDIABOX, Y.Base, {
 
     enable : function() {
         var _this = this;
-        return Y.one('body').all('a[rel^=mediabox], area[rel^=mediabox], a[data-mediabox], area[data-mediabox]').on('click', function(e) {
+        var mediaboxtarget = 'a[rel^=mediabox], area[rel^=mediabox], a[data-mediabox], area[data-mediabox]';
+        return Y.one('body').all(mediaboxtarget).on('click', function(e) {
             e.preventDefault();
             _this.start(Y.one(e.currentTarget));
             return false;
@@ -348,7 +357,7 @@ Y.extend(MEDIABOX, Y.Base, {
         });
     },
 
-    keyboardaction : function(e) {
+    keyboardaction : function() {
         var KEYCODE_ESC, KEYCODE_LEFTARROW, KEYCODE_RIGHTARROW, key, keycode;
         KEYCODE_ESC = 27;
         KEYCODE_LEFTARROW = 37;
@@ -369,7 +378,9 @@ Y.extend(MEDIABOX, Y.Base, {
     },
 
     repositionitem : function(width, height) {
-        var offsetTop, offsetLeft, newwidth, newheight;
+        var offsetTop, offsetLeft;
+        var newwidth = '';
+        var newheight = '';
         var content = Y.one('#mediabox-content');
         var innercontent = content.get('children').get(0)[0];
         var dataplayer = 1;
@@ -402,8 +413,6 @@ Y.extend(MEDIABOX, Y.Base, {
         var maxwidth = winwidth - this.sidebarwidth();
         var maxheight = winheight - this._navbarheight;
 
-        var newwidth = '';
-        var newheight = '';
         if (width > maxwidth || height > maxheight) {
             if ((width / maxwidth) > (height / maxheight)) {
                 newwidth = maxwidth;
@@ -531,7 +540,7 @@ Y.extend(MEDIABOX, Y.Base, {
         var str = '';
         if (likes > 0) {
             str = '&nbsp;&bull;&nbsp;';
-            str += M.str.mod_mediagallery.likedby+': ';
+            str += M.str.mod_mediagallery.likedby + ': ';
             if (likedbyme) {
                 likes = likes - 1;
                 str += M.str.mod_mediagallery.you + ', ';

@@ -16,6 +16,8 @@
 
 namespace mod_mediagallery;
 
+defined('MOODLE_INTERNAL') || die();
+
 require_once(dirname(__FILE__).'/../locallib.php');
 
 class gallery extends base {

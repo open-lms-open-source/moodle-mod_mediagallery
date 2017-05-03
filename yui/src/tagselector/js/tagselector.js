@@ -19,7 +19,7 @@ M.mod_mediagallery.tagselector = {
 
         var source = tags;
         if (useajax) {
-            source = M.cfg.wwwroot+'/mod/mediagallery/tagajax.php?insttype=collection&q={query}&sesskey='+M.cfg.sesskey;
+            source = M.cfg.wwwroot + '/mod/mediagallery/tagajax.php?insttype=collection&q={query}&sesskey=' + M.cfg.sesskey;
         }
 
         node.plug(Y.Plugin.AutoComplete, {

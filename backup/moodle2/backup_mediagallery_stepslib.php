@@ -15,11 +15,15 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Backup steps for mod_mediagallery
+ *
  * @package    mod_mediagallery
  * @copyright  2014 NetSpot Pty Ltd
  * @author     Adam Olley <adam.olley@netspot.com.au>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+defined('MOODLE_INTERNAL') || die();
 
 /**
  * Define the complete mediagallery structure for backup, with file and id annotations

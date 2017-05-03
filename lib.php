@@ -385,7 +385,8 @@ function mediagallery_get_file_info($browser, $areas, $course, $cm, $context, $f
     // Get the list of files within the gallery.
     if ($filearea == 'gallery') {
         $storedfile = new virtual_root_file($context->id, 'mod_mediagallery', 'gallery', $itemid);
-        return new mod_mediagallery_file_info_area_gallery($browser, $context, $storedfile, $urlbase, null, true, true, true, false);
+        return new mod_mediagallery_file_info_area_gallery($browser, $context, $storedfile, $urlbase,
+            null, true, true, true, false);
     }
 
     // If we've gotten to here, we're after a specific file.

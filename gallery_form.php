@@ -73,7 +73,8 @@ class mod_mediagallery_gallery_form extends moodleform {
                 $counts = $mg->get_group_gallery_counts();
                 foreach ($groups as $group) {
                     $manage = has_capability('mod/mediagallery:manage', $context);
-                    if (!isset($counts[$group->id]) || $counts[$group->id]->count < $mg->maxgalleries || $mg->maxgalleries == 0 || $manage) {
+                    if (!isset($counts[$group->id])
+                        || $counts[$group->id]->count < $mg->maxgalleries || $mg->maxgalleries == 0 || $manage) {
                         $opts[$group->id] = $group->name;
                     }
                 }
@@ -134,7 +135,6 @@ class mod_mediagallery_gallery_form extends moodleform {
         if ($mg->carousel) {
             $options[gallery::VIEW_CAROUSEL] = get_string('carousel', 'mediagallery');
         }
-
 
         $mform->addElement('select', 'galleryview', get_string('galleryviewoptions', 'mediagallery'), $options);
         if ($mg->enforcedefaults && !($mg->grid && $mg->carousel)) {

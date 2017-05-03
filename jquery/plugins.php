@@ -23,6 +23,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die();
+
 $plugins = array(
     'jcarousel' => array('files' => array(
             'jcarousel/jquery.jcarousel.v2.min.js',

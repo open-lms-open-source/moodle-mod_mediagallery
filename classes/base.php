@@ -16,6 +16,8 @@
 
 namespace mod_mediagallery;
 
+defined('MOODLE_INTERNAL') || die();
+
 abstract class base {
 
     const POS_BOTTOM = 0;

@@ -173,10 +173,14 @@ class mod_mediagallery_mod_form extends moodleform_mod {
         $mform->addElement('header', 'display', get_string('settingsgallery', 'mediagallery'));
 
         $typeoptgroup = array();
-        $typeoptgroup[] = $mform->createElement('radio', 'focus', '', get_string('typeall', 'mediagallery'), \mod_mediagallery\base::TYPE_ALL);
-        $typeoptgroup[] = $mform->createElement('radio', 'focus', '', get_string('typeimage', 'mediagallery'), \mod_mediagallery\base::TYPE_IMAGE);
-        $typeoptgroup[] = $mform->createElement('radio', 'focus', '', get_string('typevideo', 'mediagallery'), \mod_mediagallery\base::TYPE_VIDEO);
-        $typeoptgroup[] = $mform->createElement('radio', 'focus', '', get_string('typeaudio', 'mediagallery'), \mod_mediagallery\base::TYPE_AUDIO);
+        $typeoptgroup[] = $mform->createElement('radio', 'focus', '',
+            get_string('typeall', 'mediagallery'), \mod_mediagallery\base::TYPE_ALL);
+        $typeoptgroup[] = $mform->createElement('radio', 'focus', '',
+            get_string('typeimage', 'mediagallery'), \mod_mediagallery\base::TYPE_IMAGE);
+        $typeoptgroup[] = $mform->createElement('radio', 'focus', '',
+            get_string('typevideo', 'mediagallery'), \mod_mediagallery\base::TYPE_VIDEO);
+        $typeoptgroup[] = $mform->createElement('radio', 'focus', '',
+            get_string('typeaudio', 'mediagallery'), \mod_mediagallery\base::TYPE_AUDIO);
         $mform->addGroup($typeoptgroup, 'gallerytypeoptions', get_string('galleryfocus', 'mediagallery'));
         $mform->addHelpButton('gallerytypeoptions', 'galleryfocus', 'mediagallery');
         $mform->addRule('gallerytypeoptions', null, 'required', null, 'client');
@@ -229,7 +233,10 @@ class mod_mediagallery_mod_form extends moodleform_mod {
         $toform['galleryviewoptions']['grid'] = isset($toform['grid']) ? $toform['grid'] : '';
 
         $toform['gallerytypeoptions'] = array();
-        $toform['gallerytypeoptions']['focus'] = isset($toform['galleryfocus']) ? $toform['galleryfocus'] : \mod_mediagallery\base::TYPE_IMAGE;
+        $toform['gallerytypeoptions']['focus'] = \mod_mediagallery\base::TYPE_IMAGE;
+        if (isset($toform['galleryfocus'])) {
+            $toform['gallerytypeoptions']['focus'] = $toform['galleryfocus'];
+        }
     }
 
     public function set_data($data) {

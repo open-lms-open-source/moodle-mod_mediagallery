@@ -424,7 +424,7 @@ function xmldb_mediagallery_upgrade($oldversion) {
         $table = new xmldb_table('mediagallery_item');
         $field = new xmldb_field('copyright_video_id', XMLDB_TYPE_CHAR, '36', null, null, null, null, 'theme_id');
 
-        // Launch rename field summary
+        // Launch rename field summary.
         if ($dbman->field_exists($table, $field)) {
             $dbman->rename_field($table, $field, 'copyright_id');
         }

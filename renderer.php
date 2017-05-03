@@ -133,7 +133,8 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
             $mediaboxparams['enablecomments'] = $gallery->can_comment();
             $mediaboxparams['enablelikes'] = $gallery->can_like();
         }
-        $this->page->requires->yui_module('moodle-mod_mediagallery-mediabox', 'M.mod_mediagallery.init_mediabox', array($mediaboxparams));
+        $this->page->requires->yui_module('moodle-mod_mediagallery-mediabox', 'M.mod_mediagallery.init_mediabox',
+            array($mediaboxparams));
     }
 
     /**
@@ -227,7 +228,8 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
         if ($gallery->user_can_remove()) {
             $url = new moodle_url('/mod/mediagallery/gallery.php', array('g' => $gallery->id, 'action' => 'delete'));
             $isowner = $gallery->is_thebox_creator_or_agent() ? ' owner' : '';
-            $actions['delete'] = $this->iconlink(get_string('deletegallery', 'mediagallery'), $url, 'trash-o', "delete$isowner", true);
+            $actions['delete'] = $this->iconlink(get_string('deletegallery', 'mediagallery'),
+                $url, 'trash-o', "delete$isowner", true);
         }
 
         return $actions;
@@ -298,7 +300,7 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
                 $class = ' no';
                 $pix = 'i/invalid';
             }
-            $indicator = html_writer::empty_tag('img', array('src' => $this->output->pix_url($pix)));
+            $indicator = html_writer::empty_tag('img', array('src' => $this->output->image_url($pix)));
             $o .= html_writer::tag('div', $indicator, array('class' => 'moralrights'.$class));
             $link = html_writer::link('#', get_string('sample', 'mediagallery'), array('id' => 'mg_sample'));
             $o .= html_writer::tag('div', $link, array('class' => 'moralrights_title'));
@@ -410,7 +412,8 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
         }
 
         if ($renderable->linkedassigncmid && $renderable->userorgrouphasgallery) {
-            $url = new moodle_url('/mod/assign/view.php', array('id' => $renderable->linkedassigncmid, 'action' => 'editsubmission'));
+            $url = new moodle_url('/mod/assign/view.php',
+                array('id' => $renderable->linkedassigncmid, 'action' => 'editsubmission'));
             if ($renderable->submissionsopen) {
                 $str = $renderable->hassubmitted ? 'assignedit' : 'assignsubmit';
                 $links['submitassign'] = $this->iconlink(get_string($str, 'mediagallery'), $url, 'check-square');
@@ -671,7 +674,6 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
                 break;
             }
 
-
             $url = new moodle_url('/mod/mediagallery/item.php', array('i' => $item->id, 'action' => 'info'));
             $infoicon = html_writer::tag('div',
                 $this->output->action_icon($url, new pix_icon('i/info', get_string('information', 'mediagallery')), null,
@@ -786,7 +788,6 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
 
             $t->data[] = new html_table_row($row);
         }
-
 
         $o .= html_writer::table($t);
         $o .= $this->output->box_end();

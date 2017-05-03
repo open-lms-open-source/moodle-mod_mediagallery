@@ -16,6 +16,8 @@
 
 namespace mod_mediagallery\output\gallery;
 
+defined('MOODLE_INTERNAL') || die();
+
 class renderable implements \renderable {
     const MEDIASIZE_SM = 0;
     const MEDIASIZE_MD = 1;

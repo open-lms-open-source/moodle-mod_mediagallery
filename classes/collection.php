@@ -16,6 +16,8 @@
 
 namespace mod_mediagallery;
 
+defined('MOODLE_INTERNAL') || die();
+
 /**
  * This class contains functions for manipulating and getting information for
  * the galleries that belong to a specific mediagallery activity.

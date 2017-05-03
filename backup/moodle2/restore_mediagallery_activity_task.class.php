@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Restore activity for mod_mediagallery
+ *
  * @package    mod_mediagallery
  * @copyright  2014 NetSpot Pty Ltd
  * @author     Adam Olley <adam.olley@netspot.com.au>

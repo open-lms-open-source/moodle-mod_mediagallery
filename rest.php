@@ -22,9 +22,8 @@
  * @author     Adam Olley <adam.olley@netspot.com.au>
  */
 
-if (!defined('AJAX_SCRIPT')) {
-    define('AJAX_SCRIPT', true);
-}
+define('AJAX_SCRIPT', true);
+
 require_once(dirname(__FILE__) . '/../../config.php');
 require_once($CFG->dirroot.'/mod/mediagallery/locallib.php');
 

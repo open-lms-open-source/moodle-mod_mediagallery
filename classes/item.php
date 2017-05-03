@@ -16,6 +16,8 @@
 
 namespace mod_mediagallery;
 
+defined('MOODLE_INTERNAL') || die();
+
 class item extends base {
 
     protected $context;
@@ -816,7 +818,6 @@ class item extends base {
             'image' => self::TYPE_IMAGE,
             'video' => self::TYPE_VIDEO,
         );
-
 
         if ($mimetype == 'document/unknown' && !empty($this->objectid)) {
             $ref = $this->file->get_reference_details();
