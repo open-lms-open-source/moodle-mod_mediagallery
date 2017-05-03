@@ -148,19 +148,18 @@ class mod_mediagallery_item_form extends moodleform {
 
         if (empty($data['externalurl']) && $info['filecount'] == 0 && empty($data['objectid'])) {
             $errors['filecheck'] = get_string('required');
-        } else if (!empty($url)) {
-            if (preg_match('|^/|', $url)) {
-                // Links relative to server root are ok - no validation necessary.
-            } else if (preg_match('|^[a-z]+://|i', $url) or preg_match('|^https?:|i', $url) or preg_match('|^ftp:|i', $url)) {
+        } else if (!empty($url) && !preg_match('|^/|', $url)) {
+            // Links relative to server root are ok - no validation necessary.
+            if (preg_match('|^[a-z]+://|i', $url) or preg_match('|^https?:|i', $url) or preg_match('|^ftp:|i', $url)) {
                 // Normal URL.
                 if (!mediagallery_appears_valid_url($url)) {
                     $errors['externalurl'] = get_string('invalidurl', 'url');
                 }
+            } else if (!preg_match('|^[a-z]+:|i', $url)) {
+                // The preg_match above has us skip general URI such as
+                // teamspeak, mailto, etc. - it may or may not work in all
+                // browsers. We do not validate these at all, sorry.
 
-            } else if (preg_match('|^[a-z]+:|i', $url)) {
-                // General URI such as teamspeak, mailto, etc. - it may or may not work in all browsers.
-                // We do not validate these at all, sorry.
-            } else {
                 // Invalid URI, we try to fix it by adding 'http://' prefix.
                 // Relative links are NOT allowed because we display the link on different pages!
                 require_once($CFG->dirroot."/mod/url/locallib.php");
