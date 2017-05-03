@@ -359,12 +359,12 @@ Y.extend(MEDIABOX, Y.Base, {
         });
     },
 
-    keyboardaction : function() {
+    keyboardaction : function(e) {
         var KEYCODE_ESC, KEYCODE_LEFTARROW, KEYCODE_RIGHTARROW, key, keycode;
         KEYCODE_ESC = 27;
         KEYCODE_LEFTARROW = 37;
         KEYCODE_RIGHTARROW = 39;
-        keycode = event.keyCode;
+        keycode = e.keyCode;
         key = String.fromCharCode(keycode).toLowerCase();
         if (keycode === KEYCODE_ESC || key.match(/x|o|c/)) {
             this.stop();
