@@ -301,7 +301,8 @@ class gallery extends base {
     public function get_thumbnail() {
         global $DB, $OUTPUT;
         $record = false;
-        if (empty($this->record->thumbnail) || (!$record = $DB->get_record('mediagallery_item', array('id' => $this->record->thumbnail)))) {
+        if (empty($this->record->thumbnail) ||
+            (!$record = $DB->get_record('mediagallery_item', array('id' => $this->record->thumbnail)))) {
             // The thumbnail item got deleted, pick the first item as the new thumbnail.
             $items = $this->get_items();
             if (empty($items)) {

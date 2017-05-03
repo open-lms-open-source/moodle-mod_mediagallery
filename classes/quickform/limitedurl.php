@@ -80,7 +80,7 @@ $straddlink
 EOD;
         }
 
-        // print out file picker
+        // Print out file picker.
         $str .= $OUTPUT->render($fp);
 
         $module = [

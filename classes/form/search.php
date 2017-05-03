@@ -16,6 +16,8 @@
 
 namespace mod_mediagallery\form;
 
+defined('MOODLE_INTERNAL') || die();
+
 require_once($CFG->libdir.'/formslib.php');
 
 class search extends \moodleform {
