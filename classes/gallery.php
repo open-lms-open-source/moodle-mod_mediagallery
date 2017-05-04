@@ -252,7 +252,7 @@ class gallery extends base {
                 // all items in gallery on mouseover for better user experience.
                 if (empty($record->caption)) {
                     if (!empty($filelist[$record->id])) {
-                        $record->caption =  $filelist[$record->id]['item']->get_filename();
+                        $record->caption = $filelist[$record->id]['item']->get_filename();
                     } else if (!empty($record->externalurl)) {
                         $record->caption = $record->externalurl;
                     }
