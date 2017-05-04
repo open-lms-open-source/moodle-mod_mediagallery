@@ -26,7 +26,7 @@ Feature: Add mediagallery activities and galleries
   @javascript
   Scenario: Add a mediagallery and a standard gallery
     Given I log in as "teacher1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I turn editing mode on
     And I add a "Media collection" to section "1" and I fill the form with:
       | Media collection name | Test mg name |
@@ -50,7 +50,7 @@ Feature: Add mediagallery activities and galleries
 
   Scenario: Add a youtube gallery to a collection
     Given I log in as "teacher1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I add a new gallery to "Instructor collection" media gallery with:
       | Gallery name | GalleryYT |
       | Gallery mode | YouTube   |
@@ -67,6 +67,6 @@ Feature: Add mediagallery activities and galleries
 
   Scenario: Student cannot add a gallery to an instructor collection
    Given I log in as "student1"
-   And I follow "Course 1"
+   And I am on "Course 1" course homepage
    And I follow "Instructor collection"
    Then I should not see "Add a gallery"

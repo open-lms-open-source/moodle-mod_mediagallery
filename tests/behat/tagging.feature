@@ -21,7 +21,7 @@ Feature: Users can tag items, galleries and collections
 
   Scenario: Add and remove tags for a collection
     Given I log in as "teacher1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Contributed collection"
     And I click on "Edit settings" "link"
     And I set the field "Tags" to "tag1,tag2"
@@ -35,7 +35,7 @@ Feature: Users can tag items, galleries and collections
 
   Scenario: Add and remove tags for a gallery
     Given I log in as "student1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I add a new gallery to "Contributed collection" media gallery with:
       | Gallery name | GalleryYT |
       | Gallery mode | YouTube   |
@@ -52,7 +52,7 @@ Feature: Users can tag items, galleries and collections
 
   Scenario: Add and remove tags for an item
     Given I log in as "student1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I add a new gallery to "Contributed collection" media gallery with:
       | Gallery name | GalleryYT |
       | Gallery mode | YouTube   |

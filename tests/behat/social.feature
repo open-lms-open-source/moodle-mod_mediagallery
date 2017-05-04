@@ -23,7 +23,7 @@ Feature: Social interactions with items
   @javascript
   Scenario: Liking an item
     When I log in as "student1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test mg groups name"
     And I add a new gallery to "Test mg groups name" media gallery with:
       | Gallery name | Gallery1 |
@@ -36,9 +36,10 @@ Feature: Social interactions with items
     And I click on "#mediabox a.like" "css_element"
     And I wait "1" seconds
     Then I should see "Unlike"
+    And I click on "#mediabox .mbclose" "css_element"
     When I log out
     And I log in as "student2"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test mg groups name"
     And I click on ".gallery_list_item[data-title=\"Gallery1\"] a" "css_element"
     And I wait to be redirected
