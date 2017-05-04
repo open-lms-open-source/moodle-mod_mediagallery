@@ -1,4 +1,8 @@
 #Media collection activity for Moodle
+
+[![Build Status](https://travis-ci.org/netspotau/moodle-mod_mediagallery.svg?branch=master)](https://travis-ci.org/netspotau/moodle-mod_mediagallery)
+[![License](https://poser.pugx.org/netspotau/moodle-mod_mediagallery/license)](https://packagist.org/packages/netspotau/moodle-mod_mediagallery)
+
 This plugin allows instructors/teachers to create a space for students to submit "galleries". These galleries can be based on images, audio or video. The galleries themselves can be used as part of gradeable assignments when used in conjuction with the media collection submission module (http://github.com/netspotau/moodle-assignsubmission_mediagallery).
 
 This activity was written by Adam Olley \<adam.olley@netspot.com.au\> for the University of New South Wales (http://www.unsw.edu.au).
