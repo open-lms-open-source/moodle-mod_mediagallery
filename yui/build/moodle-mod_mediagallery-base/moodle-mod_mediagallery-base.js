@@ -807,7 +807,7 @@ M.mod_mediagallery.dragdrop = {
         var goingUp = false, lastX = 0, lastY = 0;
 
         var list = Y.Node.all(this.CSS.ITEMS);
-        list.each(function(v, k) {
+        list.each(function(v) {
             var CSS = M.mod_mediagallery.dragdrop.CSS;
             // Replace move link and image with move_2d image.
             var imagenode = Y.Node.create('<img class="smallicon move action-icon" title="' + M.str.moodle.move + '"/>');
@@ -865,7 +865,7 @@ M.mod_mediagallery.dragdrop = {
                 goingUp = false;
             }
             // Cache for next check.
-            lasyX = x;
+            lastX = x;
             lastY = y;
 
         });
