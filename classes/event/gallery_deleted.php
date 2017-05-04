@@ -52,11 +52,21 @@ class gallery_deleted extends \core\event\base {
         $this->data['objecttable'] = 'mediagallery_gallery';
     }
 
+    /**
+     * Human readable description of the event.
+     *
+     * @return string
+     */
     public function get_description() {
         return "The user with id '$this->userid' has deleted the gallery with id '$this->objectid' in the Media collection " .
             "with course module id '$this->contextinstanceid'.";
     }
 
+    /**
+     * Human readable name of the event.
+     *
+     * @return string
+     */
     public static function get_name() {
         return get_string('eventgallerydeleted', 'mod_mediagallery');
     }

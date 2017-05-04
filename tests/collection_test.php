@@ -14,13 +14,38 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Unit tests for the collection class.
+ *
+ * @package   mod_mediagallery
+ * @copyright Copyright (c) 2017 Blackboard Inc.
+ * @author    Adam Olley <adam.olley@netspot.com.au>
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Unit tests for the collection class.
+ *
+ * @copyright Copyright (c) 2017 Blackboard Inc.
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class mod_mediagallery_collection_testcase extends advanced_testcase {
 
+    /**
+     * @var stdClass Course object.
+     */
     protected $course;
 
+    /**
+     * @var array List of teacher records.
+     */
     protected $teachers = array();
+
+    /**
+     * @var array List of student records.
+     */
     protected $students = array();
 
     /**

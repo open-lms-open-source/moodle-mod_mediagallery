@@ -14,6 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * The collection search class.
+ *
+ * @package   mod_mediagallery
+ * @copyright Copyright (c) 2017 Blackboard Inc.
+ * @author    Adam Olley <adam.olley@blackboard.com>
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 
 namespace mod_mediagallery;
 
@@ -21,6 +29,12 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir.'/csvlib.class.php');
 
+/**
+ * Media collection search implementation.
+ *
+ * @copyright Copyright (c) 2017 Blackboard Inc.
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class mcsearch {
     public $params;
     public $results;

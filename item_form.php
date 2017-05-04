@@ -35,7 +35,7 @@ require_once($CFG->dirroot.'/mod/mediagallery/classes/quickform/uploader_standar
  * Module instance settings form.
  *
  * @copyright Copyright (c) 2017 Blackboard Inc.
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_mediagallery_item_form extends moodleform {
 

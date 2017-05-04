@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * List the mediagallery activities in a course.
+ *
  * @package    mod_mediagallery
  * @copyright  2013 NetSpot Pty Ltd
  * @author     Adam Olley <adam.olley@netspot.com.au>

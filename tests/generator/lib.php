@@ -14,6 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Generator for mod_mediagallery activities.
+ *
+ * @package   mod_mediagallery
+ * @copyright Copyright (c) 2017 Blackboard Inc.
+ * @author    Adam Olley <adam.olley@netspot.com.au>
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -80,6 +89,12 @@ class mod_mediagallery_generator extends testing_module_generator {
         return parent::create_instance($record, $options);
     }
 
+    /**
+     * Create a gallery object.
+     *
+     * @param mixed $record An array or object defining a gallery.
+     * @return \mod_mediagallery\gallery
+     */
     public function create_gallery($record = null) {
         global $CFG, $USER;
 
@@ -109,6 +124,12 @@ class mod_mediagallery_generator extends testing_module_generator {
         return \mod_mediagallery\gallery::create($record);
     }
 
+    /**
+     * Create an item.
+     *
+     * @param mixed $record An array or object defining a item.
+     * @return \mod_mediagallery\item
+     */
     public function create_item($record = null) {
         global $CFG, $USER;
 

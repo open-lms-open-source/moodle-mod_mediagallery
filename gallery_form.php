@@ -32,6 +32,8 @@ use \mod_mediagallery\gallery as gallery;
 
 /**
  * Module instance settings form
+ * @copyright Copyright (c) 2017 Blackboard Inc.
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_mediagallery_gallery_form extends moodleform {
 
@@ -195,12 +197,24 @@ class mod_mediagallery_gallery_form extends moodleform {
         $this->add_action_buttons();
     }
 
+    /**
+     * Pre-process form data.
+     *
+     * @param array $toform
+     * @return void
+     */
     public function data_preprocessing(&$toform) {
         $toform['galleryviewoptions'] = array();
         $toform['galleryviewoptions']['carousel'] = $toform['carousel'];
         $toform['galleryviewoptions']['grid'] = $toform['grid'];
     }
 
+    /**
+     * Set the forms data.
+     *
+     * @param array $data
+     * @return void
+     */
     public function set_data($data) {
         if (!empty($data->mode)) {
             $this->_form->hardFreeze('mode');
@@ -212,6 +226,13 @@ class mod_mediagallery_gallery_form extends moodleform {
         parent::set_data($data);
     }
 
+    /**
+     * Validate form input.
+     *
+     * @param array $data
+     * @param array $files
+     * @return array List of errors, if any.
+     */
     public function validation($data, $files) {
         $errors = array();
         $collection = new \mod_mediagallery\collection($data['m']);

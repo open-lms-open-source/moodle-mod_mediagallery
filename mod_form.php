@@ -20,8 +20,7 @@
  * It uses the standard core Moodle formslib. For more info about them, please
  * visit: http://docs.moodle.org/en/Development:lib/formslib.php
  *
- * @package    mod
- * @subpackage mediagallery
+ * @package    mod_mediagallery
  * @copyright  NetSpot Pty Ltd
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -33,11 +32,26 @@ require_once($CFG->dirroot.'/mod/mediagallery/locallib.php');
 
 /**
  * Module instance settings form
+ *
+ * @copyright  NetSpot Pty Ltd
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_mediagallery_mod_form extends moodleform_mod {
 
+    /**
+     * @var stdClass The course record.
+     */
     protected $course = null;
 
+    /**
+     * Initialise activity form.
+     *
+     * @param mixed $current
+     * @param mixed $section
+     * @param mixed $cm
+     * @param mixed $course
+     * @return void
+     */
     public function __construct($current, $section, $cm, $course) {
         $this->course = $course;
         parent::__construct($current, $section, $cm, $course);
@@ -227,6 +241,12 @@ class mod_mediagallery_mod_form extends moodleform_mod {
         $this->add_action_buttons();
     }
 
+    /**
+     * Preprocess form data. Some of our data needs to be structured to match what a moodleform expects.
+     *
+     * @param array $toform
+     * @return void
+     */
     public function data_preprocessing(&$toform) {
         $toform['galleryviewoptions'] = array();
         $toform['galleryviewoptions']['carousel'] = isset($toform['carousel']) ? $toform['carousel'] : 1;
@@ -239,6 +259,12 @@ class mod_mediagallery_mod_form extends moodleform_mod {
         }
     }
 
+    /**
+     * Set the form data.
+     *
+     * @param mixed $data Set the form data.
+     * @return void
+     */
     public function set_data($data) {
         if (!empty($data->id)) {
             $collection = new \mod_mediagallery\collection($data);

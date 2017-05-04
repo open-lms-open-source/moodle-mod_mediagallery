@@ -64,9 +64,9 @@ class behat_mod_mediagallery extends behat_base {
      * We assume we're on the gallery page in editing mode.
      *
      * @Given /^I add a new item to "([^"]*)" gallery uploading "([^"]*)" with:$/
-     * @param string $name
+     * @param string $gallery
      * @param string $file
-     * @param TableNode $atable
+     * @param TableNode $table
      */
     public function i_add_a_new_item_to_gallery_uploading_with($gallery, $file, TableNode $table) {
         return array(
@@ -79,6 +79,8 @@ class behat_mod_mediagallery extends behat_base {
     }
 
     /**
+     * View the current page with all groups selected.
+     *
      * @Given /^I go to view with all groups$/
      */
     public function i_goto_view_with_all_groups() {
