@@ -259,7 +259,9 @@ Y.extend(MEDIABOX, Y.Base, {
                             commentarea : 'item',
                             autostart : true
                         };
-                        M.core_comment.init(Y, opts);
+                        if (M.core_comment !== undefined) {
+                            M.core_comment.init(Y, opts);
+                        }
                     }
                     if (_this.get('enablelikes')) {
                         var icon = '<div class="like"></div>';
