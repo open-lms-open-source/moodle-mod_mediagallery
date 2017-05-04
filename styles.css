@@ -83,6 +83,16 @@
     display: inline-block;
 }
 
+.path-mod-mediagallery .gallery_items .controls .moodle-actionmenu .icon,
+.path-mod-mediagallery .gallery_list_item .controls .moodle-actionmenu .icon {
+    margin-right: 0;
+}
+
+.path-mod-mediagallery .gallery_items .controls .moodle-actionmenu .dropdown-toggle::after,
+.path-mod-mediagallery .gallery_list_item .controls .moodle-actionmenu .dropdown-toggle::after {
+    display: none;
+}
+
 .path-mod-mediagallery div.grid_item {
     float: left;
     margin-right: 10px;
