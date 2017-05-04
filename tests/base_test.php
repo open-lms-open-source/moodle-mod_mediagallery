@@ -149,7 +149,7 @@ class mod_mediagallery_base_testcase extends advanced_testcase {
         $this->assertTrue($item1->user_can_remove($teaid));
 
         $this->assertFalse($item1->user_can_edit($stuid2));
-        $this->assertFalse($item1->user_can_edit($teaid));
+        $this->assertTrue($item1->user_can_edit($teaid));
         $this->assertFalse($item1->user_can_remove($stuid2));
 
         // Stuid2 owns the item, but not the gallery. So only stuid2 and teacher
@@ -159,7 +159,7 @@ class mod_mediagallery_base_testcase extends advanced_testcase {
         $this->assertTrue($item2->user_can_remove($teaid));
 
         $this->assertFalse($item2->user_can_edit($stuid1));
-        $this->assertFalse($item2->user_can_edit($teaid));
+        $this->assertTrue($item2->user_can_edit($teaid));
         $this->assertFalse($item2->user_can_remove($stuid1));
 
         // Flag off.
