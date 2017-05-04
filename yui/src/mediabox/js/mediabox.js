@@ -390,6 +390,10 @@ Y.extend(MEDIABOX, Y.Base, {
             datatype = this.currentitem.getAttribute('data-type');
         }
 
+        if (innercontent === undefined) {
+            return;
+        }
+
         if (dataplayer === "2" || datatype === 'youtube') {
             // Flowplayer gets special treatment.
             if (content.one('.mediaplugin.flow')) {
