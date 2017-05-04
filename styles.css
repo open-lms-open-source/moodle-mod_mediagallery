@@ -46,15 +46,25 @@
 .path-mod-mediagallery .item .title {
     margin-left: 5px;
     float: left;
-    overflow: hidden;
-    max-width: 170px;
+    max-width: 100px;
     word-break: break-word;
 }
 
 .path-mod-mediagallery .gallery_list_item .title h6,
 .path-mod-mediagallery .item .title h6 {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    width: 100px;
     margin-top: 0px;
     margin-bottom: 0px;
+}
+
+.path-mod-mediagallery .gallery_list_item .title h6:hover,
+.path-mod-mediagallery .item .title h6:hover {
+    white-space: initial;
+    overflow: visible;
+    word-wrap: break-word;
 }
 
 .path-mod-mediagallery .gallery_list_item .controls,
