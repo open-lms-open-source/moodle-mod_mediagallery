@@ -183,6 +183,26 @@ Y.extend(MEDIABOX, Y.Base, {
 
     },
 
+    updatenavbarselection: function(itemnumber) {
+        var current = this.navbar.one('.navitem.current');
+        if (current) {
+            current.removeClass('current');
+        }
+        this.navbar.one('.navitem[data-id="' + itemnumber + '"]').addClass('current');
+
+        // Let's keep the currently displayed image centered in the navbar.
+        var navbar = Y.one('#mediabox-navbar');
+        var currentitem = Y.one('#mediabox-navbar-container .current');
+        var itemwidth = currentitem.get('clientWidth') + 2 * parseInt(currentitem.getStyle('margin-left'), 10);
+        var items = Y.all('#mediabox-navbar-container .navitem');
+        var index = items.indexOf(currentitem);
+
+        var navwidth = navbar.get('clientWidth');
+        var margin = (navwidth / 2) - (itemwidth / 2) - (index * itemwidth);
+
+        Y.one('#mediabox-navbar-container').setStyle('margin-left', margin + 'px');
+    },
+
     changeitem : function(itemnumber) {
         if (this.currentitemindex === itemnumber) {
             return;
@@ -193,11 +213,7 @@ Y.extend(MEDIABOX, Y.Base, {
         var type = this.album[itemnumber].getAttribute('data-type');
         content.empty();
 
-        var current = this.navbar.one('.navitem.current');
-        if (current) {
-            current.removeClass('current');
-        }
-        this.navbar.one('.navitem[data-id="' + itemnumber + '"]').addClass('current');
+        this.updatenavbarselection(itemnumber);
 
         var image = new Image();
 
