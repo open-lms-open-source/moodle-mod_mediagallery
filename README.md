@@ -11,7 +11,7 @@ This activity was written by Adam Olley \<adam.olley@netspot.com.au\> for the Un
 ### Using Moodle
 You can install the plugin from the Moodle plugin repository from within your Moodle installation.
 ### Using a downloaded zip file
-You can download a zip of this module from: https://github.com/netspotau/moodle-mod_mediagalley/zipball/master  
+You can download a zip of this module from: https://github.com/netspotau/moodle-mod_mediagallery/zipball/master  
 Unzip it to your mod/ folder and rename the extracted folder to 'mediagallery'.
 ### Using Git
 To install using git, run the following command from the root of your moodle installation:  
