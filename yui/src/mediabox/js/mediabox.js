@@ -300,9 +300,9 @@ Y.extend(MEDIABOX, Y.Base, {
         if (player === "0" || player === "2") {
             this.embed_player(data.id);
             if (player === "0") {
-                content.one('span.mediaplugin').addClass('audio');
+                content.one('.mediaplugin').addClass('audio');
             } else {
-                content.one('span.mediaplugin').addClass('video');
+                content.one('.mediaplugin').addClass('video');
             }
         }
 
@@ -334,20 +334,9 @@ Y.extend(MEDIABOX, Y.Base, {
                 success : function (id, response) {
                     var resp = JSON.parse(response.responseText);
                     Y.one('#mediabox-content').setHTML(resp.html);
-                    if (resp.type === 'audio') {
-                        M.util.add_audio_player(resp.id, resp.url, false);
-                    } else if (resp.objectid === '') {
-                        M.util.add_video_player(resp.id, resp.url, false);
-                    }
-                    M.mod_mediagallery.base.load_flowplayer();
                     if (resp.type === 'video') {
                         var plugin = Y.one('#mediabox-content .mediaplugin');
-                        if (resp.flow) {
-                            plugin.addClass('flow');
-                            this.repositionitem(this._videowidth, this._videoheight);
-                        } else {
-                            this.repositionitem(plugin.get('offsetWidth'), plugin.get('offsetHeight'));
-                        }
+                        this.repositionitem(plugin.get('offsetWidth'), plugin.get('offsetHeight'));
                     }
                 }
             },
