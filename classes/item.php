@@ -621,7 +621,7 @@ class item extends base {
             // If its not an image, we want to display a moodle filetype icon, so we need to use the item path.
             $type = 'item';
         }
-        $path = \moodle_url::make_pluginfile_url($this->get_context()->id, 'mod_mediagallery', 'item', $this->record->id, '/', $file->get_filename());
+        $path = \moodle_url::make_pluginfile_url($this->get_context()->id, 'mod_mediagallery', $type, $this->record->id, '/', $file->get_filename());
         if ($preview && $type == 'item') {
             $path->param('preview', 'bigthumb');
         }
@@ -680,7 +680,7 @@ class item extends base {
             // If its not an image, we want to display a moodle filetype icon, so we need to use the item path.
             $urltype = 'item';
         }
-        $path = \moodle_url::make_pluginfile_url($this->get_context()->id, 'mod_mediagallery', 'item', $this->record->id, '/', $file->get_filename());
+        $path = \moodle_url::make_pluginfile_url($this->get_context()->id, 'mod_mediagallery', $urltype, $this->record->id, '/', $file->get_filename());
 
         // For audio/video files, this has moodle display a filetype icon.
         if ($type == 'thumbnail' && $urltype == 'item' && !$isimagetype) {
