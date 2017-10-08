@@ -109,16 +109,18 @@ if ($mform->is_cancelled()) {
             file_save_draft_area_files($data->content, $context->id, 'mod_mediagallery', 'item', $item->id, $fmoptions);
 
             $storedfile = null;
+            $regenthumb = false;
             if ($gallery->galleryfocus != \mod_mediagallery\base::TYPE_IMAGE && $gallery->mode != 'thebox') {
                 $draftid = file_get_submitted_draft_itemid('customthumbnail');
                 if ($files = $fs->get_area_files(
                     context_user::instance($USER->id)->id, 'user', 'draft', $draftid, 'id DESC', false)) {
                     $storedfile = reset($files);
+                    $regenthumb = true;
                 }
             }
             if ($gallery->mode != 'thebox') {
-                $item->generate_image_by_type('lowres', false, $storedfile);
-                $item->generate_image_by_type('thumbnail', false, $storedfile);
+                $item->generate_image_by_type('lowres', $regenthumb, $storedfile);
+                $item->generate_image_by_type('thumbnail', $regenthumb, $storedfile);
             }
             $params = array(
                 'context' => $context,
