@@ -49,7 +49,7 @@ class mod_mediagallery_item_bulk_form extends moodleform {
         $mform->addElement('header', 'general', get_string('addbulkitems', 'mediagallery'));
 
         $mform->addElement('static', 'filecheck', '', get_string('contentbulkheader', 'mediagallery'));
-        $options = array('maxbytes' => $gallery->get_collection()->maxbytes, 'accepted_types' => array('archive'));
+        $options = array('maxbytes' => $gallery->get_collection()->maxbytes, 'accepted_types' => array('application/zip'));
         $mform->addElement('filepicker', 'content', get_string('content', 'mediagallery'), '0', $options);
         $mform->addHelpButton('content', 'contentbulk', 'mediagallery');
         $mform->addRule('content', null, 'required', null, 'client');
