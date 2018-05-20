@@ -449,7 +449,7 @@ class item extends base {
         global $CFG;
         $embed = '';
         if ($id = $this->get_youtube_videoid()) {
-            $embed = "http://www.youtube.com/embed/{$id}";
+            $embed = "https://www.youtube.com/embed/{$id}";
         } else if ($this->type() == self::TYPE_IMAGE) {
             $embed = $this->get_image_url_by_type();
         } else {
@@ -603,7 +603,7 @@ class item extends base {
             }
             preg_match('/(youtu\.be\/|youtube\.com\/(watch\?(.*&)?v=|(embed|v)\/))([^\?&"\'>]+)/', $url, $matches);
             if (isset($matches[5])) {
-                return new \moodle_url('http://img.youtube.com/vi/'.$matches[5].'/0.jpg');
+                return new \moodle_url('https://img.youtube.com/vi/'.$matches[5].'/0.jpg');
             }
         }
 
@@ -649,7 +649,7 @@ class item extends base {
             }
             preg_match('/(youtu\.be\/|youtube\.com\/(watch\?(.*&)?v=|(embed|v)\/))([^\?&"\'>]+)/', $url, $matches);
             if (isset($matches[5])) {
-                return new \moodle_url('http://img.youtube.com/vi/'.$matches[5].'/0.jpg');
+                return new \moodle_url('https://img.youtube.com/vi/'.$matches[5].'/0.jpg');
             }
 
             // Handle FILE_EXTERNAL repository content.
