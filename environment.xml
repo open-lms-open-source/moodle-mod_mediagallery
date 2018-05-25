@@ -2,7 +2,10 @@
 <COMPATIBILITY_MATRIX>
   <PLUGIN name="mod_mediagallery">
     <PHP_EXTENSIONS>
-      <PHP_EXTENSION name="exif" level="required">
+      <PHP_EXTENSION name="exif" level="optional">
+        <FEEDBACK>
+          <ON_CHECK message="exifmissing" plugin="mod_mediagallery" />
+        </FEEDBACK>
       </PHP_EXTENSION>
     </PHP_EXTENSIONS>
   </PLUGIN>

@@ -152,6 +152,7 @@ $string['eventitemcreated'] = 'Item created';
 $string['eventitemdeleted'] = 'Item deleted';
 $string['eventitemupdated'] = 'Item updated';
 $string['eventgalleryviewed'] = 'Gallery viewed';
+$string['exifmissing'] = 'Without this, jpg/tiff files may not be rotated to the correct orientation in media collections.';
 $string['export'] = 'Export';
 $string['exportascsv'] = 'Export as CSV';
 $string['exportgallery'] = 'Export gallery';

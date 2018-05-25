@@ -325,7 +325,7 @@ class item extends base {
         $mimetype = $file->get_mimetype();
         $isjpegortiff = $mimetype == 'image/jpeg' || $mimetype == 'image/tiff';
 
-        if ($isjpegortiff && ($exif = exif_read_data($tempfile))) {
+        if ($isjpegortiff && function_exists('exif_read_data') && ($exif = exif_read_data($tempfile))) {
             $ort = 1;
             if (isset($exif['IFD0']['Orientation'])) {
                 $ort = $exif['IFD0']['Orientation'];
