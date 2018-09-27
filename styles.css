@@ -48,6 +48,9 @@
     float: left;
     max-width: 100px;
     word-break: break-word;
+
+    position: relative;
+    display: inline-block;
 }
 
 .path-mod-mediagallery .gallery_list_item .title h6,
@@ -60,11 +63,25 @@
     margin-bottom: 0px;
 }
 
-.path-mod-mediagallery .gallery_list_item .title h6:hover,
-.path-mod-mediagallery .item .title h6:hover {
-    white-space: initial;
-    overflow: visible;
-    word-wrap: break-word;
+.path-mod-mediagallery .gallery_list_item .title .tooltiptext,
+.path-mod-mediagallery .item .title .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    padding: 5px 0;
+    border-radius: 6px;
+
+    position: absolute;
+    z-index: 1;
+
+    width: 120px;
+}
+
+.path-mod-mediagallery .gallery_list_item .title:hover .tooltiptext,
+.path-mod-mediagallery .item .title:hover .tooltiptext {
+    visibility: visible;
 }
 
 .path-mod-mediagallery .gallery_list_item .controls,
@@ -80,11 +97,11 @@
 
 .path-mod-mediagallery .gallery_items .controls .moodle-actionmenu,
 .path-mod-mediagallery .gallery_list_item .controls .moodle-actionmenu {
-    display: inline-block;
+    display: inline-block !important;
 }
 
-.path-mod-mediagallery .gallery_items .controls .moodle-actionmenu .icon,
-.path-mod-mediagallery .gallery_list_item .controls .moodle-actionmenu .icon {
+.path-mod-mediagallery .gallery_items .controls .icon,
+.path-mod-mediagallery .gallery_list_item .controls .icon {
     margin-right: 0;
 }
 

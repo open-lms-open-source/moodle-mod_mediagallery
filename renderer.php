@@ -206,7 +206,9 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
         $link = html_writer::link($url, $img);
         $o .= html_writer::tag('div', $link, array('class' => 'gthumbnail'));
         $o .= html_writer::start_tag('div', array('class' => 'title'));
-        $o .= $this->output->heading(format_string($gallery->name), 6);
+        $heading = format_string($gallery->name);
+        $o .= $this->output->heading($heading, 6);
+        $o .= html_writer::tag('span', $heading, ['class' => 'tooltiptext']);
         $o .= html_writer::end_tag('div');
 
         $o .= html_writer::start_tag('div', array('class' => 'controls'));
@@ -595,7 +597,9 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
         $link = html_writer::link(null, $img);
         $o .= html_writer::tag('div', $link, array('class' => 'gthumbnail'));
         $o .= html_writer::start_tag('div', array('class' => 'title'));
-        $o .= $this->output->heading(format_string($item->caption), 6);
+        $heading = format_string($item->caption);
+        $o .= $this->output->heading($heading, 6);
+        $o .= html_writer::tag('span', $heading, ['class' => 'tooltiptext']);
         $o .= html_writer::end_tag('div');
 
         $o .= html_writer::start_tag('div', array('class' => 'controls'));
