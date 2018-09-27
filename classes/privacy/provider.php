@@ -57,6 +57,16 @@ class provider implements
     public static function get_metadata(collection $items) : collection {
 
         $items->add_database_table(
+            'mediagallery',
+            [
+                'id' => 'privacy:metadata:mediagallery:id',
+                'name' => 'privacy:metadata:mediagallery:name',
+                'userid' => 'privacy:metadata:mediagallery:userid',
+            ],
+            'privacy:metadata:mediagallery'
+        );
+
+        $items->add_database_table(
             'mediagallery_gallery',
             [
                 'instanceid' => 'privacy:metadata:mediagallery_gallery:instanceid',
