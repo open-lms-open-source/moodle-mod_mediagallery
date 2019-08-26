@@ -25,10 +25,12 @@ namespace mod_mediagallery\privacy;
 
 use core_privacy\local\metadata\collection;
 use core_privacy\local\request\approved_contextlist;
+use core_privacy\local\request\approved_userlist;
 use core_privacy\local\request\contextlist;
 use core_privacy\local\request\deletion_criteria;
 use core_privacy\local\request\helper;
 use core_privacy\local\request\transform;
+use core_privacy\local\request\userlist;
 use core_privacy\local\request\writer;
 
 defined('MOODLE_INTERNAL') || die();
@@ -41,6 +43,7 @@ defined('MOODLE_INTERNAL') || die();
 class provider implements
     // This plugin stores personal data.
     \core_privacy\local\metadata\provider,
+    \core_privacy\local\request\core_userlist_provider,
     // This plugin is a core_user_data_provider.
     \core_privacy\local\request\plugin\provider,
     // This plugin has some sitewide user preferences to export.
@@ -434,4 +437,102 @@ class provider implements
         }
         writer::export_user_preference('mod_mediagallery', 'mod_mediagallery_mediasize', $pref, get_string($string, 'mod_mediagallery'));
     }
+
+    /**
+     * Get the list of users who have data within a context.
+     *
+     * @param userlist $userlist The userlist containing the list of users who have data in this context/plugin combination.
+     *
+     */
+    public static function get_users_in_context(userlist $userlist) {
+        $context = $userlist->get_context();
+
+        if (!is_a($context, \context_module::class)) {
+            return;
+        }
+
+        $params = [
+            'instanceid'    => $context->instanceid,
+        ];
+
+        $collectionsql = "SELECT userid
+                          FROM {mediagallery}
+                          WHERE id = :instanceid";
+
+        $userlist->add_from_sql('userid', $collectionsql, $params);
+
+        $gallerysql = "SELECT userid
+                       FROM {mediagallery_gallery}
+                       WHERE instanceid = :instanceid";
+
+        $userlist->add_from_sql('userid', $gallerysql, $params);
+
+        $itemsql = "SELECT i.userid
+                    FROM {mediagallery_item} i
+                    JOIN {mediagallery_gallery} g ON i.galleryid = g.id
+                    WHERE g.instanceid = :instanceid";
+
+        $userlist->add_from_sql('userid', $itemsql, $params);
+    }
+
+    /**
+     * Delete multiple users within a single context.
+     *
+     * @param approved_userlist $userlist The approved context and user information to delete information for.
+     */
+    public static function delete_data_for_users(approved_userlist $userlist) {
+        global $DB;
+
+        $context = $userlist->get_context();
+        if ($context->contextlevel != CONTEXT_MODULE) {
+            return;
+        }
+        $instanceid = self::get_mediagallery_id_from_context($context);
+        $userids = $userlist->get_userids();
+
+        if (empty($instanceid)) {
+            return;
+        }
+
+        list($insql, $inparams) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
+
+        $fs = get_file_storage();
+
+        $galleryidsql = "SELECT g.id
+                         FROM {mediagallery_gallery} g
+                         WHERE userid $insql AND instanceid = :instanceid";
+        $itemidsql = "SELECT i.id
+                      FROM {mediagallery_item} i
+                      WHERE userid $insql AND galleryid IN (
+                        SELECT id
+                        FROM {mediagallery_gallery}
+                        WHERE instanceid = :instanceid
+                      )";
+
+        $params = array_merge(['instanceid' => $instanceid], $inparams);
+
+        $fs->delete_area_files_select($context->id, 'mod_mediagallery', 'item', "IN ($itemidsql)", $params);
+        $fs->delete_area_files_select($context->id, 'mod_mediagallery', 'lowres', "IN ($itemidsql)", $params);
+        $fs->delete_area_files_select($context->id, 'mod_mediagallery', 'thumbnail', "IN ($itemidsql)", $params);
+
+        \core_tag\privacy\provider::delete_item_tags_select($context, 'mod_mediagallery', 'gallery',
+            "IN ($galleryidsql)", $params);
+        \core_tag\privacy\provider::delete_item_tags_select($context, 'mod_mediagallery', 'item',
+            "IN ($itemidsql)", $params);
+
+        // We delete these last as the deletes above depend on these records.
+
+        $DB->delete_records_select('mediagallery_userfeedback', "itemid IN ($itemidsql)", $params);
+        $DB->delete_records_select('mediagallery_item', "galleryid IN ($galleryidsql)", $params);
+        $DB->delete_records('mediagallery_gallery', $params);
+
+        \core_comment\privacy\provider::delete_comments_for_users($userlist, 'mod_mediagallery', 'gallery');
+        \core_comment\privacy\provider::delete_comments_for_users($userlist, 'mod_mediagallery', 'item');
+    }
+
+    protected static function get_mediagallery_id_from_context(\context_module $context) {
+        $cm = get_coursemodule_from_id('mediagallery', $context->instanceid);
+        return $cm ? (int) $cm->instance : 0;
+    }
+
 }

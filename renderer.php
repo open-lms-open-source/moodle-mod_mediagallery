@@ -166,7 +166,7 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
                 $o .= html_writer::start_tag('div', array('class' => 'row clearfix'));
                 $rowopen = true;
             }
-            if ($renderable->thumbnailsperpage > 0 && $count > $renderable->thumbnailsperpage) {
+            if ($renderable->thumbnailsperpage > 0 && $count >= $renderable->thumbnailsperpage) {
                 break;
             }
 
@@ -963,7 +963,7 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
         $o .= html_writer::empty_tag('br');
         $o .= html_writer::empty_tag('br');
 
-        $catlist = coursecat::make_categories_list();
+        $catlist = core_course_category::make_categories_list();
         $o .= html_writer::start_tag('ul');
         foreach ($catlist as $catid => $catname) {
             if (empty($usagedata['category'][$catid])) {

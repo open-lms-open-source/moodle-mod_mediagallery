@@ -57,6 +57,7 @@ $string['carousel'] = 'Carousel';
 $string['choosecontent'] = 'Select either a file to upload, or a URL in the options below.';
 $string['close'] = 'Close';
 $string['collection'] = 'Collection';
+$string['collection_help'] = 'The collection to search from.';
 $string['collectionwasdeleted'] = 'Sorry, this collection no longer exists and has been removed from this course.';
 
 // Collection modes.

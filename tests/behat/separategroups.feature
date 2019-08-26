@@ -38,44 +38,44 @@ Feature: Separate users galleries based on groups
 
   Scenario: Only group members should see their groups galleries
     When I log in as "student1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test mg groups name"
     And I add a new gallery to "Test mg groups name" media gallery with:
       | Gallery name | Gallery1 |
     And I should see "Gallery1"
     Then I log out
     When I log in as "student2"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test mg groups name"
     Then I should not see "Gallery1"
     When I log out
     And I log in as "student3"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test mg groups name"
     Then I should see "Gallery1"
     When I log out
     And I log in as "teacher1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test mg groups name"
     Then I should see "Gallery1"
 
   Scenario: In visible groups mode, all galleries should be visible, but not editable
     When I log in as "student1"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test mg groups visi"
     And I add a new gallery to "Test mg groups visi" media gallery with:
       | Gallery name | Gallery1 |
     Then I should see "Gallery1"
     When I log out
     And I log in as "student2"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test mg groups visi"
     And I go to view with all groups
     Then I should see "Gallery1"
     And ".gallery_list_item[data-title=\"Gallery1\"] .controls .delete" "css_element" should not exist
     When I log out
     And I log in as "student3"
-    And I follow "Course 1"
+    And I am on "Course 1" course homepage
     And I follow "Test mg groups visi"
     Then I should see "Gallery1"
     And ".gallery_list_item[data-title=\"Gallery1\"] .controls .delete" "css_element" should exist

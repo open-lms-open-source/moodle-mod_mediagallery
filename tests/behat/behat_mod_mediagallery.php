@@ -49,15 +49,11 @@ class behat_mod_mediagallery extends behat_base {
      * @param TableNode $table
      */
     public function i_add_a_gallery_to_mediagallery_with($name, TableNode $table) {
-
-        // Escaping $name as it has been stripped automatically by the transformer.
-        return array(
-            new Given('I follow "' . $this->escape($name) . '"'),
-            new Given('I follow "' . get_string('addagallery', 'mediagallery') . '"'),
-            new Given('I set the following fields to these values:', $table),
-            new Given('I press "' . get_string('savechanges') . '"'),
-            new Given('I wait to be redirected')
-        );
+        $this->execute('behat_general::click_link', [$this->escape($name)]);
+        $this->execute('behat_general::click_link', [get_string('addagallery', 'mediagallery')]);
+        $this->execute('behat_forms::i_set_the_following_fields_to_these_values', $table);
+        $this->execute('behat_forms::press_button', get_string('savechanges'));
+        $this->execute('behat_general::i_wait_to_be_redirected');
     }
 
     /**
@@ -69,13 +65,12 @@ class behat_mod_mediagallery extends behat_base {
      * @param TableNode $table
      */
     public function i_add_a_new_item_to_gallery_uploading_with($gallery, $file, TableNode $table) {
-        return array(
-            new Given('I follow "'.get_string('addanitem', 'mediagallery').'"'),
-            new Given('I set the following fields to these values:', $table),
-            new Given('I upload "'.$file.'" file to "Content" filemanager'),
-            new Given('I press "' . get_string('savechanges') . '"'),
-            new Given('I wait to be redirected')
-        );
+        $this->execute('behat_general::click_link', [get_string('addanitem', 'mediagallery')]);
+        $this->execute('behat_forms::i_set_the_following_fields_to_these_values', $table);
+        $uploadcontext = behat_context_helper::get('behat_repository_upload');
+        $uploadcontext->i_upload_file_to_filemanager($file, 'Content');
+        $this->execute('behat_forms::press_button', get_string('savechanges'));
+        $this->execute('behat_general::i_wait_to_be_redirected');
     }
 
     /**
