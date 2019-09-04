@@ -731,8 +731,7 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
      * @return string
      */
     public function embed_html($item) {
-        $mediarenderer = $this->page->get_renderer('core', 'media');
-        return $mediarenderer->embed_url(new moodle_url($item->get_embed_url()), '', 670, 377);
+        return \core_media_manager::instance()->embed_url(new moodle_url($item->get_embed_url()), '', 670, 377);
     }
 
     /**
