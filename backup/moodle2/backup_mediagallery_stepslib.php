@@ -76,11 +76,11 @@ class backup_mediagallery_activity_structure_step extends backup_activity_struct
 
         // Define sources.
         $mediagallery->set_source_table('mediagallery', array('id' => backup::VAR_ACTIVITYID));
-        $gallery->set_source_table('mediagallery_gallery', array('instanceid' => backup::VAR_PARENTID));
-        $item->set_source_table('mediagallery_item', array('galleryid' => backup::VAR_PARENTID));
 
         // All the rest of elements only happen if we are including user info.
         if ($userinfo) {
+            $gallery->set_source_table('mediagallery_gallery', array('instanceid' => backup::VAR_PARENTID));
+            $item->set_source_table('mediagallery_item', array('galleryid' => backup::VAR_PARENTID));
             $userfeedback->set_source_table('mediagallery_userfeedback', array('itemid' => backup::VAR_PARENTID));
         }
 
