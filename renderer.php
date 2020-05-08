@@ -700,9 +700,6 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
             } else {
                 $attribs['href'] = $item->get_image_url_by_type('lowres');
             }
-            if ($gallery->get_display_settings()->galleryfocus == mcbase::TYPE_AUDIO) {
-                $itemhtml .= $this->embed_html($item);
-            }
             $o .= html_writer::tag('li', html_writer::tag('a', $itemhtml, $attribs));
         }
         $o .= html_writer::end_tag('ul');
@@ -817,9 +814,6 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
                 $itemframe .= $caption;
             }
             $itemframe .= html_writer::tag('div', $link, array('class' => 'item-thumb'));
-            if ($gallery->get_display_settings()->galleryfocus == mcbase::TYPE_AUDIO) {
-                $itemframe .= $this->embed_html($item);
-            }
             if ($cappos == mcbase::POS_BOTTOM) {
                 $itemframe .= $caption;
             }
