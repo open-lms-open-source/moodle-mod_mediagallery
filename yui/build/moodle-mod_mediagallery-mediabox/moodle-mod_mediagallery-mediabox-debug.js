@@ -25,15 +25,23 @@ Y.extend(MEDIABOX, Y.Base, {
         var strnext = M.str.moodle.next;
         var strprev = M.str.moodle.previous;
         var strdownload = M.util.get_string('download', 'mod_mediagallery');
+        var strdirection = M.util.get_string('thisdirection', 'core_langconfig');
         var strtoggle = M.str.mod_mediagallery.togglesidebar;
         var strfullscreen = M.str.mod_mediagallery.togglefullscreen;
         var strclose = M.str.mod_mediagallery.close;
         var actions = '<img class="sidebartoggle" src="';
         actions += M.util.image_url('toggle', 'mod_mediagallery') + '" title="' + strtoggle + '" alt="' + strtoggle + '"/>';
-        actions += '<img class="prev" src="';
-        actions += M.util.image_url('left', 'mod_mediagallery') + '" title="' + strprev + '" alt="' + strprev + '"/>';
-        actions += '<img class="next" src="';
-        actions += M.util.image_url('right', 'mod_mediagallery') + '" title="' + strnext + '" alt="' + strnext + '"/>';
+        if (strdirection === 'ltr') {
+            actions += '<img class="prev" src="';
+            actions += M.util.image_url('left', 'mod_mediagallery') + '" title="' + strnext + '" alt="' + strnext + '"/>';
+            actions += '<img class="next" src="';
+            actions += M.util.image_url('right', 'mod_mediagallery') + '" title="' + strprev + '" alt="' + strprev + '"/>';
+        } else {
+            actions += '<img class="prev" src="';
+            actions += M.util.image_url('right', 'mod_mediagallery') + '" title="' + strnext + '" alt="' + strnext + '"/>';
+            actions += '<img class="next" src="';
+            actions += M.util.image_url('left', 'mod_mediagallery') + '" title="' + strprev + '" alt="' + strprev + '"/>';
+        }
         actions += '<img class="open" src="';
         actions += M.util.image_url('download', 'mod_mediagallery') + '" title="' + strdownload + '" alt="' + strdownload + '"/>';
         if (this._fullscreenavail) {
@@ -394,6 +402,8 @@ Y.extend(MEDIABOX, Y.Base, {
         var innercontent = content.get('children').get(0)[0];
         var dataplayer = 1;
         var datatype = '';
+        var strdirection = M.util.get_string('thisdirection', 'core_langconfig');
+
         if (this.currentitem !== null) {
             dataplayer = this.currentitem.getAttribute('data-player');
             datatype = this.currentitem.getAttribute('data-type');
@@ -453,7 +463,11 @@ Y.extend(MEDIABOX, Y.Base, {
         }
 
         content.setStyle('top', offsetTop + 'px');
-        content.setStyle('left', offsetLeft + 'px');
+        if (strdirection === 'ltr') {
+            content.setStyle('left', offsetLeft + 'px');
+        } else {
+            content.setStyle('right', offsetLeft + 'px');
+        }
     },
 
     resizeoverlay : function () {
