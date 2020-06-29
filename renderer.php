@@ -101,6 +101,7 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
         $this->page->requires->strings_for_js(array(
             'move', 'add', 'description', 'no', 'yes', 'group', 'fullnameuser', 'username', 'next', 'previous', 'submit',
         ), 'moodle');
+        $this->page->requires->string_for_js('thisdirection', 'core_langconfig');
 
         $canedit = $controller->gallery && $controller->gallery->user_can_contribute();
         if ($controller->gallery && $canedit) {
