@@ -1,4 +1,4 @@
-@mod @mod_mediagallery
+@mod @mod_mediagallery @javascript
 Feature: Users can tag items, galleries and collections
   Users should be able to [un]set tags for things when
   editing them.
