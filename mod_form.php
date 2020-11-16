@@ -108,7 +108,7 @@ class mod_mediagallery_mod_form extends moodleform_mod {
         $mform->addElement('select', 'colltype', get_string('colltype', 'mediagallery'), $options);
         $mform->addHelpButton('colltype', 'colltype', 'mediagallery');
 
-        mediagallery_add_tag_field($mform, array(), true, true, 'mctags');
+        $mform->addElement('tags', 'mctags', get_string('tags'), ['itemtype' => 'mediagallery', 'component' => 'mod_mediagallery']);
 
         $options = get_max_upload_sizes($CFG->maxbytes, $this->course->maxbytes, 0, $config->maxbytes);
         $mform->addElement('select', 'maxbytes', get_string('maxbytes', 'mediagallery'), $options);
@@ -267,8 +267,8 @@ class mod_mediagallery_mod_form extends moodleform_mod {
      */
     public function set_data($data) {
         if (!empty($data->id)) {
+            $data->mctags = core_tag_tag::get_item_tags_array('mod_mediagallery', 'mediagallery', $data->id);
             $collection = new \mod_mediagallery\collection($data);
-            $data->mctags = $collection->get_tags();
             if ($collection->count_galleries() && $collection->is_assessable()) {
                 $this->_form->hardFreeze('colltype');
             }

@@ -241,12 +241,18 @@ class gallery extends base {
 
         $items = array();
         if ($records = $DB->get_records_sql($sql, array('galleryid' => $this->record->id))) {
+            $tags = \core_tag_tag::get_items_tags('mod_mediagallery', 'mediagallery_item', array_keys($records));
+
             foreach ($records as $record) {
                 $files = !empty($filelist[$record->id]) ? $filelist[$record->id] : false;
                 $options = array(
                     'files' => $files,
                     'gallery' => $this,
                 );
+
+                if (!empty($tags[$record->id])) {
+                    $options['tags'] = $tags[$record->id];
+                }
 
                 // Replacing empty caption with image filename/video url for
                 // all items in gallery on mouseover for better user experience.

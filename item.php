@@ -79,9 +79,8 @@ if ($gallery) {
 $fmoptions = mediagallery_filepicker_options($gallery);
 
 $formclass = $bulk ? 'mod_mediagallery_item_bulk_form' : 'mod_mediagallery_item_form';
-$tags = \mod_mediagallery\item::get_tags_possible();
 $mform = new $formclass(null,
-    array('gallery' => $gallery, 'firstitem' => !$gallery->has_items(), 'tags' => $tags, 'item' => $item));
+    array('gallery' => $gallery, 'firstitem' => !$gallery->has_items(), 'item' => $item));
 
 $fs = get_file_storage();
 
@@ -103,6 +102,8 @@ if ($mform->is_cancelled()) {
         } else {
             $item = \mod_mediagallery\item::create($data);
         }
+
+        core_tag_tag::set_item_tags('mod_mediagallery', 'mediagallery_item', $item->id, $context, $data->tags);
 
         if (!empty($data->content)) {
             $info = file_get_draft_area_info($data->content);
@@ -158,7 +159,7 @@ if ($mform->is_cancelled()) {
                            'format' => editors_get_preferred_format(),
                            'itemid' => $draftideditor);
 
-    $data->tags = $item->get_tags();
+    $data->tags = core_tag_tag::get_item_tags_array('mod_mediagallery', 'mediagallery_item', $item->id);
     $mform->set_data($data);
 }
 

@@ -49,7 +49,6 @@ class mod_mediagallery_gallery_form extends moodleform {
         $groupmode = $this->_customdata['groupmode'];
         $groups = $this->_customdata['groups'];
         $context = $this->_customdata['context'];
-        $tags = $this->_customdata['tags'];
 
         $lockfields = false;
         if ($gallery && $gallery->mode == 'thebox' && !$gallery->is_thebox_creator_or_agent()) {
@@ -106,7 +105,7 @@ class mod_mediagallery_gallery_form extends moodleform {
             $mform->addHelpButton('contributable', 'contributable', 'mediagallery');
         }
 
-        mediagallery_add_tag_field($mform, $tags, false, !$lockfields);
+        $mform->addElement('tags', 'tags', get_string('tags'), ['itemtype' => 'mediagallery_gallery', 'component' => 'mod_mediagallery']);
 
         if ($lockfields) {
             $mform->hardFreeze('name');

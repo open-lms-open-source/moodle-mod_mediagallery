@@ -83,6 +83,7 @@ abstract class base {
         global $DB;
 
         $DB->delete_records(static::$table, array('id' => $this->record->id));
+        \core_tag_tag::remove_all_item_tags('mod_mediagallery', static::$table, $this->id);
 
         return true;
     }
@@ -106,25 +107,7 @@ abstract class base {
      * @return string CSV list of tags.
      */
     public function get_tags() {
-        return implode(', ', \core_tag_tag::get_item_tags_array('mod_mediagallery', static::$table, $this->id, null, 0, false));
-    }
-
-    public static function get_tags_possible() {
-        global $DB;
-        $sql = "SELECT tg.name
-                FROM {tag_instance} ti
-                JOIN {tag} tg ON tg.id = ti.tagid
-                WHERE ti.itemtype = :recordtype
-                GROUP BY tg.name";
-        $params = array();
-        $params['recordtype'] = static::$table;
-        $records = $DB->get_records_sql($sql, $params);
-
-        $result = array();
-        foreach ($records as $record) {
-            $result[] = $record->name;
-        }
-        return $result;
+        return \core_tag_tag::get_item_tags('mod_mediagallery', static::$table, $this->id);
     }
 
     public function set_tags($tags = null) {

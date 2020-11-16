@@ -181,8 +181,7 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
         $o .= html_writer::end_tag('div');
 
         if (!empty($renderable->tags)) {
-            $tagtitle = html_writer::span(get_string('tags', 'mediagallery').': ', 'tagheading');
-            $o .= html_writer::div($tagtitle.$renderable->tags, 'taglist');
+            $o .= html_writer::div($this->tag_list($renderable->tags, null, 'gallery-tags'), 'taglist');
         }
         $o .= html_writer::div('', 'clearfix');
 
@@ -367,8 +366,7 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
 
         $tags = $gallery->get_tags();
         if (!empty($tags)) {
-            $tagtitle = html_writer::span(get_string('tags', 'mediagallery').': ', 'tagheading');
-            $o .= html_writer::div($tagtitle.$tags, 'taglist');
+            $o .= html_writer::div($this->tag_list($tags, null, 'gallery-tags'), 'taglist');
         }
 
         if ($renderable->editing) {
@@ -605,8 +603,10 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
 
         $o .= html_writer::start_tag('div', array('class' => 'controls'));
 
+        $metainfo = $item->get_metainfo();
+        $metainfo->tags = $this->tag_list($metainfo->tags, '', 'item-tags');
         $this->page->requires->yui_module('moodle-mod_mediagallery-base', 'M.mod_mediagallery.base.add_item_info_modal',
-            array($item->get_metainfo()), null, true);
+            array($metainfo), null, true);
         $url = new moodle_url('/mod/mediagallery/item.php', array('i' => $item->id, 'action' => 'info'));
         $o .= $this->output->action_icon($url, new pix_icon('i/info', get_string('information', 'mediagallery')), null,
             array('class' => 'action-icon info'));
@@ -822,8 +822,10 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
 
             $o .= html_writer::tag('div', $itemframe, array('class' => 'item grid_item', 'data-id' => $item->id,
                 'data-title' => $item->caption, 'id' => 'gallery_item_'.$item->id));
+            $metainfo = $item->get_metainfo();
+            $metainfo->tags = $this->tag_list($metainfo->tags, '', 'item-tags');
             $this->page->requires->yui_module('moodle-mod_mediagallery-base', 'M.mod_mediagallery.base.add_item_info_modal',
-                array($item->get_metainfo()), null, true);
+                array($metainfo), null, true);
 
             $column++;
         }
@@ -1003,21 +1005,6 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
         return $size;
     }
 
-    /**
-     * Render the tagselector module.
-     *
-     * @param array $tags
-     * @return string
-     */
-    public function tags($tags) {
-        $this->page->requires->yui_module('moodle-mod_mediagallery-tagselector', 'M.mod_mediagallery.tagselector.init',
-            array('tagentry', $tags), null, true);
-
-        $tagfields = html_writer::span(get_string('tags', 'mediagallery').': ');
-        $tagfields .= html_writer::empty_tag('input', array('id' => 'tagentry'));
-        $o = html_writer::div($tagfields, 'tagcontainer');
-        return $o;
-    }
 }
 
 /**

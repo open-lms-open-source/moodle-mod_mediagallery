@@ -5,7 +5,7 @@
 
 This plugin allows instructors/teachers to create a space for students to submit "galleries". These galleries can be based on images, audio or video. The galleries themselves can be used as part of gradeable assignments when used in conjuction with the media collection submission module (http://github.com/netspotau/moodle-assignsubmission_mediagallery).
 
-This activity was written by Adam Olley \<adam.olley@netspot.com.au\> for the University of New South Wales (http://www.unsw.edu.au).
+This activity was written by Adam Olley \<adam.olley@openlms.net\> for the University of New South Wales (http://www.unsw.edu.au).
 
 ## Install
 ### Using Moodle
@@ -41,9 +41,9 @@ Provides a button that can be added to TinyMCE for inserting galleries into Tiny
 Repo: http://github.com/netspotau/moodle-tinymce_mediagallery
 
 ## Credits
-Media collection was developed by NetSpot Pty Ltd (http://www.netspot.com.au) for the University of New South Wales (http://www.unsw.edu.au).
+Media collection was developed by Open LMS (https://www.openlms.net) for the University of New South Wales (http://www.unsw.edu.au).
 
-Code: Adam Olley \<adam.olley@blackboard.com\>  
+Code: Adam Olley \<adam.olley@openlms.net\>
 Concept: UNSW (http://www.unsw.edu.au)  
-Design: UNSW (http://www.unsw.edu.au) & Mark Bailye \<mark.bailye@netspot.com.au\>  
+Design: UNSW (http://www.unsw.edu.au) & Mark Bailye \<mark.bailye@openlms.net\>
 Testing: UNSW (http://www.unsw.edu.au)  

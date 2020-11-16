@@ -47,7 +47,6 @@ class mod_mediagallery_item_form extends moodleform {
 
         $mform = $this->_form;
         $gallery = $this->_customdata['gallery'];
-        $tags = $this->_customdata['tags'];
         $item = $this->_customdata['item'];
 
         // General settings.
@@ -106,7 +105,7 @@ class mod_mediagallery_item_form extends moodleform {
 
         $lockfields = $item && !$item->user_can_edit() ? true : false;
 
-        mediagallery_add_tag_field($mform, $tags, false, !$lockfields);
+        $mform->addElement('tags', 'tags', get_string('tags'), ['itemtype' => 'mediagallery_item', 'component' => 'mod_mediagallery']);
 
         if ($lockfields) {
             $mform->hardFreeze('caption');

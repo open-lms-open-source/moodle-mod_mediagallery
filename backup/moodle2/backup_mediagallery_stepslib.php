@@ -65,14 +65,31 @@ class backup_mediagallery_activity_structure_step extends backup_activity_struct
             'timecreated', 'broadcaster', 'objectid', 'source', 'processing_status', 'creator',
         ));
 
+        $ctags = new backup_nested_element('collectiontags');
+        $ctag = new backup_nested_element('collectiontag', array('id'), array('itemid', 'rawname'));
+
+        $gtags = new backup_nested_element('gallerytags');
+        $gtag = new backup_nested_element('gallerytag', array('id'), array('itemid', 'rawname'));
+
+        $itags = new backup_nested_element('itemtags');
+        $itag = new backup_nested_element('itemtag', array('id'), array('itemid', 'rawname'));
+
         // Build the tree.
 
         $mediagallery->add_child($gallerys);
+        $mediagallery->add_child($ctags);
+        $ctags->add_child($ctag);
+
         $gallerys->add_child($gallery);
         $gallery->add_child($items);
+        $gallery->add_child($gtags);
+        $gtags->add_child($gtag);
+
         $items->add_child($item);
         $userfeedbacks->add_child($userfeedback);
         $item->add_child($userfeedbacks);
+        $item->add_child($itags);
+        $itags->add_child($itag);
 
         // Define sources.
         $mediagallery->set_source_table('mediagallery', array('id' => backup::VAR_ACTIVITYID));
@@ -82,6 +99,42 @@ class backup_mediagallery_activity_structure_step extends backup_activity_struct
             $gallery->set_source_table('mediagallery_gallery', array('instanceid' => backup::VAR_PARENTID));
             $item->set_source_table('mediagallery_item', array('galleryid' => backup::VAR_PARENTID));
             $userfeedback->set_source_table('mediagallery_userfeedback', array('itemid' => backup::VAR_PARENTID));
+
+            if (core_tag_tag::is_enabled('mod_mediagallery', 'mediagallery')) {
+                $ctag->set_source_sql('SELECT t.id, ti.itemid, t.rawname
+                                FROM {tag} t
+                                JOIN {tag_instance} ti ON ti.tagid = t.id
+                               WHERE ti.itemtype = ?
+                                 AND ti.component = ?
+                                 AND ti.contextid = ?', [
+                    backup_helper::is_sqlparam('mediagallery'),
+                    backup_helper::is_sqlparam('mod_mediagallery'),
+                    backup::VAR_CONTEXTID]);
+            }
+
+            if (core_tag_tag::is_enabled('mod_mediagallery', 'mediagallery_gallery')) {
+                $gtag->set_source_sql('SELECT t.id, ti.itemid, t.rawname
+                                FROM {tag} t
+                                JOIN {tag_instance} ti ON ti.tagid = t.id
+                               WHERE ti.itemtype = ?
+                                 AND ti.component = ?
+                                 AND ti.contextid = ?', [
+                    backup_helper::is_sqlparam('mediagallery_gallery'),
+                    backup_helper::is_sqlparam('mod_mediagallery'),
+                    backup::VAR_CONTEXTID]);
+            }
+
+            if (core_tag_tag::is_enabled('mod_mediagallery', 'mediagallery_item')) {
+                $itag->set_source_sql('SELECT t.id, ti.itemid, t.rawname
+                                FROM {tag} t
+                                JOIN {tag_instance} ti ON ti.tagid = t.id
+                               WHERE ti.itemtype = ?
+                                 AND ti.component = ?
+                                 AND ti.contextid = ?', [
+                    backup_helper::is_sqlparam('mediagallery_item'),
+                    backup_helper::is_sqlparam('mod_mediagallery'),
+                    backup::VAR_CONTEXTID]);
+            }
         }
 
         // Define file annotations.

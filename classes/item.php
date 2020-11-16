@@ -23,6 +23,7 @@ class item extends base {
     protected $context;
     protected $gallery;
     static protected $table = 'mediagallery_item';
+    protected $tags = [];
 
     /**
      * Related stored files.
@@ -51,6 +52,9 @@ class item extends base {
         }
         if (!empty($options['files']['thumbnail'])) {
             $this->thumbnail = $options['files']['thumbnail'];
+        }
+        if (!empty($options['tags'])) {
+            $this->tags = $options['tags'];
         }
 
         parent::__construct($recordorid, $options);
@@ -509,7 +513,7 @@ class item extends base {
         if (!has_capability('moodle/user:viewhiddendetails', $this->get_context())) {
             $info->username = null;
         }
-        $info->tags = $this->get_tags();
+        $info->tags = $this->tags;
         return $info;
     }
 
@@ -527,7 +531,7 @@ class item extends base {
             'reference' => get_string('reference', 'mod_mediagallery'),
             'moralrightsformatted' => get_string('moralrights', 'mod_mediagallery'),
             'copyrightformatted' => get_string('copyright', 'mod_mediagallery'),
-            'tags' => get_string('tags', 'mod_mediagallery'),
+            'tags' => get_string('tags'),
         );
 
         $info = $this->get_socialinfo();
@@ -537,7 +541,10 @@ class item extends base {
         $data->timecreatedformatted = '';
         $data->productiondateformatted = '';
         $data->copyrightformatted = '';
-        $data->tags = $this->get_tags();
+        $data->tags = [];
+        foreach ($this->get_tags() as $tag) {
+            $data->tags[] = $tag->name;
+        }
         if ($data->timecreated > 0) {
             $data->timecreatedformatted = userdate($data->timecreated, get_string('strftimedaydatetime', 'langconfig'));
         }

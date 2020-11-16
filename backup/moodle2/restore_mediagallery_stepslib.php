@@ -52,6 +52,10 @@ class restore_mediagallery_activity_structure_step extends restore_activity_stru
             $userfeedback = new restore_path_element('mediagallery_userfeedback',
                 '/activity/mediagallery/gallerys/gallery/items/item/userfeedback/feedback');
             $paths[] = $userfeedback;
+
+            $paths[] = new restore_path_element('mediagallery_ctag', '/activity/mediagallery/collectiontags/collectiontag');
+            $paths[] = new restore_path_element('mediagallery_gtag', '/activity/mediagallery/gallerys/gallery/gallerytags/gallerytag');
+            $paths[] = new restore_path_element('mediagallery_itag', '/activity/mediagallery/gallerys/gallery/items/item/itemtags/itemtag');
         }
 
         // Return the paths wrapped into standard activity structure.
@@ -121,6 +125,53 @@ class restore_mediagallery_activity_structure_step extends restore_activity_stru
         }
         $newitemid = $DB->insert_record('mediagallery_item', $data);
         $this->set_mapping('mediagallery_item', $oldid, $newitemid, true);
+    }
+
+    protected function process_mediagallery_ctag($data) {
+        $data = (object)$data;
+        if (!core_tag_tag::is_enabled('mod_mediagallery', 'mediagallery')) {
+            return;
+        }
+
+        $tag = $data->rawname;
+        if (!$itemid = $this->get_mappingid('mediagallery', $data->itemid)) {
+            return;
+        }
+
+        $context = context_module::instance($this->task->get_moduleid());
+        core_tag_tag::add_item_tag('mod_mediagallery', 'mediagallery', $itemid, $context, $tag);
+    }
+
+    protected function process_mediagallery_gtag($data) {
+        $data = (object)$data;
+        if (!core_tag_tag::is_enabled('mod_mediagallery', 'mediagallery_gallery')) {
+            return;
+        }
+
+        $tag = $data->rawname;
+        if (!$itemid = $this->get_mappingid('mediagallery_gallery', $data->itemid)) {
+            return;
+        }
+
+        $context = context_module::instance($this->task->get_moduleid());
+        core_tag_tag::add_item_tag('mod_mediagallery', 'mediagallery_gallery', $itemid, $context, $tag);
+
+    }
+
+    protected function process_mediagallery_itag($data) {
+        $data = (object)$data;
+        if (!core_tag_tag::is_enabled('mod_mediagallery', 'mediagallery_item')) {
+            return;
+        }
+
+        $tag = $data->rawname;
+        if (!$itemid = $this->get_mappingid('mediagallery_item', $data->itemid)) {
+            return;
+        }
+
+        $context = context_module::instance($this->task->get_moduleid());
+        core_tag_tag::add_item_tag('mod_mediagallery', 'mediagallery_item', $itemid, $context, $tag);
+
     }
 
     protected function after_execute() {
