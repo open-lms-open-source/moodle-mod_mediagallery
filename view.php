@@ -108,6 +108,7 @@ if ($mediagallery->was_deleted()) {
     exit;
 }
 
+$PAGE->set_cm($cm, $course);
 $canedit = $gallery && $gallery->user_can_contribute();
 if ($mediagallery->is_read_only() || !$canedit) {
     $options['editing'] = false;
@@ -124,7 +125,6 @@ if ($gallery) {
     $pageurl = new moodle_url('/mod/mediagallery/view.php', array('id' => $cm->id));
 }
 
-$PAGE->set_cm($cm, $course);
 $PAGE->set_url($pageurl);
 require_login($course, true, $cm);
 
