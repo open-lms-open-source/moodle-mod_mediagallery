@@ -111,15 +111,13 @@ if ($mform->is_cancelled()) {
 
             $storedfile = null;
             $regenthumb = false;
-            if ($gallery->galleryfocus != \mod_mediagallery\base::TYPE_IMAGE && $gallery->mode != 'thebox') {
+            if ($gallery->mode != 'thebox') {
                 $draftid = file_get_submitted_draft_itemid('customthumbnail');
                 if ($files = $fs->get_area_files(
                     context_user::instance($USER->id)->id, 'user', 'draft', $draftid, 'id DESC', false)) {
                     $storedfile = reset($files);
                     $regenthumb = true;
                 }
-            }
-            if ($gallery->mode != 'thebox') {
                 $item->generate_image_by_type('lowres', $regenthumb, $storedfile);
                 $item->generate_image_by_type('thumbnail', $regenthumb, $storedfile);
             }
@@ -144,10 +142,12 @@ if ($mform->is_cancelled()) {
     $draftitemid = file_get_submitted_draft_itemid('content');
     file_prepare_draft_area($draftitemid, $context->id, 'mod_mediagallery', 'item', $data->id);
 
-    if ($gallery->galleryfocus == \mod_mediagallery\base::TYPE_AUDIO) {
-        $draftitemidthumb = file_get_submitted_draft_itemid('customthumbnail');
-        $data->customthumbnail = $draftitemidthumb;
-    }
+    $draftitemidthumb = file_get_submitted_draft_itemid('customthumbnail');
+    file_prepare_draft_area($draftitemidthumb, $context->id, 'mod_mediagallery',
+        'thumbnail', empty($data->id) ? null : $data->id,
+        array('subdirs' => 0), empty($data->customthumbnail) ? '' : $data->customthumbnail);
+    $data->customthumbnail = $draftitemidthumb;
+
 
     $draftideditor = file_get_submitted_draft_itemid('description');
     $currenttext = file_prepare_draft_area($draftideditor, $context->id, 'mod_mediagallery',
