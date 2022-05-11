@@ -121,7 +121,7 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
       <INDEXES>
-        <INDEX NAME="itemid-userid" UNIQUE="true" FIELDS="itemid,userid"/>
+        <INDEX NAME="itemid-userid" UNIQUE="true" FIELDS="itemid, userid"/>
       </INDEXES>
     </TABLE>
   </TABLES>
