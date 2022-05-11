@@ -262,7 +262,6 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
             return '';
         }
         $menu = new action_menu();
-        $menu->set_alignment(action_menu::TR, action_menu::BR);
         foreach ($actions as $action) {
             $menu->add($action);
         }
