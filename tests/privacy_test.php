@@ -46,7 +46,7 @@ class mod_mediagallery_privacy_testcase extends provider_testcase {
 
     use \mod_mediagallery\privacy\subcontext_info;
 
-    public function setUp() {
+    public function setUp(): void {
         $this->resetAfterTest();
     }
 

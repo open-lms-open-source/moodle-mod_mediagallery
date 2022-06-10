@@ -51,7 +51,7 @@ class mod_mediagallery_base_testcase extends advanced_testcase {
     /**
      * Setup function - we will create a course and add a mediagallery instance to it.
      */
-    protected function setUp() {
+    protected function setUp(): void {
         global $DB;
 
         $this->resetAfterTest(true);
