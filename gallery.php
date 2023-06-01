@@ -50,6 +50,10 @@ require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
 
 $maxgalleries = $mediagallery->maxgalleries;
+if ($mediagallery->is_read_only() || is_guest($context, $USER)) {
+    print_error('errornopermissiontoadd', 'mediagallery', '', $maxgalleries);
+}
+
 if (!$gallery && !$mediagallery->user_can_add_children()) {
     print_error('errortoomanygalleries', 'mediagallery', '', $maxgalleries);
 }

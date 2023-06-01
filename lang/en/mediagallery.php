@@ -141,6 +141,7 @@ $string['enablethebox'] = 'Enable theBox';
 $string['enforcedefaults'] = 'Enforce gallery defaults';
 $string['enforcedefaults_help'] = 'If enabled, then the gallery defaults determined by the instructor are enforced.';
 $string['errorchooseimportoption'] = 'Please select an option to import';
+$string['errornopermissiontoadd'] = 'You can not add a gallery to this collection';
 $string['errornotyouritem'] = 'You cannot edit this media object, it belongs to another user.';
 $string['errortheboxunavailable'] = 'Sorry, it looks like theBox is unavailable right now. Please try again later.';
 $string['errortoomanyitems'] = 'Sorry, this gallery already has the maximum number of items allowed ({$a}).';

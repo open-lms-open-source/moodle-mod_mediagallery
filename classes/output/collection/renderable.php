@@ -42,13 +42,17 @@ class renderable implements \renderable {
     public $thumbnailsperrow = 0;
 
     public function __construct(\mod_mediagallery\collection $collection, array $galleries) {
-        global $CFG, $DB;
+        global $CFG, $DB, $USER;
 
         $this->collection = $collection;
         $this->galleries = $galleries;
 
         if ($collection->user_can_add_children()) {
             $this->maxreached = false;
+        }
+
+        if (is_guest($collection->get_context(), $USER)) {
+            $this->normallycanadd = false;
         }
 
         if ($this->isassessable = $collection->is_assessable()) {
