@@ -50,8 +50,12 @@ require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
 
 $maxgalleries = $mediagallery->maxgalleries;
+if ($mediagallery->is_read_only() || is_guest($context, $USER)) {
+    throw new moodle_exception('errornopermissiontoadd', 'mediagallery', '', $maxgalleries);
+}
+
 if (!$gallery && !$mediagallery->user_can_add_children()) {
-    print_error('errortoomanygalleries', 'mediagallery', '', $maxgalleries);
+    throw new moodle_exception('errortoomanygalleries', 'mediagallery', '', $maxgalleries);
 }
 
 $pageurl = new moodle_url('/mod/mediagallery/gallery.php', array('m' => $mediagallery->id));
