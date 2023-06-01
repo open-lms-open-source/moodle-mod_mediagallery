@@ -153,8 +153,7 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
         $rowopen = false;
         $count = 0;
 
-        $o = $this->output->heading($renderable->collection->name);
-        $o .= html_writer::start_tag('div', array('class' => 'gallery_list'));
+        $o = html_writer::start_tag('div', array('class' => 'gallery_list'));
         foreach ($renderable->galleries as $gallery) {
             if ($renderable->thumbnailsperrow > 0 && $column > $renderable->thumbnailsperrow) {
                 // Row complete.

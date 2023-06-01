@@ -123,11 +123,6 @@ class viewcontroller {
         $output = '';
         $output .= groups_print_activity_menu($this->cm, $this->pageurl, true);
 
-        if ($this->collection->intro) {
-            $output .= $this->renderer->box(format_module_intro('mediagallery', $this->collection, $this->cm->id),
-                'generalbox mod_introbox', 'mediagalleryintro');
-        }
-
         $galleries = $this->collection->get_visible_galleries();
         $renderable = new output\collection\renderable($this->collection, $galleries);
         $output .= $this->renderer->render_collection($renderable);
