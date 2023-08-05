@@ -23,8 +23,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Define all the restore steps that will be used by the restore_mediagallery_activity_task
  */
@@ -54,8 +52,10 @@ class restore_mediagallery_activity_structure_step extends restore_activity_stru
             $paths[] = $userfeedback;
 
             $paths[] = new restore_path_element('mediagallery_ctag', '/activity/mediagallery/collectiontags/collectiontag');
-            $paths[] = new restore_path_element('mediagallery_gtag', '/activity/mediagallery/gallerys/gallery/gallerytags/gallerytag');
-            $paths[] = new restore_path_element('mediagallery_itag', '/activity/mediagallery/gallerys/gallery/items/item/itemtags/itemtag');
+            $paths[] = new restore_path_element('mediagallery_gtag',
+                                                '/activity/mediagallery/gallerys/gallery/gallerytags/gallerytag');
+            $paths[] = new restore_path_element('mediagallery_itag',
+                                                '/activity/mediagallery/gallerys/gallery/items/item/itemtags/itemtag');
         }
 
         // Return the paths wrapped into standard activity structure.

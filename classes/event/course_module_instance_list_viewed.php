@@ -23,7 +23,6 @@
  */
 
 namespace mod_mediagallery\event;
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * The mod_mediagallery instance list viewed event class.

@@ -28,8 +28,9 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/mod/mediagallery/backup/moodle2/backup_mediagallery_stepslib.php');
 
 /**
- * certificate backup task that provides all the settings and steps to perform one
- * complete backup of the activity
+ * mediagallery backup task
+ *
+ * Provides all the settings and steps to perform one complete backup of the activity.
  */
 class backup_mediagallery_activity_task extends backup_activity_task {
 
@@ -54,7 +55,7 @@ class backup_mediagallery_activity_task extends backup_activity_task {
      * @param string $content
      * @return string
      */
-    static public function encode_content_links($content) {
+    public static function encode_content_links($content) {
         global $CFG;
 
         $base = preg_quote($CFG->wwwroot, "/");

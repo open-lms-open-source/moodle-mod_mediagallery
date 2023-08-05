@@ -28,8 +28,9 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/mod/mediagallery/backup/moodle2/restore_mediagallery_stepslib.php');
 
 /**
- * mediagallery restore task that provides all the settings and steps to perform one
- * complete restore of the activity
+ * mediagallery restore task
+ *
+ * Provides all the settings and steps to perform one complete restore of the activity.
  */
 class restore_mediagallery_activity_task extends restore_activity_task {
 
@@ -52,7 +53,7 @@ class restore_mediagallery_activity_task extends restore_activity_task {
      * Define the contents in the activity that must be
      * processed by the link decoder
      */
-    static public function define_decode_contents() {
+    public static function define_decode_contents() {
         $contents = array();
         return $contents;
     }
@@ -61,7 +62,7 @@ class restore_mediagallery_activity_task extends restore_activity_task {
      * Define the decoding rules for links belonging
      * to the activity to be executed by the link decoder
      */
-    static public function define_decode_rules() {
+    public static function define_decode_rules() {
         $rules = array();
 
         $rules[] = new restore_decode_rule('MEDIAGALLERYVIEWBYID', '/mod/mediagallery/view.php?id=$1', 'course_module');
@@ -73,11 +74,11 @@ class restore_mediagallery_activity_task extends restore_activity_task {
 
     /**
      * Define the restore log rules that will be applied
-     * by the {@link restore_logs_processor} when restoring
+     * by the {@see \restore_logs_processor} when restoring
      * page logs. It must return one array
-     * of {@link restore_log_rule} objects
+     * of {@see \restore_log_rule} objects
      */
-    static public function define_restore_log_rules() {
+    public static function define_restore_log_rules() {
         $rules = array();
 
         $rules[] = new restore_log_rule('mediagallery', 'add', 'view.php?id={course_module}', '{page}');
@@ -89,15 +90,15 @@ class restore_mediagallery_activity_task extends restore_activity_task {
 
     /**
      * Define the restore log rules that will be applied
-     * by the {@link restore_logs_processor} when restoring
+     * by the {@see \restore_logs_processor} when restoring
      * course logs. It must return one array
-     * of {@link restore_log_rule} objects
+     * of {@see \restore_log_rule} objects
      *
      * Note this rules are applied when restoring course logs
      * by the restore final task, but are defined here at
      * activity level. All them are rules not linked to any module instance (cmid = 0)
      */
-    static public function define_restore_log_rules_for_course() {
+    public static function define_restore_log_rules_for_course() {
         $rules = array();
 
         $rules[] = new restore_log_rule('mediagallery', 'view all', 'index.php?id={course}', null);

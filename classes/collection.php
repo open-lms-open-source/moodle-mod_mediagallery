@@ -16,9 +16,9 @@
 
 namespace mod_mediagallery;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
+ * Collection class
+ *
  * This class contains functions for manipulating and getting information for
  * the galleries that belong to a specific mediagallery activity.
  */
@@ -49,7 +49,12 @@ class collection extends base {
     }
 
     /**
+     * Create
+     *
      * Here for completeness, but new collections should be created via course mod_form interface.
+     *
+     * @param \stdClass $data
+     * @return collection
      */
     public static function create(\stdClass $data) {
         global $DB, $USER;
@@ -240,8 +245,7 @@ class collection extends base {
     /**
      * Get a list of all the gallery's associated with this collection.
      *
-     * @access public
-     * @param $filterbymode mixed If this is a non-empty string, only galleries of the specified mode are returned.
+     * @param mixed $filterbymode If this is a non-empty string, only galleries of the specified mode are returned.
      * @return array of gallery objects
      */
     public function get_galleries($filterbymode = false) {
@@ -345,7 +349,6 @@ class collection extends base {
     /**
      * Has the current user submitted this to the linked assignment?
      *
-     * @access public
      * @return bool
      */
     public function has_submitted() {
@@ -378,7 +381,6 @@ class collection extends base {
     /**
      * Get the ID of the linked assign coursemodule if one exists.
      *
-     * @access public
      * @return int|bool Returns the cmid of the linked assign, false otherwise.
      */
     public function get_linked_assignid() {
@@ -397,7 +399,6 @@ class collection extends base {
     /**
      * Is this collection able to be used as part of an assignment.
      *
-     * @access public
      * @return bool
      */
     public function is_assessable() {
@@ -410,7 +411,6 @@ class collection extends base {
      * Returns true if this collection is readonly for the current user.
      * Users with the mod/mediagallery:manage cap can always edit the collection.
      *
-     * @access public
      * @return bool true if read only for this user.
      */
     public function is_read_only() {
@@ -452,9 +452,6 @@ class collection extends base {
      * This function is used to update the new userid field during module
      * upgrade.
      *
-     * @param int $collectionid
-     * @param int $courseid
-     * @access public
      * @return mixed bool|int   Returns the userid of the creator, or false if
      * not found.
      */
@@ -508,7 +505,6 @@ class collection extends base {
      * Accounts for the max gallery limit and how many they or their group already has.
      *
      * @param int $userid
-     * @access public
      * @return bool
      */
     public function user_can_add_children($userid = null) {

@@ -16,8 +16,6 @@
 
 namespace mod_mediagallery;
 
-defined('MOODLE_INTERNAL') || die();
-
 abstract class base {
 
     const POS_BOTTOM = 0;
@@ -63,6 +61,9 @@ abstract class base {
 
     /**
      * Create a new object in the db.
+     *
+     * @param \stdClass $data
+     * @return mixed
      */
     public static function create(\stdClass $data) {
         global $DB, $USER;
@@ -94,7 +95,7 @@ abstract class base {
     /**
      * Get a copy of the record as it appears in the db.
      *
-     * @returns stdClass The item record.
+     * @return stdClass The item record.
      */
     public function get_record() {
         return clone $this->record;
@@ -103,7 +104,6 @@ abstract class base {
     /**
      * Retrieve the current set of tags for this object.
      *
-     * @access public
      * @return string CSV list of tags.
      */
     public function get_tags() {
@@ -135,7 +135,7 @@ abstract class base {
     /**
      * Update the item based on object record.
      *
-     * @param $data stdClass Object with all the details on the item (likely from the item_form.php form).
+     * @param stdClass $data Object with all the details on the item (likely from the item_form.php form).
      */
     public function update($data) {
         global $DB;
@@ -191,8 +191,6 @@ abstract class base {
     /**
      * Checks for the assignsubmission_mediagallery plugin.
      *
-     * @static
-     * @access public
      * @return bool
      */
     public static function is_assignsubmission_mediagallery_installed() {

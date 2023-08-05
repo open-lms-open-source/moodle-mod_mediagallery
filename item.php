@@ -34,7 +34,7 @@ $i = optional_param('i', 0, PARAM_INT); // An item id.
 $bulk = optional_param('bulk', false, PARAM_BOOL);
 
 if (!$g && !$i) {
-    print_error('missingparameter');
+    throw new \moodle_exception('missingparameter');
 }
 
 
@@ -43,7 +43,7 @@ if ($i) {
     $item = new \mod_mediagallery\item($i);
     $g = $item->galleryid;
     if (!$item->user_can_edit()) {
-        print_error('nopermissions', 'error', null, 'edit item');
+        throw new \moodle_exception('nopermissions', 'error', null, 'edit item');
     }
 }
 
@@ -56,7 +56,7 @@ require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
 $pageurl = new moodle_url('/mod/mediagallery/item.php', array('g' => $gallery->id));
 if (!$gallery->user_can_contribute()) {
-    print_error('nopermissions', 'error', $pageurl, 'edit gallery');
+    throw new \moodle_exception('nopermissions', 'error', $pageurl, 'edit gallery');
 }
 
 $PAGE->set_url($pageurl);
@@ -165,7 +165,7 @@ if ($mform->is_cancelled()) {
 
 $maxitems = $mediagallery->maxitems;
 if (!$item && $maxitems != 0 && count($gallery->get_items()) >= $maxitems) {
-    print_error('errortoomanyitems', 'mediagallery', '', $maxitems);
+    throw new \moodle_exception('errortoomanyitems', 'mediagallery', '', $maxitems);
 }
 
 echo $OUTPUT->header();

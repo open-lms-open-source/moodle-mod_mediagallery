@@ -990,7 +990,7 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
         $gb = ' ' . get_string('sizegb');
         $mb = ' ' . get_string('sizemb');
         $kb = ' ' . get_string('sizekb');
-        $b  = ' ' . get_string('sizeb');
+        $b = ' ' . get_string('sizeb');
         if ($size >= 1073741824) {
             $size = number_format(round($size / 1073741824 * 10, 1) / 10, 1) . $gb;
         } else if ($size >= 1048576) {
