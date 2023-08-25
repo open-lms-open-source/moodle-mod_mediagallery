@@ -207,7 +207,7 @@ function mediagallery_user_outline($course, $user, $mod, $mediagallery) {
  * @param stdClass $user the record of the user we are generating report for
  * @param cm_info $mod course module info
  * @param stdClass $mediagallery the module instance record
- * @return void, is supposed to echp directly
+ * @return void is supposed to echp directly
  */
 function mediagallery_user_complete($course, $user, $mod, $mediagallery) {
 }
