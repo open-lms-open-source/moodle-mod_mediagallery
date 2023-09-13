@@ -524,7 +524,7 @@ class provider implements
 
         $DB->delete_records_select('mediagallery_userfeedback', "itemid IN ($itemidsql)", $params);
         $DB->delete_records_select('mediagallery_item', "galleryid IN ($galleryidsql)", $params);
-        $DB->delete_records('mediagallery_gallery', $params);
+        $DB->delete_records('mediagallery_gallery', ['instanceid' => $instanceid]);
 
         \core_comment\privacy\provider::delete_comments_for_users($userlist, 'mod_mediagallery', 'gallery');
         \core_comment\privacy\provider::delete_comments_for_users($userlist, 'mod_mediagallery', 'item');
