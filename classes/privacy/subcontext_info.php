@@ -42,7 +42,7 @@ trait subcontext_info {
      * @param   \stdClass   $gallery The gallery
      * @return  array
      */
-    protected static function get_gallery_area(\stdClass $gallery) : Array {
+    protected static function get_gallery_area(\stdClass $gallery) : array {
         $pathparts = [];
         if (!empty($discussion->groupname)) {
             $pathparts[] = get_string('groups');

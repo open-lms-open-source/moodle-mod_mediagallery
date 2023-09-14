@@ -212,7 +212,7 @@ class mod_mediagallery_gallery_form extends moodleform {
     /**
      * Set the forms data.
      *
-     * @param array $data
+     * @param stdClass|array $data
      * @return void
      */
     public function set_data($data) {

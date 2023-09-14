@@ -41,7 +41,7 @@ class MoodleQuickForm_limitedurl extends MoodleQuickForm_url {
             $str = '<label class="accesshide" for="'.$this->getAttribute('id').'" >'.
                         $this->getLabel().'</label>'.parent::toHtml();
         } else {
-            $str = HTML_QuickForm_Text::toHtml();
+            $str = HTML_QuickForm_text::toHtml();
         }
         if (empty($this->_options['usefilepicker'])) {
             return $str;

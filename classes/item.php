@@ -16,6 +16,14 @@
 
 namespace mod_mediagallery;
 
+/**
+ * Item
+ *
+ * @property-read string $galleryid
+ * @property-read string $caption
+ * @property-read string $externalurl
+ * @property-read string $processing_status
+ */
 class item extends base {
 
     protected $context;

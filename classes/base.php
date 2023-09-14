@@ -16,6 +16,16 @@
 
 namespace mod_mediagallery;
 
+/**
+ * Base class for Media collection objects
+ *
+ * @property-read string $id
+ * @property-read string $userid
+ * @property-read string $objectid
+ * @property-read string $source
+ * @property-read string $creator
+ * @property-read string $agents
+ */
 abstract class base {
 
     const POS_BOTTOM = 0;
@@ -63,7 +73,7 @@ abstract class base {
      * Create a new object in the db.
      *
      * @param \stdClass $data
-     * @return mixed
+     * @return static
      */
     public static function create(\stdClass $data) {
         global $DB, $USER;
@@ -95,7 +105,7 @@ abstract class base {
     /**
      * Get a copy of the record as it appears in the db.
      *
-     * @return stdClass The item record.
+     * @return \stdClass The item record.
      */
     public function get_record() {
         return clone $this->record;
@@ -104,7 +114,7 @@ abstract class base {
     /**
      * Retrieve the current set of tags for this object.
      *
-     * @return string CSV list of tags.
+     * @return \core_tag_tag[] CSV list of tags.
      */
     public function get_tags() {
         return \core_tag_tag::get_item_tags('mod_mediagallery', static::$table, $this->id);
@@ -135,7 +145,7 @@ abstract class base {
     /**
      * Update the item based on object record.
      *
-     * @param stdClass $data Object with all the details on the item (likely from the item_form.php form).
+     * @param \stdClass $data Object with all the details on the item (likely from the item_form.php form).
      */
     public function update($data) {
         global $DB;

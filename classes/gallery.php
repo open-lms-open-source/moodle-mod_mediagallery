@@ -20,6 +20,19 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once(dirname(__FILE__).'/../locallib.php');
 
+/**
+ * Gallery
+ *
+ * @property-read string $instanceid
+ * @property-read string $name
+ * @property-read string $galleryfocus
+ * @property-read string $galleryview
+ * @property-read string $gridrows
+ * @property-read string $gridcolumns
+ * @property-read string $thumbnail
+ * @property-read string $mode
+ * @property-read string $contributable
+ */
 class gallery extends base {
 
     const VIEW_CAROUSEL = 0;

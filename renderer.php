@@ -230,7 +230,7 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
      * Render the action icons for a gallery.
      *
      * @param \mod_mediagallery\gallery $gallery
-     * @return string
+     * @return string[]
      */
     public function gallery_list_item_actions($gallery) {
         $actions = array();
@@ -325,7 +325,7 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
      * Render a gallery.
      *
      * @param rengallery $renderable Gallery renderable details.
-     * @return void
+     * @return string
      */
     public function render_gallery(rengallery $renderable) {
         $gallery = $renderable->gallery;
@@ -1017,7 +1017,7 @@ class mod_mediagallery_standard_renderer extends mod_mediagallery_renderer {
      * Render the action icons for a gallery.
      *
      * @param \mod_mediagallery\gallery $gallery
-     * @return string
+     * @return string[]
      */
     public function gallery_list_item_actions($gallery) {
         $actions = parent::gallery_list_item_actions($gallery);

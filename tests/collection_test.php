@@ -35,7 +35,7 @@ namespace mod_mediagallery;
 class collection_test extends \advanced_testcase {
 
     /**
-     * @var stdClass Course object.
+     * @var \stdClass Course object.
      */
     protected $course;
 

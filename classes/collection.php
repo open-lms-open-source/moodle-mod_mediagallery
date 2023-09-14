@@ -21,6 +21,18 @@ namespace mod_mediagallery;
  *
  * This class contains functions for manipulating and getting information for
  * the galleries that belong to a specific mediagallery activity.
+ *
+ * @property-read string $course
+ * @property-read string $name
+ * @property-read string $colltype
+ * @property-read string $galleryfocus
+ * @property-read string $carousel
+ * @property-read string $grid
+ * @property-read string $gridrows
+ * @property-read string $gridcolumns
+ * @property-read string $enforcedefaults
+ * @property-read string $maxgalleries
+ * @property-read string $mode
  */
 class collection extends base {
 

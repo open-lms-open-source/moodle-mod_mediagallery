@@ -344,7 +344,7 @@ function mediagallery_generate_search_sql($parsetree) {
 /**
  * Add metainfo fields to a moodleform.
  *
- * @param moodleform $mform
+ * @param MoodleQuickForm $mform
  * @return void
  */
 function mediagallery_add_metainfo_fields(&$mform) {
