@@ -67,7 +67,7 @@ trait subcontext_info {
      *
      * @return  array
      */
-    protected static function get_item_area() : Array {
+    protected static function get_item_area() : array {
         $pathparts = [
             get_string('areaitem', 'mod_mediagallery'),
         ];

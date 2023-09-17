@@ -257,7 +257,7 @@ class collection extends base {
     /**
      * Get a list of all the gallery's associated with this collection.
      *
-     * @param mixed $filterbymode If this is a non-empty string, only galleries of the specified mode are returned.
+     * @param string|bool $filterbymode If this is a non-empty string, only galleries of the specified mode are returned.
      * @return array of gallery objects
      */
     public function get_galleries($filterbymode = false) {
@@ -464,8 +464,7 @@ class collection extends base {
      * This function is used to update the new userid field during module
      * upgrade.
      *
-     * @return mixed bool|int   Returns the userid of the creator, or false if
-     * not found.
+     * @return bool|int   Returns the userid of the creator, or false if not found.
      */
     public function get_userid_from_logs() {
         global $DB;

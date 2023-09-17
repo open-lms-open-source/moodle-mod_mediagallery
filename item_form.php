@@ -146,8 +146,8 @@ class mod_mediagallery_item_form extends moodleform {
     /**
      * Validate user input.
      *
-     * @param mixed $data The submitted form data.
-     * @param mixed $files The submitted files.
+     * @param array $data The submitted form data.
+     * @param array $files The submitted files.
      * @return array List of errors, if any.
      */
     public function validation($data, $files) {

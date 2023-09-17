@@ -90,7 +90,7 @@ class mod_mediagallery_generator extends testing_module_generator {
     /**
      * Create a gallery object.
      *
-     * @param mixed $record An array or object defining a gallery.
+     * @param array|object $record An array or object defining a gallery.
      * @return \mod_mediagallery\gallery
      */
     public function create_gallery($record = null) {
@@ -125,7 +125,7 @@ class mod_mediagallery_generator extends testing_module_generator {
     /**
      * Create an item.
      *
-     * @param mixed $record An array or object defining a item.
+     * @param array|object $record An array or object defining a item.
      * @return \mod_mediagallery\item
      */
     public function create_item($record = null) {
