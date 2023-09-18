@@ -33,8 +33,6 @@ use core_privacy\local\request\transform;
 use core_privacy\local\request\userlist;
 use core_privacy\local\request\writer;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Implementation of the privacy subsystem plugin provider for the mediagallery activity module.
  *
@@ -142,9 +140,9 @@ class provider implements
 
         $params = [
             'contextlevel' => CONTEXT_MODULE,
-            'userid1'      => $userid,
-            'userid2'      => $userid,
-            'userid3'      => $userid,
+            'userid1' => $userid,
+            'userid2' => $userid,
+            'userid3' => $userid,
         ];
         $contextlist = new contextlist();
         $contextlist->add_from_sql($sql, $params);
@@ -226,7 +224,7 @@ class provider implements
         $params = ['userid1' => $userid, 'userid2' => $userid, 'userid3' => $userid] + $collparams;
         $galleries = $DB->get_recordset_sql($sql, $params);
 
-        foreach($galleries as $gallery) {
+        foreach ($galleries as $gallery) {
             $context = \context::instance_by_id($mappings[$gallery->instanceid]);
 
             $gallerydata = (object) [
@@ -238,7 +236,8 @@ class provider implements
             writer::with_context($context)
                 ->export_data($galleryarea, $gallerydata);
 
-            \core_tag\privacy\provider::export_item_tags($userid, $context, $galleryarea, 'mod_mediagallery', 'gallery', $gallery->id);
+            \core_tag\privacy\provider::export_item_tags($userid, $context, $galleryarea, 'mod_mediagallery', 'gallery',
+                                                        $gallery->id);
         }
         $galleries->close();
     }
@@ -272,7 +271,7 @@ class provider implements
      *
      * @param   int         $userid The userid of the user whose data is to be exported.
      * @param   \context    $context The instance of the mediagallery context.
-     * @param   \stdClass   $discussion The gallery whose data is being exported.
+     * @param   \stdClass   $gallery The gallery whose data is being exported.
      */
     protected static function export_all_items_in_gallery($userid, $context, $gallery) {
         global $DB;
@@ -393,7 +392,7 @@ class provider implements
                       WHERE galleryid IN ($galleryidsql)
                       OR userid = :iuserid AND galleryid IN (
                         SELECT id
-                        FROM {mediagallery_gallery} 
+                        FROM {mediagallery_gallery}
                         WHERE instanceid = :instanceid2
                       )";
         foreach ($contextlist->get_contexts() as $context) {
@@ -428,14 +427,16 @@ class provider implements
     }
 
     public static function export_user_preferences(int $userid) {
-        $pref = get_user_preferences('mod_mediagallery_mediasize', \mod_mediagallery\output\gallery\renderable::MEDIASIZE_MD, $userid);
+        $pref = get_user_preferences('mod_mediagallery_mediasize', \mod_mediagallery\output\gallery\renderable::MEDIASIZE_MD,
+                                    $userid);
         $string = 'mediasizemd';
         if ($pref == \mod_mediagallery\output\gallery\renderable::MEDIASIZE_SM) {
-          $string = 'mediasizesm';
+            $string = 'mediasizesm';
         } else if ($pref == \mod_mediagallery\output\gallery\renderable::MEDIASIZE_LG) {
-          $string = 'mediasizelg';
+            $string = 'mediasizelg';
         }
-        writer::export_user_preference('mod_mediagallery', 'mod_mediagallery_mediasize', $pref, get_string($string, 'mod_mediagallery'));
+        writer::export_user_preference('mod_mediagallery', 'mod_mediagallery_mediasize', $pref,
+                                        get_string($string, 'mod_mediagallery'));
     }
 
     /**
@@ -452,7 +453,7 @@ class provider implements
         }
 
         $params = [
-            'instanceid'    => $context->instanceid,
+            'instanceid' => $context->instanceid,
         ];
 
         $collectionsql = "SELECT userid

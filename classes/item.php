@@ -16,8 +16,14 @@
 
 namespace mod_mediagallery;
 
-defined('MOODLE_INTERNAL') || die();
-
+/**
+ * Item
+ *
+ * @property-read string $galleryid
+ * @property-read string $caption
+ * @property-read string $externalurl
+ * @property-read string $processing_status
+ */
 class item extends base {
 
     protected $context;
@@ -25,9 +31,7 @@ class item extends base {
     static protected $table = 'mediagallery_item';
     protected $tags = [];
 
-    /**
-     * Related stored files.
-     */
+    // Related stored files.
     protected $file = null;
     protected $lowres = null;
     protected $thumbnail = null;
@@ -73,22 +77,22 @@ class item extends base {
         $fs = get_file_storage();
         if ($file = $this->get_file()) { // Item.
             $fileinfo = array(
-                'contextid'     => $newitem->get_context()->id,
-                'itemid'        => $newitem->id,
+                'contextid' => $newitem->get_context()->id,
+                'itemid' => $newitem->id,
             );
             $fs->create_file_from_storedfile($fileinfo, $file);
         }
         if ($file = $this->get_file(true)) { // Thumbnail.
             $fileinfo = array(
-                'contextid'     => $newitem->get_context()->id,
-                'itemid'        => $newitem->id,
+                'contextid' => $newitem->get_context()->id,
+                'itemid' => $newitem->id,
             );
             $fs->create_file_from_storedfile($fileinfo, $file);
         }
         if ($file = $this->get_stored_file_by_type('lowres')) { // Low res version of full image.
             $fileinfo = array(
-                'contextid'     => $newitem->get_context()->id,
-                'itemid'        => $newitem->id,
+                'contextid' => $newitem->get_context()->id,
+                'itemid' => $newitem->id,
             );
             $fs->create_file_from_storedfile($fileinfo, $file);
         }
@@ -182,12 +186,12 @@ class item extends base {
 
             // Copy the file into the correct area.
             $fileinfo = array(
-                'contextid'     => $context->id,
-                'component'     => 'mod_mediagallery',
-                'filearea'      => 'item',
-                'itemid'        => $item->id,
-                'filepath'      => '/',
-                'filename'      => $filename
+                'contextid' => $context->id,
+                'component' => 'mod_mediagallery',
+                'filearea' => 'item',
+                'itemid' => $item->id,
+                'filepath' => '/',
+                'filename' => $filename
             );
             if (!$fs->get_file($context->id, 'mod_mediagallery', 'item', $item->id, '/', $filename)) {
                 $storedfile = $fs->create_file_from_storedfile($fileinfo, $storedfile);
@@ -201,6 +205,9 @@ class item extends base {
 
     /**
      * Delete the item and everything related to it.
+     *
+     * @param array $options
+     * @return bool
      */
     public function delete($options = array()) {
         global $DB;
@@ -294,7 +301,7 @@ class item extends base {
 
         ob_start();
         if (!$resized = $this->get_image_resized($originalfile, $w, $h, 0, 0, $type != 'lowres')) {
-            // File is smaller than lowres, so don't bother.'
+            // File is smaller than lowres, so don't bother.
             return false;
         }
         imagepng($resized);
@@ -460,7 +467,8 @@ class item extends base {
             if (!empty($this->objectid)) {
                 $embed = $this->get_box_url();
             } else if ($file = $this->get_file()) {
-                $embed = \moodle_url::make_pluginfile_url($this->get_context()->id, 'mod_mediagallery', 'item', $this->record->id, '/', $file->get_filename());
+                $embed = \moodle_url::make_pluginfile_url($this->get_context()->id, 'mod_mediagallery', 'item', $this->record->id,
+                                                        '/', $file->get_filename());
             }
         }
         return $embed;
@@ -628,7 +636,8 @@ class item extends base {
             // If its not an image, we want to display a moodle filetype icon, so we need to use the item path.
             $type = 'item';
         }
-        $path = \moodle_url::make_pluginfile_url($this->get_context()->id, 'mod_mediagallery', $type, $this->record->id, '/', $file->get_filename());
+        $path = \moodle_url::make_pluginfile_url($this->get_context()->id, 'mod_mediagallery', $type, $this->record->id, '/',
+                                                $file->get_filename());
         if ($preview && $type == 'item') {
             $path->param('preview', 'bigthumb');
         }
@@ -687,7 +696,8 @@ class item extends base {
             // If its not an image, we want to display a moodle filetype icon, so we need to use the item path.
             $urltype = 'item';
         }
-        $path = \moodle_url::make_pluginfile_url($this->get_context()->id, 'mod_mediagallery', $urltype, $this->record->id, '/', $file->get_filename());
+        $path = \moodle_url::make_pluginfile_url($this->get_context()->id, 'mod_mediagallery', $urltype, $this->record->id, '/',
+                                                $file->get_filename());
 
         // For audio/video files, this has moodle display a filetype icon.
         if ($type == 'thumbnail' && $urltype == 'item' && !$isimagetype) {

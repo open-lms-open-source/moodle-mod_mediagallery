@@ -32,7 +32,7 @@ $m = optional_param('m', 0, PARAM_INT); // The mediagallery id.
 $g = optional_param('g', $id, PARAM_INT); // A gallery id.
 
 if (!$m && !$g) {
-    print_error('missingparameter');
+    throw new \moodle_exception('missingparameter');
 }
 
 $gallery = false;
@@ -106,7 +106,7 @@ if ($mform->is_cancelled()) {
     redirect(new moodle_url('/mod/mediagallery/view.php', array('g' => $gallery->id, 'editing' => 1)));
 } else if ($gallery) {
     if (!$gallery->user_can_edit()) {
-        print_error('nopermissions', 'error', $pageurl, 'edit gallery');
+        throw new \moodle_exception('nopermissions', 'error', $pageurl, 'edit gallery');
     }
     $data = $gallery->get_record();
     $data->tags = core_tag_tag::get_item_tags_array('mod_mediagallery', 'mediagallery_gallery', $gallery->id);

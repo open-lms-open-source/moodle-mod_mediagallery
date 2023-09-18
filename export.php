@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Page to export Media collections
+ *
  * @package    mod_mediagallery
  * @copyright  NetSpot Pty Ltd
  * @author     Adam Olley <adam.olley@netspot.com.au>

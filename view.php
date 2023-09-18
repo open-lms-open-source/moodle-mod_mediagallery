@@ -28,7 +28,7 @@ require_once(dirname(__FILE__).'/lib.php');
 require_once(dirname(__FILE__).'/locallib.php');
 
 $id = optional_param('id', 0, PARAM_INT); // A course_module id.
-$m  = optional_param('m', 0, PARAM_INT); // A mediagallery id.
+$m = optional_param('m', 0, PARAM_INT); // A mediagallery id.
 $g = optional_param('g', 0, PARAM_INT); // A mediagallery_gallery id.
 $action = optional_param('action', 'viewcollection', PARAM_ALPHA);
 $page = optional_param('page', 0, PARAM_INT);
@@ -56,18 +56,18 @@ if ($g) {
     $m = $gallery->instanceid;
     $options['viewcontrols'] = 'item';
     $mediagallery = $gallery->get_collection();
-    $course     = $DB->get_record('course', array('id' => $mediagallery->course), '*', MUST_EXIST);
+    $course = $DB->get_record('course', array('id' => $mediagallery->course), '*', MUST_EXIST);
     $cm = $mediagallery->cm;
 } else if ($id) {
-    $cm         = get_coursemodule_from_id('mediagallery', $id, 0, false, MUST_EXIST);
-    $course     = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
+    $cm = get_coursemodule_from_id('mediagallery', $id, 0, false, MUST_EXIST);
+    $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
     $mediagallery = new \mod_mediagallery\collection($cm->instance);
 } else if ($m) {
     $mediagallery = new \mod_mediagallery\collection($m);
-    $course     = $DB->get_record('course', array('id' => $mediagallery->course), '*', MUST_EXIST);
-    $cm         = get_coursemodule_from_instance('mediagallery', $mediagallery->id, $course->id, false, MUST_EXIST);
+    $course = $DB->get_record('course', array('id' => $mediagallery->course), '*', MUST_EXIST);
+    $cm = get_coursemodule_from_instance('mediagallery', $mediagallery->id, $course->id, false, MUST_EXIST);
 } else {
-    print_error('missingparameter');
+    throw new \moodle_exception('missingparameter');
 }
 
 // The single collection type was contributed by github user eSrem.
@@ -85,7 +85,7 @@ if ($mediagallery->colltype == "single") {
             $options['viewcontrols'] = 'item';
             break;
         default: // More than one, delete others.
-            print_error('toomany', 'mod_mediagallery');
+            throw new \moodle_exception('toomany', 'mod_mediagallery');
             break;
     }
 }

@@ -83,7 +83,8 @@ class mod_mediagallery_mod_form extends moodleform_mod {
         $opts = array(
             'standard' => get_string('modestandard', 'mod_mediagallery'),
         );
-        if (!empty($config->disablestandardgallery) && (empty($this->_instance) || $this->current->mode == 'thebox') && count($opts) > 1) {
+        if (!empty($config->disablestandardgallery) && (empty($this->_instance) || $this->current->mode == 'thebox')
+                && count($opts) > 1) {
             unset($opts['standard']);
         }
 

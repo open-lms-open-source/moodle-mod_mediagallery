@@ -23,8 +23,6 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Returns the information on whether the module supports a feature
  *
@@ -209,7 +207,7 @@ function mediagallery_user_outline($course, $user, $mod, $mediagallery) {
  * @param stdClass $user the record of the user we are generating report for
  * @param cm_info $mod course module info
  * @param stdClass $mediagallery the module instance record
- * @return void, is supposed to echp directly
+ * @return void is supposed to echp directly
  */
 function mediagallery_user_complete($course, $user, $mod, $mediagallery) {
 }
@@ -233,7 +231,7 @@ function mediagallery_print_recent_activity($course, $viewfullnames, $timestart)
  *
  * This callback function is supposed to populate the passed array with
  * custom activity records. These records are then rendered into HTML via
- * {@link mediagallery_print_recent_mod_activity()}.
+ * {@see mediagallery_print_recent_mod_activity()}.
  *
  * @param array $activities sequentially indexed array of objects with the 'cmid' property
  * @param int $index the index in the $activities to use for the next record
@@ -345,7 +343,7 @@ function mediagallery_update_grades(stdClass $mediagallery, $userid = 0) {
  * Returns the lists of all browsable file areas within the given module context
  *
  * The file area 'intro' for the activity introduction field is added automatically
- * by {@link file_browser::get_file_info_context_module()}
+ * by {@see \file_browser::get_file_info_context_module()}
  *
  * @param stdClass $course
  * @param stdClass $cm
@@ -407,7 +405,7 @@ function mediagallery_get_file_info($browser, $areas, $course, $cm, $context, $f
     $filepath = is_null($filepath) ? '/' : $filepath;
     $filename = is_null($filename) ? '.' : $filename;
     if (!$storedfile = $fs->get_file($context->id, 'mod_mediagallery', $filearea, $itemid, $filepath, $filename)) {
-        if ($filepath === '/' and $filename === '.') {
+        if ($filepath === '/' && $filename === '.') {
             $storedfile = new virtual_root_file($context->id, 'mod_mediagallery', 'collection', 0);
         } else {
             return null;
@@ -450,7 +448,7 @@ function mediagallery_pluginfile($course, $cm, $context, $filearea, array $args,
     $fs = get_file_storage();
     $relativepath = implode('/', $args);
     $fullpath = "/$context->id/mod_mediagallery/$filearea/$itemid/$relativepath";
-    if (!$file = $fs->get_file_by_hash(sha1($fullpath)) or $file->is_directory()) {
+    if (!($file = $fs->get_file_by_hash(sha1($fullpath))) || $file->is_directory()) {
         return false;
     }
 

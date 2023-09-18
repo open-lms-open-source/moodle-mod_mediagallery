@@ -73,8 +73,8 @@ class mod_mediagallery_item_bulk_form extends moodleform {
     /**
      * Validate the user input.
      *
-     * @param mixed $data The submitted data.
-     * @param mixed $files The submitted files.
+     * @param array $data The submitted data.
+     * @param array $files The submitted files.
      * @return array A list of errors, if any.
      */
     public function validation($data, $files) {

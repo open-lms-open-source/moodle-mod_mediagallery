@@ -16,8 +16,6 @@
 
 namespace mod_mediagallery;
 
-defined('MOODLE_INTERNAL') || die();
-
 class imagehelper {
 
     /**
@@ -25,8 +23,6 @@ class imagehelper {
      * We need to check before loading it, otherwise we get a fatal error.
      *
      * @param string $path Path to the file.
-     * @static
-     * @access public
      * @return bool true if there's enough memory to load the image, false otherwise.
      */
     public static function memory_check($path) {

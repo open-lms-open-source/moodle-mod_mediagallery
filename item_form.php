@@ -105,7 +105,8 @@ class mod_mediagallery_item_form extends moodleform {
 
         $lockfields = $item && !$item->user_can_edit() ? true : false;
 
-        $mform->addElement('tags', 'tags', get_string('tags'), ['itemtype' => 'mediagallery_item', 'component' => 'mod_mediagallery']);
+        $mform->addElement('tags', 'tags', get_string('tags'),
+                            ['itemtype' => 'mediagallery_item', 'component' => 'mod_mediagallery']);
 
         if ($lockfields) {
             $mform->hardFreeze('caption');
@@ -145,8 +146,8 @@ class mod_mediagallery_item_form extends moodleform {
     /**
      * Validate user input.
      *
-     * @param mixed $data The submitted form data.
-     * @param mixed $files The submitted files.
+     * @param array $data The submitted form data.
+     * @param array $files The submitted files.
      * @return array List of errors, if any.
      */
     public function validation($data, $files) {
@@ -159,7 +160,7 @@ class mod_mediagallery_item_form extends moodleform {
             $errors['filecheck'] = get_string('required');
         } else if (!empty($url) && !preg_match('|^/|', $url)) {
             // Links relative to server root are ok - no validation necessary.
-            if (preg_match('|^[a-z]+://|i', $url) or preg_match('|^https?:|i', $url) or preg_match('|^ftp:|i', $url)) {
+            if (preg_match('|^[a-z]+://|i', $url) || preg_match('|^https?:|i', $url) || preg_match('|^ftp:|i', $url)) {
                 // Normal URL.
                 if (!mediagallery_appears_valid_url($url)) {
                     $errors['externalurl'] = get_string('invalidurl', 'url');

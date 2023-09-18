@@ -22,8 +22,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * File browsing support class.
  *
@@ -65,7 +63,7 @@ class mod_mediagallery_file_info_area_gallery extends file_info_stored {
      * Returns list of children which are either files matching the specified extensions
      * or folders that contain at least one such file.
      *
-     * @param string|array $extensions, either '*' or array of lowercase extensions, i.e. array('.gif','.jpg')
+     * @param string|array $extensions either '*' or array of lowercase extensions, i.e. array('.gif','.jpg')
      * @return array of file_info instances
      */
     public function get_non_empty_children($extensions = '*') {

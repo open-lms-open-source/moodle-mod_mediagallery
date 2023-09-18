@@ -21,8 +21,7 @@
  * It is not really essential to know about it, but these logs were created as example
  * in the previous 1.9 NEWMODULE.
  *
- * @package    mod
- * @subpackage mediagallery
+ * @package    mod_mediagallery
  * @copyright  NetSpot Pty Ltd <your@email.adress>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

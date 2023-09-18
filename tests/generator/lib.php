@@ -23,8 +23,6 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * mediagallery module data generator class
  *
@@ -58,25 +56,25 @@ class mod_mediagallery_generator extends testing_module_generator {
         }
 
         $defaultsettings = array(
-            'name'               => get_string('pluginname', 'mediagallery').' '.$i,
-            'intro'              => 'Test mediagallery ' . $i,
-            'introformat'        => FORMAT_MOODLE,
-            'userid'             => 0,
-            'thumbnailsperpage'  => 0,
-            'thumbnailsperrow'   => 2,
+            'name' => get_string('pluginname', 'mediagallery').' '.$i,
+            'intro' => 'Test mediagallery ' . $i,
+            'introformat' => FORMAT_MOODLE,
+            'userid' => 0,
+            'thumbnailsperpage' => 0,
+            'thumbnailsperrow' => 2,
             'displayfullcaption' => 0,
-            'captionposition'    => 0,
-            'colltype'           => 'contributed',
-            'galleryfocus'       => 1,
+            'captionposition' => 0,
+            'colltype' => 'contributed',
+            'galleryfocus' => 1,
             'galleryviewoptions' => array('carousel' => 1),
-            'gridrows'           => 2,
-            'gridcolumns'        => 3,
-            'enforcedefauls'     => 0,
-            'readonlyfrom'       => 0,
-            'readonlyto'         => 0,
-            'mode'               => 'standard',
-            'contributable'      => 0,
-            'maxgalleries'       => 0,
+            'gridrows' => 2,
+            'gridcolumns' => 3,
+            'enforcedefauls' => 0,
+            'readonlyfrom' => 0,
+            'readonlyto' => 0,
+            'mode' => 'standard',
+            'contributable' => 0,
+            'maxgalleries' => 0,
         );
         $defaultsettings['gallerytypeoptions']['focus'] = 1;
 
@@ -92,7 +90,7 @@ class mod_mediagallery_generator extends testing_module_generator {
     /**
      * Create a gallery object.
      *
-     * @param mixed $record An array or object defining a gallery.
+     * @param array|object $record An array or object defining a gallery.
      * @return \mod_mediagallery\gallery
      */
     public function create_gallery($record = null) {
@@ -127,7 +125,7 @@ class mod_mediagallery_generator extends testing_module_generator {
     /**
      * Create an item.
      *
-     * @param mixed $record An array or object defining a item.
+     * @param array|object $record An array or object defining a item.
      * @return \mod_mediagallery\item
      */
     public function create_item($record = null) {

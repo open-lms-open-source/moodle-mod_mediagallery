@@ -105,7 +105,8 @@ class mod_mediagallery_gallery_form extends moodleform {
             $mform->addHelpButton('contributable', 'contributable', 'mediagallery');
         }
 
-        $mform->addElement('tags', 'tags', get_string('tags'), ['itemtype' => 'mediagallery_gallery', 'component' => 'mod_mediagallery']);
+        $mform->addElement('tags', 'tags', get_string('tags'),
+                            ['itemtype' => 'mediagallery_gallery', 'component' => 'mod_mediagallery']);
 
         if ($lockfields) {
             $mform->hardFreeze('name');
@@ -211,7 +212,7 @@ class mod_mediagallery_gallery_form extends moodleform {
     /**
      * Set the forms data.
      *
-     * @param array $data
+     * @param stdClass|array $data
      * @return void
      */
     public function set_data($data) {

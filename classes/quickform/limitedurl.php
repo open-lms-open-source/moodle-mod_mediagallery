@@ -23,17 +23,17 @@ class MoodleQuickForm_limitedurl extends MoodleQuickForm_url {
     public $_helpbutton = '';
 
     // If true label will be hidden.
-    public $_hiddenLabel = false;
+    public $_hiddenLabel = false; // phpcs:ignore moodle.NamingConventions.ValidVariableName.MemberNameUnderscore
 
     /**
      * Returns HTML for this form element.
      *
      * @return string
      */
-    public function toHtml() {
+    public function toHtml() { // phpcs:ignore moodle.NamingConventions.ValidFunctionName.LowercaseMethod
         global $PAGE, $OUTPUT;
 
-        $id     = $this->_attributes['id'];
+        $id = $this->_attributes['id'];
         $elname = $this->_attributes['name'];
 
         if ($this->_hiddenLabel) {
@@ -41,7 +41,7 @@ class MoodleQuickForm_limitedurl extends MoodleQuickForm_url {
             $str = '<label class="accesshide" for="'.$this->getAttribute('id').'" >'.
                         $this->getLabel().'</label>'.parent::toHtml();
         } else {
-            $str = HTML_QuickForm_Text::toHtml();
+            $str = HTML_QuickForm_text::toHtml();
         }
         if (empty($this->_options['usefilepicker'])) {
             return $str;

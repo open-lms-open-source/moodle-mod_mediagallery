@@ -24,9 +24,9 @@ class MoodleQuickForm_uploader_standard extends MoodleQuickForm_filepicker {
 
     public $repo = '';
 
-    public function toHtml() {
+    public function toHtml() { // phpcs:ignore moodle.NamingConventions.ValidFunctionName.LowercaseMethod
         global $CFG, $COURSE, $USER, $PAGE, $OUTPUT;
-        $id     = $this->_attributes['id'];
+        $id = $this->_attributes['id'];
         $elname = $this->_attributes['name'];
 
         if ($this->_flagFrozen) {

@@ -20,6 +20,19 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once(dirname(__FILE__).'/../locallib.php');
 
+/**
+ * Gallery
+ *
+ * @property-read string $instanceid
+ * @property-read string $name
+ * @property-read string $galleryfocus
+ * @property-read string $galleryview
+ * @property-read string $gridrows
+ * @property-read string $gridcolumns
+ * @property-read string $thumbnail
+ * @property-read string $mode
+ * @property-read string $contributable
+ */
 class gallery extends base {
 
     const VIEW_CAROUSEL = 0;
@@ -135,7 +148,9 @@ class gallery extends base {
     }
 
     /**
-     * @param $list array List of item id's to download. Empty array means all files.
+     * Download items
+     *
+     * @param array $list List of item id's to download. Empty array means all files.
      * @return void
      */
     public function download_items(array $list = array()) {
@@ -417,8 +432,8 @@ class gallery extends base {
 
     /**
      * Determines if a given user can edit this gallery.
-     * @param $userid int The user to check can edit. If null then the current user is checked.
-     * @param $ownercheck bool Used to exclude readonly and submission checks to see if user is owner of the gallery.
+     * @param int $userid The user to check can edit. If null then the current user is checked.
+     * @param bool $ownercheck Used to exclude readonly and submission checks to see if user is owner of the gallery.
      */
     public function user_can_edit($userid = null, $ownercheck = false) {
         global $USER;

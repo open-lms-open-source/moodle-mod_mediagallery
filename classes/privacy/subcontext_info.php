@@ -29,8 +29,6 @@ use \core_privacy\request\approved_contextlist;
 use \core_privacy\request\writer;
 use \core_privacy\metadata\item_collection;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Subcontext helper trait.
  *
@@ -44,7 +42,7 @@ trait subcontext_info {
      * @param   \stdClass   $gallery The gallery
      * @return  array
      */
-    protected static function get_gallery_area(\stdClass $gallery) : Array {
+    protected static function get_gallery_area(\stdClass $gallery) : array {
         $pathparts = [];
         if (!empty($discussion->groupname)) {
             $pathparts[] = get_string('groups');
@@ -67,10 +65,9 @@ trait subcontext_info {
     /**
      * Get the item part of the subcontext.
      *
-     * @param   \stdClass   $gallery The gallery
      * @return  array
      */
-    protected static function get_item_area() : Array {
+    protected static function get_item_area() : array {
         $pathparts = [
             get_string('areaitem', 'mod_mediagallery'),
         ];

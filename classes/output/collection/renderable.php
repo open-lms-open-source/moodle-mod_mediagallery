@@ -16,8 +16,6 @@
 
 namespace mod_mediagallery\output\collection;
 
-defined('MOODLE_INTERNAL') || die();
-
 class renderable implements \renderable {
 
     public $collection;

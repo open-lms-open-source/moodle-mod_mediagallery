@@ -23,6 +23,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace mod_mediagallery;
+
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 
@@ -41,8 +43,9 @@ require_once($CFG->dirroot . '/mod/mediagallery/lib.php');
  * @category   test
  * @author     Adam Olley <adam.olley@blackboard.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @covers     \mod_mediagallery\privacy\provider
  */
-class mod_mediagallery_privacy_testcase extends provider_testcase {
+class privacy_test extends provider_testcase {
 
     use \mod_mediagallery\privacy\subcontext_info;
 
@@ -104,22 +107,22 @@ class mod_mediagallery_privacy_testcase extends provider_testcase {
 
         $contextids = provider::get_contexts_for_userid($users[0]->id)->get_contextids();
         $this->assertCount(3, $contextids);
-        $this->assertTrue(in_array(context_module::instance($cm1a->cmid)->id, $contextids));
-        $this->assertTrue(in_array(context_module::instance($cm1b->cmid)->id, $contextids));
-        $this->assertTrue(in_array(context_module::instance($cm2a->cmid)->id, $contextids));
+        $this->assertTrue(in_array(\context_module::instance($cm1a->cmid)->id, $contextids));
+        $this->assertTrue(in_array(\context_module::instance($cm1b->cmid)->id, $contextids));
+        $this->assertTrue(in_array(\context_module::instance($cm2a->cmid)->id, $contextids));
 
         $contextids = provider::get_contexts_for_userid($users[1]->id)->get_contextids();
         $this->assertCount(2, $contextids);
-        $this->assertTrue(in_array(context_module::instance($cm2a->cmid)->id, $contextids));
-        $this->assertTrue(in_array(context_module::instance($cm2b->cmid)->id, $contextids));
+        $this->assertTrue(in_array(\context_module::instance($cm2a->cmid)->id, $contextids));
+        $this->assertTrue(in_array(\context_module::instance($cm2b->cmid)->id, $contextids));
 
         $contextids = provider::get_contexts_for_userid($users[2]->id)->get_contextids();
         $this->assertCount(1, $contextids);
-        $this->assertTrue(in_array(context_module::instance($cm2b->cmid)->id, $contextids));
+        $this->assertTrue(in_array(\context_module::instance($cm2b->cmid)->id, $contextids));
 
         $contextids = provider::get_contexts_for_userid($users[3]->id)->get_contextids();
         $this->assertCount(1, $contextids);
-        $this->assertTrue(in_array(context_module::instance($cm2b->cmid)->id, $contextids));
+        $this->assertTrue(in_array(\context_module::instance($cm2b->cmid)->id, $contextids));
     }
 
     public function test_delete_data_for_all_users_in_context() {
@@ -134,7 +137,7 @@ class mod_mediagallery_privacy_testcase extends provider_testcase {
         $this->create_gallery($cm1a, $users[0]);
         $this->create_gallery($cm1b, $users[1]);
 
-        provider::delete_data_for_all_users_in_context(context_module::instance($cm1b->cmid));
+        provider::delete_data_for_all_users_in_context(\context_module::instance($cm1b->cmid));
         $this->assertTrue($DB->record_exists('mediagallery_gallery', ['userid' => $users[0]->id, 'instanceid' => $cm1a->id]));
         $this->assertFalse($DB->record_exists('mediagallery_gallery', ['userid' => $users[1]->id, 'instanceid' => $cm1b->id]));
     }
@@ -159,16 +162,16 @@ class mod_mediagallery_privacy_testcase extends provider_testcase {
         $fs->create_file_from_string([
             'contextid' => $cm1actx->id,
             'component' => 'mod_mediagallery',
-            'filearea'  => 'item',
-            'itemid'    => $item->id,
-            'filepath'  => '/',
-            'filename'  => 'example.jpg',
+            'filearea' => 'item',
+            'itemid' => $item->id,
+            'filepath' => '/',
+            'filename' => 'example.jpg',
         ], 'image contents (not really)');
 
         provider::delete_data_for_user(new approved_contextlist($users[0], 'mod_lightboxgallery', [
-            context_course::instance($c1->id)->id,
-            context_module::instance($cm1a->cmid)->id,
-            context_module::instance($cm1b->cmid)->id,
+            \context_course::instance($c1->id)->id,
+            \context_module::instance($cm1a->cmid)->id,
+            \context_module::instance($cm1b->cmid)->id,
         ]));
 
         $this->assertFalse($DB->record_exists('mediagallery_gallery', ['userid' => $users[0]->id, 'instanceid' => $cm1a->id]));
@@ -188,16 +191,17 @@ class mod_mediagallery_privacy_testcase extends provider_testcase {
         $cm1c = $dg->create_module('mediagallery', ['course' => $c1]);
         $users = $this->create_users(2);
 
-        $cm1actx = context_module::instance($cm1a->cmid);
-        $cm1bctx = context_module::instance($cm1b->cmid);
-        $cm1cctx = context_module::instance($cm1c->cmid);
+        $cm1actx = \context_module::instance($cm1a->cmid);
+        $cm1bctx = \context_module::instance($cm1b->cmid);
+        $cm1cctx = \context_module::instance($cm1c->cmid);
 
         $gallery1a = $this->create_gallery($cm1a, $users[0]);
         $gallery1a2 = $this->create_gallery($cm1a, $users[1]);
         $gallery1b = $this->create_gallery($cm1b, $users[1]);
         $gallery1c = $this->create_gallery($cm1c, $users[0]);
 
-        provider::export_user_data(new approved_contextlist($users[0], 'mod_mediagallery', [$cm1actx->id, $cm1bctx->id, $cm1cctx->id]));
+        provider::export_user_data(new approved_contextlist($users[0], 'mod_mediagallery',
+                                                            [$cm1actx->id, $cm1bctx->id, $cm1cctx->id]));
 
         $subcontext = static::get_subcontext($cm1a, (object)['id' => $gallery1a->id, 'name' => $gallery1a->name]);
         $data = writer::with_context($cm1actx)->get_data($subcontext);
@@ -213,7 +217,8 @@ class mod_mediagallery_privacy_testcase extends provider_testcase {
         $this->assertEquals($gallery1c->name, $data->name);
 
         writer::reset();
-        provider::export_user_data(new approved_contextlist($users[1], 'mod_mediagallery', [$cm1actx->id, $cm1bctx->id, $cm1cctx->id]));
+        provider::export_user_data(new approved_contextlist($users[1], 'mod_mediagallery',
+                                                            [$cm1actx->id, $cm1bctx->id, $cm1cctx->id]));
 
         $subcontext = static::get_subcontext($cm1a, (object)['id' => $gallery1a2->id, 'name' => $gallery1a2->name]);
         $data = writer::with_context($cm1actx)->get_data($subcontext);
@@ -234,7 +239,7 @@ class mod_mediagallery_privacy_testcase extends provider_testcase {
      *
      * @param int $itemid The item ID.
      * @param int $userid The user ID.
-     * @param bool If the user liked the item.
+     * @param bool $liked If the user liked the item.
      * @return stdClass
      */
     protected function create_userfeedback($itemid, $userid, $liked = false) {
