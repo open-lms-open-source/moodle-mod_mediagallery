@@ -28,8 +28,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2023060200;
-$plugin->requires  = 2022041200;
+$plugin->version = 2023060200;
+$plugin->requires = 2022041200;
 $plugin->component = 'mod_mediagallery';
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '4.0.2';
+$plugin->maturity = MATURITY_STABLE;
+$plugin->release = '4.0.2';

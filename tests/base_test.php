@@ -23,18 +23,21 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+namespace mod_mediagallery;
 
 /**
  * Unit tests for basic module functionality.
  *
  * @copyright Copyright (c) 2017 Blackboard Inc.
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @covers    \mod_mediagallery\collection
+ * @covers    \mod_mediagallery\gallery
+ * @covers    \mod_mediagallery\item
  */
-class mod_mediagallery_base_testcase extends advanced_testcase {
+class base_test extends \advanced_testcase {
 
     /**
-     * @var stdClass Course object.
+     * @var \stdClass Course object.
      */
     protected $course;
 

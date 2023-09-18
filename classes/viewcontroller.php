@@ -17,8 +17,6 @@
 
 namespace mod_mediagallery;
 
-defined('MOODLE_INTERNAL') || die();
-
 class viewcontroller {
 
     public $cm;
@@ -50,7 +48,6 @@ class viewcontroller {
      * Routes to a valid action.
      *
      * @param string $action
-     * @access public
      * @return string Rendered output for display.
      */
     public function display_action($action) {
@@ -158,7 +155,7 @@ class viewcontroller {
             $renderable = new output\gallery\renderable($gallery, $this->options['editing'], $this->options);
             $output .= $this->renderer->render_gallery($renderable);
         } else {
-            print_error('nopermissions', 'error', $this->pageurl, 'view gallery');
+            throw new \moodle_exception('nopermissions', 'error', $this->pageurl, 'view gallery');
         }
         return $output;
     }

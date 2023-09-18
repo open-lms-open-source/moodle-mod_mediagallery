@@ -66,7 +66,7 @@ Feature: Add mediagallery activities and galleries
     Then I should not see "Gallery focus"
 
   Scenario: Student cannot add a gallery to an instructor collection
-   Given I log in as "student1"
-   And I am on "Course 1" course homepage
-   And I follow "Instructor collection"
-   Then I should not see "Add a gallery"
+    Given I log in as "student1"
+    And I am on "Course 1" course homepage
+    And I follow "Instructor collection"
+    Then I should not see "Add a gallery"

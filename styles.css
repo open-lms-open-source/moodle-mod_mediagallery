@@ -10,7 +10,7 @@
 }
 
 .path-mod-mediagallery .gallery_list .row {
-    margin-left: 0px;
+    margin-left: 0;
     margin-bottom: 10px;
 }
 
@@ -59,8 +59,8 @@
     overflow: hidden;
     white-space: nowrap;
     width: 100px;
-    margin-top: 0px;
-    margin-bottom: 0px;
+    margin-top: 0;
+    margin-bottom: 0;
 }
 
 .path-mod-mediagallery .gallery_list_item .title .tooltiptext,
@@ -75,8 +75,6 @@
 
     position: absolute;
     z-index: 1;
-
-    width: 120px;
 }
 
 .path-mod-mediagallery .gallery_list_item .title:hover .tooltiptext,
@@ -97,7 +95,7 @@
 
 .path-mod-mediagallery .gallery_items .controls .moodle-actionmenu,
 .path-mod-mediagallery .gallery_list_item .controls .moodle-actionmenu {
-    display: inline-block !important;
+    display: inline-block !important;  /* stylelint-disable-line declaration-no-important */
 }
 
 .path-mod-mediagallery .gallery_items .controls .icon,
@@ -195,7 +193,7 @@
 }
 
 .path-mod-mediagallery .menumediasize {
-    margin-bottom: 0px;
+    margin-bottom: 0;
 }
 
 .path-mod-mediagallery .moralrights {
@@ -203,11 +201,11 @@
     height: 30px;
     width: 30px;
     text-align: center;
-    background-color: #00CB00;
+    background-color: #00cb00;
 }
 
 .path-mod-mediagallery .moralrights.no {
-    background-color: #CB0000;
+    background-color: #cb0000;
 }
 .path-mod-mediagallery .moralrights img {
     margin-top: 6px;
@@ -238,7 +236,7 @@
 }
 
 .path-mod-mediagallery .lb-dataContainer {
-    background: #FFF;
+    background: #fff;
     min-width: 400px;
     padding-top: 7px;
 }
@@ -336,11 +334,11 @@
     position: relative;
     border: 10px solid #fff;
     -webkit-border-radius: 5px;
-       -moz-border-radius: 5px;
-            border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
     -webkit-box-shadow: 0 0 2px #999;
-       -moz-box-shadow: 0 0 2px #999;
-            box-shadow: 0 0 2px #999;
+    -moz-box-shadow: 0 0 2px #999;
+    box-shadow: 0 0 2px #999;
 }
 
 
@@ -400,7 +398,7 @@
     width: 30px;
     height: 30px;
     text-align: center;
-    background: #4E443C;
+    background: #4e443c;
     color: #fff;
     text-decoration: none;
     text-shadow: 0 0 1px #000;
@@ -408,9 +406,9 @@
     -webkit-border-radius: 30px;
     -moz-border-radius: 30px;
     border-radius: 30px;
-    -webkit-box-shadow: 0 0 4px #F0EFE7;
-    -moz-box-shadow: 0 0 4px #F0EFE7;
-    box-shadow: 0 0 4px #F0EFE7;
+    -webkit-box-shadow: 0 0 4px #f0efe7;
+    -moz-box-shadow: 0 0 4px #f0efe7;
+    box-shadow: 0 0 4px #f0efe7;
 }
 
 .jcarousel-control-prev {
@@ -451,26 +449,26 @@
     line-height: 10px;
 
     background: #fff;
-    color: #4E443C;
+    color: #4e443c;
     border-radius: 10px;
     text-indent: -9999px;
 
     margin-right: 7px;
 
 
-    -webkit-box-shadow: 0 0 2px #4E443C;
-    -moz-box-shadow: 0 0 2px #4E443C;
-    box-shadow: 0 0 2px #4E443C;
+    -webkit-box-shadow: 0 0 2px #4e443c;
+    -moz-box-shadow: 0 0 2px #4e443c;
+    box-shadow: 0 0 2px #4e443c;
 }
 
 .jcarousel-pagination a.active {
-    background: #4E443C;
+    background: #4e443c;
     color: #fff;
     opacity: 1;
 
-    -webkit-box-shadow: 0 0 2px #F0EFE7;
-    -moz-box-shadow: 0 0 2px #F0EFE7;
-    box-shadow: 0 0 2px #F0EFE7;
+    -webkit-box-shadow: 0 0 2px #f0efe7;
+    -moz-box-shadow: 0 0 2px #f0efe7;
+    box-shadow: 0 0 2px #f0efe7;
 }
 
 div.sample_target_wrapper {
@@ -530,7 +528,7 @@ body.mediaboxactive .gallery .mediaplugin object {
 
 #mediabox-content .mediaplugin object,
 .gallery .mediaplugin object {
-    margin-left: 0 !important;
+    margin-left: 0 !important;  /* stylelint-disable-line declaration-no-important */
 }
 
 .gallery .mediafallbacklink {
@@ -544,7 +542,7 @@ body.mediaboxactive .gallery .mediaplugin object {
 
 #mediabox-content .mediaplugin.audio object,
 .gallery .mediaplugin object {
-    width: 250px !important;
+    width: 250px !important;  /* stylelint-disable-line declaration-no-important */
 }
 
 #mediabox-content .mediaplugin.video.flow {
@@ -560,7 +558,7 @@ body.mediaboxactive .gallery .mediaplugin object {
     background-color: #222;
     overflow-x: hidden;
     overflow-y: auto;
-    color: #FFF;
+    color: #fff;
     padding-top: 30px;
 }
 
@@ -596,7 +594,6 @@ body.mediaboxactive .gallery .mediaplugin object {
 }
 
 
-
 #mediabox-navbar .navitem img {
     width: 58px;
 }
@@ -606,7 +603,7 @@ body.mediaboxactive .gallery .mediaplugin object {
 }
 
 #mediabox.sidebarhidden #mediabox-sidebar {
-    width: 0px;
+    width: 0;
 }
 
 #mediabox-metainfo,
@@ -705,10 +702,10 @@ body.mediaboxactive .gallery .mediaplugin object {
     float: left;
     border: 0;
     height: 1px;
-    background-image: -webkit-linear-gradient(left, rgba(0,0,0,0), rgba(255,255,255,0.75), rgba(0,0,0,0));
-    background-image:    -moz-linear-gradient(left, rgba(0,0,0,0), rgba(255,255,255,0.75), rgba(0,0,0,0));
-    background-image:     -ms-linear-gradient(left, rgba(0,0,0,0), rgba(255,255,255,0.75), rgba(0,0,0,0));
-    background-image:      -o-linear-gradient(left, rgba(0,0,0,0), rgba(255,255,255,0.75), rgba(0,0,0,0));
+    background-image: -webkit-linear-gradient(left, rgba(0, 0, 0, 0), rgba(255, 255, 255, 0.75), rgba(0, 0, 0, 0));
+    background-image:    -moz-linear-gradient(left, rgba(0, 0, 0, 0), rgba(255, 255, 255, 0.75), rgba(0, 0, 0, 0));
+    background-image:     -ms-linear-gradient(left, rgba(0, 0, 0, 0), rgba(255, 255, 255, 0.75), rgba(0, 0, 0, 0));
+    background-image:      -o-linear-gradient(left, rgba(0, 0, 0, 0), rgba(255, 255, 255, 0.75), rgba(0, 0, 0, 0));
 }
 
 #page-mod-mediagallery-item .mform #id_general iframe {
@@ -718,7 +715,7 @@ body.mediaboxactive .gallery .mediaplugin object {
 }
 
 #page-mod-mediagallery-item .mform .femptylabel .felement.fstatic {
-    margin-left: 0px;
+    margin-left: 0;
 }
 
 .path-mod-mediagallery .deleteorremove {
@@ -733,7 +730,7 @@ body.mediaboxactive .gallery .mediaplugin object {
 
 .path-mod-mediagallery .actions.collection > span,
 .path-mod-mediagallery a.maction {
-    font-family: Lato,"Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-family: Lato, "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 16px;
     font-weight: 400;
     -webkit-font-smoothing: subpixel-antialiased;
@@ -752,7 +749,7 @@ body.mediaboxactive .gallery .mediaplugin object {
 }
 
 .path-mod-mediagallery .controls {
-    font-family: Lato,"Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-family: Lato, "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 15px;
     font-weight: 400;
     -webkit-font-smoothing: subpixel-antialiased;
@@ -807,10 +804,10 @@ body.mediaboxactive .gallery .mediaplugin object {
     border: 1px solid #e3e3e3;
     border-color: #e3e3e3;
     border-radius: 3px;
-    box-shadow: inset 0 1px 1px rgba(0,0,0,0.05);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
 }
 
 .path-mod-mediagallery #mediabox-content .mediaplugin {
-    width: auto !important;
-    height: auto !important;
+    width: auto !important; /* stylelint-disable-line declaration-no-important */
+    height: auto !important; /* stylelint-disable-line declaration-no-important */
 }

@@ -55,7 +55,7 @@ class mcsearch {
         $search = array();
         $searchsql = "";
         if ($this->params['search']) {
-             $search = array(
+            $search = array(
                 $DB->sql_like('i.caption', '?', false, false),
                 $DB->sql_like($fullname, '?', false, false),
                 $DB->sql_like('u.username', '?', false, false),
@@ -153,7 +153,6 @@ class mcsearch {
      * Get the group names of all groups the users shown are in.
      *
      * @param array $userids
-     * @access public
      * @return array
      */
     public function get_groups_for_users($userids) {
@@ -181,7 +180,6 @@ class mcsearch {
      * Get the role names of all roles the users shown have.
      *
      * @param array $userids
-     * @access public
      * @return array
      */
     public function get_roles_for_users($userids) {
@@ -212,7 +210,6 @@ class mcsearch {
     /**
      * Trigger a download of a csv export of the search results.
      *
-     * @access public
      * @return void
      */
     public function download_csv() {

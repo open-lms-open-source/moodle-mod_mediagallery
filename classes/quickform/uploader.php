@@ -24,8 +24,8 @@ class MoodleQuickForm_uploader extends MoodleQuickForm_filepicker {
 
     public $repo = '';
 
-    public function __construct($elementName = null, $elementLabel = null, $attributes = null, $options = null) {
-        parent::__construct($elementName, $elementLabel, $attributes, $options);
+    public function __construct($elementname = null, $elementlabel = null, $attributes = null, $options = null) {
+        parent::__construct($elementname, $elementlabel, $attributes, $options);
         $this->repo = $options['repo'];
     }
 
@@ -33,7 +33,7 @@ class MoodleQuickForm_uploader extends MoodleQuickForm_filepicker {
      * Legacy style constructor, for BC.
      * @deprecated since 2.9, use MoodleQuickForm_uploader::__construct instead
      */
-    public function MoodleQuickForm_uploader() {
+    public function MoodleQuickForm_uploader() { // phpcs:ignore moodle.NamingConventions.ValidFunctionName.LowercaseMethod
         $msg = 'Legacy constructor called, please update your code to call php5 constructor!';
         if (function_exists('debugging')) {
             debugging($msg, DEBUG_DEVELOPER);
@@ -44,9 +44,9 @@ class MoodleQuickForm_uploader extends MoodleQuickForm_filepicker {
         call_user_func_array('self::__construct', $args);
     }
 
-    public function toHtml() {
+    public function toHtml() { // phpcs:ignore moodle.NamingConventions.ValidFunctionName.LowercaseMethod
         global $CFG, $COURSE, $USER, $PAGE, $OUTPUT;
-        $id     = $this->_attributes['id'];
+        $id = $this->_attributes['id'];
         $elname = $this->_attributes['name'];
 
         if ($this->_flagFrozen) {

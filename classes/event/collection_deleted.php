@@ -25,8 +25,6 @@
 
 namespace mod_mediagallery\event;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * The mod_mediagallery collection deleted event class.
  *

@@ -22,8 +22,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * File browsing support class.
  *
@@ -54,9 +52,9 @@ class mod_mediagallery_file_info extends file_info {
      */
     public function __construct($browser, $course, $cm, $context, $areas, $filearea) {
         parent::__construct($browser, $context);
-        $this->course   = $course;
-        $this->cm       = $cm;
-        $this->areas    = $areas;
+        $this->course = $course;
+        $this->cm = $cm;
+        $this->areas = $areas;
         $this->filearea = $filearea;
     }
 
@@ -69,10 +67,10 @@ class mod_mediagallery_file_info extends file_info {
     public function get_params() {
         return array('contextid' => $this->context->id,
                      'component' => 'mod_mediagallery',
-                     'filearea'  => $this->filearea,
-                     'itemid'    => null,
-                     'filepath'  => null,
-                     'filename'  => null);
+                     'filearea' => $this->filearea,
+                     'itemid' => null,
+                     'filepath' => null,
+                     'filename' => null);
     }
 
     /**
@@ -110,7 +108,7 @@ class mod_mediagallery_file_info extends file_info {
     /**
      * Help function to return files matching extensions or their count
      *
-     * @param string|array $extensions, either '*' or array of lowercase extensions, i.e. array('.gif','.jpg')
+     * @param string|array $extensions either '*' or array of lowercase extensions, i.e. array('.gif','.jpg')
      * @param bool|int $countonly if false returns the children, if an int returns just the
      *    count of children but stops counting when $countonly number of children is reached
      * @param bool $returnemptyfolders if true returns items that don't have matching files inside
@@ -142,7 +140,7 @@ class mod_mediagallery_file_info extends file_info {
      * Returns list of children which are either files matching the specified extensions
      * or folders that contain at least one such file.
      *
-     * @param string|array $extensions, either '*' or array of lowercase extensions, i.e. array('.gif','.jpg')
+     * @param string|array $extensions either '*' or array of lowercase extensions, i.e. array('.gif','.jpg')
      * @return array of file_info instances
      */
     public function get_non_empty_children($extensions = '*') {
@@ -153,7 +151,7 @@ class mod_mediagallery_file_info extends file_info {
      * Returns the number of children which are either files matching the specified extensions
      * or folders containing at least one such file.
      *
-     * @param string|array $extensions, for example '*' or array('.gif','.jpg')
+     * @param string|array $extensions for example '*' or array('.gif','.jpg')
      * @param int $limit stop counting after at least $limit non-empty children are found
      * @return int
      */

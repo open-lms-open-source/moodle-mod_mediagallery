@@ -270,7 +270,7 @@ function mediagallery_generate_search_sql($parsetree) {
     static $p = 0;
 
     if ($DB->sql_regex_supported()) {
-        $regexp    = $DB->sql_regex(true);
+        $regexp = $DB->sql_regex(true);
         $notregexp = $DB->sql_regex(false);
     }
 
@@ -344,7 +344,7 @@ function mediagallery_generate_search_sql($parsetree) {
 /**
  * Add metainfo fields to a moodleform.
  *
- * @param moodleform $mform
+ * @param MoodleQuickForm $mform
  * @return void
  */
 function mediagallery_add_metainfo_fields(&$mform) {
@@ -545,7 +545,8 @@ function mod_mediagallery_get_tagged_galleries($tag, $exclusivemode = false, $fr
 
     $totalpages = $page + 1;
 
-    $builder = new core_tag_index_builder('mod_mediagallery', 'mediagallery_gallery', $query, $params, $page * $perpage, $perpage + 1);
+    $builder = new core_tag_index_builder('mod_mediagallery', 'mediagallery_gallery', $query, $params, $page * $perpage,
+                                        $perpage + 1);
 
     while ($item = $builder->has_item_that_needs_access_check()) {
         context_helper::preload_from_record($item);
