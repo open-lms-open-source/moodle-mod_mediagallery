@@ -185,7 +185,7 @@ class provider implements
             'userid1' => $user->id,
             'userid2' => $user->id,
             'userid3' => $user->id,
-            'contextlevel' => CONTEXT_MODULE
+            'contextlevel' => CONTEXT_MODULE,
         ] + $contextparams;
         $collections = $DB->get_recordset_sql($sql, $params);
 

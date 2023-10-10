@@ -78,11 +78,11 @@ class MoodleQuickForm_uploader extends MoodleQuickForm_filepicker {
         // and which specific repo types we don't want. So here we build a list
         // of all FILE_REFERENCE supplying repos that aren't thebox to force
         // it to only display that one.
-        $refrepos = repository::get_instances(array(
+        $refrepos = repository::get_instances([
             'currentcontext' => $PAGE->context,
             'return_types' => FILE_REFERENCE,
-        ));
-        $disabled = array();
+        ]);
+        $disabled = [];
         foreach ($refrepos as $repo) {
             if (($name = $repo->get_typename()) != $this->repo) {
                 $disabled[] = $name;
@@ -102,9 +102,9 @@ class MoodleQuickForm_uploader extends MoodleQuickForm_filepicker {
             'fullpath' => '/lib/form/filepicker.js',
             'requires' => ['core_filepicker', 'node', 'node-event-simulate', 'core_dndupload'],
         ];
-        $PAGE->requires->js_init_call('M.form_filepicker.init', array($fp->options), true, $module);
+        $PAGE->requires->js_init_call('M.form_filepicker.init', [$fp->options], true, $module);
 
-        $nonjsfilepicker = new moodle_url('/repository/draftfiles_manager.php', array(
+        $nonjsfilepicker = new moodle_url('/repository/draftfiles_manager.php', [
             'env' => 'filepicker',
             'action' => 'browse',
             'itemid' => $draftitemid,
@@ -114,7 +114,7 @@ class MoodleQuickForm_uploader extends MoodleQuickForm_filepicker {
             'ctx_id' => $PAGE->context->id,
             'course' => $PAGE->course->id,
             'sesskey' => sesskey(),
-            )
+            ]
         );
 
         // Non js file picker.

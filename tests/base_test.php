@@ -44,12 +44,12 @@ class base_test extends \advanced_testcase {
     /**
      * @var array List of teacher records.
      */
-    protected $teachers = array();
+    protected $teachers = [];
 
     /**
      * @var array List of student records.
      */
-    protected $students = array();
+    protected $students = [];
 
     /**
      * Setup function - we will create a course and add a mediagallery instance to it.
@@ -65,12 +65,12 @@ class base_test extends \advanced_testcase {
         $student1 = $this->getDataGenerator()->create_user();
         $student2 = $this->getDataGenerator()->create_user();
 
-        $editingteacherrole = $DB->get_record('role', array('shortname' => 'editingteacher'));
+        $editingteacherrole = $DB->get_record('role', ['shortname' => 'editingteacher']);
         $this->getDataGenerator()->enrol_user($teacher1->id,
                                               $this->course->id,
                                               $editingteacherrole->id);
 
-        $studentrole = $DB->get_record('role', array('shortname' => 'student'));
+        $studentrole = $DB->get_record('role', ['shortname' => 'student']);
         $this->getDataGenerator()->enrol_user($student1->id,
                                               $this->course->id,
                                               $studentrole->id);
@@ -84,7 +84,7 @@ class base_test extends \advanced_testcase {
     }
 
     public function test_collection_read_only() {
-        $options = array('colltype' => 'instructor', 'course' => $this->course->id);
+        $options = ['colltype' => 'instructor', 'course' => $this->course->id];
         $record = $this->getDataGenerator()->create_module('mediagallery', $options);
 
         // Test instructor can write to an instructor collection and students can't.
@@ -95,20 +95,20 @@ class base_test extends \advanced_testcase {
         $this->assertTrue($collection->is_read_only());
 
         // Students can write when its not an instructor collection.
-        $options = array('colltype' => 'contributed', 'course' => $this->course->id);
+        $options = ['colltype' => 'contributed', 'course' => $this->course->id];
         $record = $this->getDataGenerator()->create_module('mediagallery', $options);
         $contributed = new \mod_mediagallery\collection($record);
         $this->assertFalse($contributed->is_read_only());
     }
 
     public function test_gallery_access_permissions() {
-        $options = array('colltype' => 'contributed', 'course' => $this->course->id);
+        $options = ['colltype' => 'contributed', 'course' => $this->course->id];
         $record = $this->getDataGenerator()->create_module('mediagallery', $options);
         $collection = new \mod_mediagallery\collection($record);
 
         // Contributed mode. Users can see each others galleries.
         self::setUser($this->students[0]);
-        $record = array('name' => 'Test gallery', 'instanceid' => $collection->id);
+        $record = ['name' => 'Test gallery', 'instanceid' => $collection->id];
         $gallery = self::getDataGenerator()->get_plugin_generator('mod_mediagallery')->create_gallery($record);
 
         $mygals = $collection->get_my_galleries();
@@ -129,10 +129,10 @@ class base_test extends \advanced_testcase {
         $teaid = $this->teachers[0]->id;
         $stuid1 = $this->students[0]->id;
         $stuid2 = $this->students[1]->id;
-        $record = array('name' => 'Test gallery',
-                        'instanceid' => $collection->id,
-                        'contributable' => 1,
-                        'userid' => $this->students[0]->id);
+        $record = ['name' => 'Test gallery',
+                    'instanceid' => $collection->id,
+                    'contributable' => 1,
+                    'userid' => $this->students[0]->id, ];
         $gallery = $generator->create_gallery($record);
 
         $this->assertTrue($gallery->user_can_edit($stuid1));
@@ -140,9 +140,9 @@ class base_test extends \advanced_testcase {
         $this->assertTrue($gallery->user_can_contribute($stuid1));
         $this->assertTrue($gallery->user_can_contribute($stuid2));
 
-        $record = array('galleryid' => $gallery->id, 'userid' => $stuid1);
+        $record = ['galleryid' => $gallery->id, 'userid' => $stuid1];
         $item1 = $generator->create_item($record);
-        $record = array('galleryid' => $gallery->id, 'userid' => $stuid2);
+        $record = ['galleryid' => $gallery->id, 'userid' => $stuid2];
         $item2 = $generator->create_item($record);
 
         // Stuid1 owns the gallery and the item. So stuid2 can do nothing to
@@ -166,10 +166,10 @@ class base_test extends \advanced_testcase {
         $this->assertFalse($item2->user_can_remove($stuid1));
 
         // Flag off.
-        $record = array('name' => 'Test gallery',
-                        'instanceid' => $collection->id,
-                        'contributable' => 0,
-                        'userid' => $this->students[0]->id);
+        $record = ['name' => 'Test gallery',
+                    'instanceid' => $collection->id,
+                    'contributable' => 0,
+                    'userid' => $this->students[0]->id, ];
         $gallery = $generator->create_gallery($record);
 
         $this->assertTrue($gallery->user_can_edit($stuid1));

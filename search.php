@@ -43,16 +43,16 @@ $page = optional_param('page', 0, PARAM_INT);
 $perpage = optional_param('perpage', 10, PARAM_INT);
 $showform = optional_param('showform', 0, PARAM_INT);
 
-$course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
+$course = $DB->get_record('course', ['id' => $courseid], '*', MUST_EXIST);
 
 require_login($course);
 $context = context_course::instance($courseid);
 $PAGE->set_context($context);
 
-$pageurl = new moodle_url('/mod/mediagallery/search.php', array('id' => $course->id));
+$pageurl = new moodle_url('/mod/mediagallery/search.php', ['id' => $course->id]);
 $pageurl->param('courseonly', $courseonly);
 
-$data = array();
+$data = [];
 
 if (empty($searchstring)) {
     if (!empty($search)) {
@@ -106,8 +106,8 @@ $node = $node->add(get_string('search'), $pageurl);
 $node->make_active();
 
 $results = false;
-$mform = new search_form(null, array('course' => $course));
-$mform->set_data(array('search' => $search, 'moralrights' => $moralrights));
+$mform = new search_form(null, ['course' => $course]);
+$mform->set_data(['search' => $search, 'moralrights' => $moralrights]);
 
 $searchterms = explode(' ', $searchstring);
 
@@ -121,7 +121,7 @@ if (is_array($results)) {
 if (empty($searchstring)) {
     $items = false;
 } else {
-    $courses = array($course->id => $course);
+    $courses = [$course->id => $course];
     list($items, $totalcount) = mediagallery_search_items($searchterms, $courses, $page * $perpage, $perpage);
 }
 if (!$items) {

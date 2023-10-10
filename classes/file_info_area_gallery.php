@@ -49,7 +49,7 @@ class mod_mediagallery_file_info_area_gallery extends file_info_stored {
      * @return array of file_info instances
      */
     public function get_children() {
-        $result = array();
+        $result = [];
 
         $items = $this->gallery->get_items();
         foreach ($items as $item) {
@@ -63,12 +63,12 @@ class mod_mediagallery_file_info_area_gallery extends file_info_stored {
      * Returns list of children which are either files matching the specified extensions
      * or folders that contain at least one such file.
      *
-     * @param string|array $extensions either '*' or array of lowercase extensions, i.e. array('.gif','.jpg')
+     * @param string|array $extensions either '*' or array of lowercase extensions, i.e. ['.gif','.jpg']
      * @return array of file_info instances
      */
     public function get_non_empty_children($extensions = '*') {
         $items = $this->gallery->get_items();
-        $result = array();
+        $result = [];
 
         foreach ($items as $item) {
             $file = $item->get_file();

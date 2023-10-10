@@ -55,7 +55,7 @@ class mod_mediagallery_generator extends testing_module_generator {
             throw new coding_exception('module generator requires $record->course');
         }
 
-        $defaultsettings = array(
+        $defaultsettings = [
             'name' => get_string('pluginname', 'mediagallery').' '.$i,
             'intro' => 'Test mediagallery ' . $i,
             'introformat' => FORMAT_MOODLE,
@@ -66,7 +66,7 @@ class mod_mediagallery_generator extends testing_module_generator {
             'captionposition' => 0,
             'colltype' => 'contributed',
             'galleryfocus' => 1,
-            'galleryviewoptions' => array('carousel' => 1),
+            'galleryviewoptions' => ['carousel' => 1],
             'gridrows' => 2,
             'gridcolumns' => 3,
             'enforcedefauls' => 0,
@@ -75,7 +75,7 @@ class mod_mediagallery_generator extends testing_module_generator {
             'mode' => 'standard',
             'contributable' => 0,
             'maxgalleries' => 0,
-        );
+        ];
         $defaultsettings['gallerytypeoptions']['focus'] = 1;
 
         foreach ($defaultsettings as $name => $value) {
@@ -97,14 +97,14 @@ class mod_mediagallery_generator extends testing_module_generator {
         global $CFG, $USER;
 
         $record = (object)(array)$record;
-        $defaults = array(
+        $defaults = [
             'groupid' => 0,
             'galleryfocus' => \mod_mediagallery\base::TYPE_IMAGE,
             'galleryview' => \mod_mediagallery\gallery::VIEW_GRID,
             'userid' => $USER->id,
             'mode' => 'standard',
             'tags' => '',
-        );
+        ];
 
         if (!isset($record->instanceid)) {
             throw new coding_exception('instanceid must be present in $record');
@@ -132,11 +132,11 @@ class mod_mediagallery_generator extends testing_module_generator {
         global $CFG, $USER;
 
         $record = (object)(array)$record;
-        $defaults = array(
+        $defaults = [
             'caption' => '',
             'userid' => $USER->id,
             'tags' => '',
-        );
+        ];
 
         if (!isset($record->galleryid)) {
             throw new coding_exception('galleryid must be present in $record');

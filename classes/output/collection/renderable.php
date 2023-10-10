@@ -19,7 +19,7 @@ namespace mod_mediagallery\output\collection;
 class renderable implements \renderable {
 
     public $collection;
-    public $galleries = array();
+    public $galleries = [];
     public $maxreached = true;
     public $normallycanadd = true;
     public $readonly = false;
@@ -59,7 +59,7 @@ class renderable implements \renderable {
                 require_once($CFG->dirroot.'/mod/assign/locallib.php');
                 $context = \context_module::instance($this->linkedassigncmid);
                 $cm = get_coursemodule_from_id('assign', $this->linkedassigncmid, 0, false, MUST_EXIST);
-                $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
+                $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
                 $assign = new \assign($context, $cm, $course);
 
                 $this->submissionsopen = $assign->submissions_open();
@@ -70,7 +70,7 @@ class renderable implements \renderable {
         $mygalleries = $collection->get_my_galleries();
         $this->userorgrouphasgallery = !empty($mygalleries);
 
-        foreach (array('id', 'mode', 'thumbnailsperrow', 'thumbnailsperpage') as $opt) {
+        foreach (['id', 'mode', 'thumbnailsperrow', 'thumbnailsperpage'] as $opt) {
             if (isset($collection->$opt)) {
                 $this->$opt = $collection->$opt;
             }

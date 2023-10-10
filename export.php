@@ -33,15 +33,15 @@ $g = required_param('g', PARAM_INT); // A gallery id.
 $gallery = new \mod_mediagallery\gallery($g);
 $m = $gallery->instanceid;
 
-$mediagallery = $DB->get_record('mediagallery', array('id' => $m), '*', MUST_EXIST);
-$course = $DB->get_record('course', array('id' => $mediagallery->course), '*', MUST_EXIST);
+$mediagallery = $DB->get_record('mediagallery', ['id' => $m], '*', MUST_EXIST);
+$course = $DB->get_record('course', ['id' => $mediagallery->course], '*', MUST_EXIST);
 $cm = get_coursemodule_from_instance('mediagallery', $mediagallery->id, $course->id, false, MUST_EXIST);
 
 require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
 
-$galleryurl = new moodle_url('/mod/mediagallery/view.php', array('g' => $g, 'editing' => 1));
-$pageurl = new moodle_url('/mod/mediagallery/export.php', array('g' => $g));
+$galleryurl = new moodle_url('/mod/mediagallery/view.php', ['g' => $g, 'editing' => 1]);
+$pageurl = new moodle_url('/mod/mediagallery/export.php', ['g' => $g]);
 $PAGE->set_url($pageurl);
 $PAGE->set_title(format_string($mediagallery->name));
 $PAGE->set_heading(format_string($course->fullname));
@@ -55,11 +55,11 @@ $node = $navnode->add(format_string($gallery->name), $galleryurl);
 $node = $node->add(format_string(get_string('exportgallery', 'mediagallery')), $pageurl);
 $node->make_active();
 
-$mform = new \mod_mediagallery\export_form(null, array('gallery' => $gallery));
+$mform = new \mod_mediagallery\export_form(null, ['gallery' => $gallery]);
 if ($mform->is_cancelled()) {
-    redirect(new moodle_url('/mod/mediagallery/view.php', array('g' => $gallery->id, 'editing' => 1)));
+    redirect(new moodle_url('/mod/mediagallery/view.php', ['g' => $gallery->id, 'editing' => 1]));
 } else if ($data = $mform->get_data()) {
-    $list = array();
+    $list = [];
 
     if (empty($data->completegallery)) {
         foreach (array_keys((array)$data) as $key) {

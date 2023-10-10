@@ -53,7 +53,7 @@ class MoodleQuickForm_uploader_standard extends MoodleQuickForm_filepicker {
         $args->context = $PAGE->context;
         $args->buttonname = $elname.'choose';
         $args->elementname = $elname;
-        $args->disable_types = array('thebox');
+        $args->disable_types = ['thebox'];
 
         $html = $this->_getTabs();
         $fp = new file_picker($args);
@@ -67,9 +67,9 @@ class MoodleQuickForm_uploader_standard extends MoodleQuickForm_filepicker {
             'fullpath' => '/lib/form/filepicker.js',
             'requires' => ['core_filepicker', 'node', 'node-event-simulate', 'core_dndupload'],
         ];
-        $PAGE->requires->js_init_call('M.form_filepicker.init', array($fp->options), true, $module);
+        $PAGE->requires->js_init_call('M.form_filepicker.init', [$fp->options], true, $module);
 
-        $nonjsfilepicker = new moodle_url('/repository/draftfiles_manager.php', array(
+        $nonjsfilepicker = new moodle_url('/repository/draftfiles_manager.php', [
             'env' => 'filepicker',
             'action' => 'browse',
             'itemid' => $draftitemid,
@@ -79,7 +79,7 @@ class MoodleQuickForm_uploader_standard extends MoodleQuickForm_filepicker {
             'ctx_id' => $PAGE->context->id,
             'course' => $PAGE->course->id,
             'sesskey' => sesskey(),
-            )
+            ]
         );
 
         // Non js file picker.

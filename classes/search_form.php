@@ -56,11 +56,11 @@ class search_form extends \moodleform {
         $mform->addElement('text', 'caption', get_string('caption', 'mediagallery'));
         $mform->setType('caption', PARAM_TEXT);
 
-        $options = array(
+        $options = [
             '' => get_string('choosedots'),
             0 => get_string('no'),
             1 => get_string('yes'),
-        );
+        ];
         $mform->addElement('select', 'moralrights', get_string('moralrights', 'mediagallery'), $options);
 
         $mform->addElement('text', 'originalauthor', get_string('originalauthor', 'mediagallery'));

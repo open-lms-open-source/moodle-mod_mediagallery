@@ -168,7 +168,7 @@ function mediagallery_formfield_transform(stdClass $mediagallery) {
 function mediagallery_delete_instance($id) {
     global $DB;
 
-    if (! $mediagallery = $DB->get_record('mediagallery', array('id' => $id))) {
+    if (! $mediagallery = $DB->get_record('mediagallery', ['id' => $id])) {
         return false;
     }
 
@@ -277,7 +277,7 @@ function mediagallery_cron () {
  * @return array
  */
 function mediagallery_get_extra_capabilities() {
-    return array();
+    return [];
 }
 
 // Gradebook API.
@@ -351,12 +351,12 @@ function mediagallery_update_grades(stdClass $mediagallery, $userid = 0) {
  * @return array of [(string)filearea] => (string)description
  */
 function mediagallery_get_file_areas($course, $cm, $context) {
-    return array(
+    return [
         'gallery' => new lang_string('areagallery', 'mod_mediagallery'),
         'item' => new lang_string('areaitem', 'mod_mediagallery'),
         'lowres' => new lang_string('arealowres', 'mod_mediagallery'),
         'thumbnail' => new lang_string('areathumbnail', 'mod_mediagallery'),
-    );
+    ];
 }
 
 /**
@@ -429,7 +429,7 @@ function mediagallery_get_file_info($browser, $areas, $course, $cm, $context, $f
  * @param bool $forcedownload whether or not force download
  * @param array $options additional options affecting the file serving
  */
-function mediagallery_pluginfile($course, $cm, $context, $filearea, array $args, $forcedownload, array $options=array()) {
+function mediagallery_pluginfile($course, $cm, $context, $filearea, array $args, $forcedownload, array $options=[]) {
     global $DB, $CFG;
 
     if ($context->contextlevel != CONTEXT_MODULE) {
@@ -487,7 +487,7 @@ function mediagallery_comment_validate($commentparam) {
  * @return array
  */
 function mediagallery_comment_permissions($args) {
-    return array('post' => true, 'view' => true);
+    return ['post' => true, 'view' => true];
 }
 
 /**

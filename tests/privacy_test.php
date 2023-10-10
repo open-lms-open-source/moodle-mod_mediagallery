@@ -62,21 +62,21 @@ class privacy_test extends provider_testcase {
     }
 
     private function create_gallery($cm, $user) {
-        $record = array(
+        $record = [
             'name' => 'Test gallery '.$cm->id.'_'.$user->id,
             'instanceid' => $cm->id,
             'contributable' => 1,
             'userid' => $user->id,
-        );
+        ];
         return self::getDataGenerator()
             ->get_plugin_generator('mod_mediagallery')->create_gallery($record);
     }
 
     private function create_item($gallery, $user) {
-        $record = array(
+        $record = [
             'galleryid' => $gallery->id,
             'userid' => $user->id,
-        );
+        ];
         return self::getDataGenerator()
             ->get_plugin_generator('mod_mediagallery')->create_item($record);
     }

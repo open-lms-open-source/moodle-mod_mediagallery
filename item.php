@@ -49,12 +49,12 @@ if ($i) {
 
 $gallery = new \mod_mediagallery\gallery($g);
 $mediagallery = $gallery->get_collection();
-$course = $DB->get_record('course', array('id' => $mediagallery->course), '*', MUST_EXIST);
+$course = $DB->get_record('course', ['id' => $mediagallery->course], '*', MUST_EXIST);
 $cm = get_coursemodule_from_instance('mediagallery', $mediagallery->id, $course->id, false, MUST_EXIST);
 
 require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
-$pageurl = new moodle_url('/mod/mediagallery/item.php', array('g' => $gallery->id));
+$pageurl = new moodle_url('/mod/mediagallery/item.php', ['g' => $gallery->id]);
 if (!$gallery->user_can_contribute()) {
     throw new \moodle_exception('nopermissions', 'error', $pageurl, 'edit gallery');
 }
@@ -66,7 +66,7 @@ $PAGE->set_context($context);
 $PAGE->add_body_class('mediagallery-mode-'.$gallery->mode);
 
 if ($gallery) {
-    $pageurl = new moodle_url('/mod/mediagallery/view.php', array('g' => $g));
+    $pageurl = new moodle_url('/mod/mediagallery/view.php', ['g' => $g]);
 
     $navnode = $PAGE->navigation->find($cm->id, navigation_node::TYPE_ACTIVITY);
     if (empty($navnode)) {
@@ -80,12 +80,12 @@ $fmoptions = mediagallery_filepicker_options($gallery);
 
 $formclass = $bulk ? 'mod_mediagallery_item_bulk_form' : 'mod_mediagallery_item_form';
 $mform = new $formclass(null,
-    array('gallery' => $gallery, 'firstitem' => !$gallery->has_items(), 'item' => $item));
+    ['gallery' => $gallery, 'firstitem' => !$gallery->has_items(), 'item' => $item]);
 
 $fs = get_file_storage();
 
 if ($mform->is_cancelled()) {
-    redirect(new moodle_url('/mod/mediagallery/view.php', array('g' => $gallery->id, 'editing' => 1)));
+    redirect(new moodle_url('/mod/mediagallery/view.php', ['g' => $gallery->id, 'editing' => 1]));
 } else if ($data = $mform->get_data()) {
     if ($bulk) {
         $draftid = file_get_submitted_draft_itemid('content');
@@ -121,21 +121,21 @@ if ($mform->is_cancelled()) {
                 $item->generate_image_by_type('lowres', $regenthumb, $storedfile);
                 $item->generate_image_by_type('thumbnail', $regenthumb, $storedfile);
             }
-            $params = array(
+            $params = [
                 'context' => $context,
                 'objectid' => $item->id,
-                'other' => array(
+                'other' => [
                     'copyright_id' => $data->copyright_id,
                     'theme_id' => $data->theme_id,
-                ),
-            );
+                ],
+            ];
             $event = \mod_mediagallery\event\item_updated::create($params);
             $event->add_record_snapshot('mediagallery_item', $item->get_record());
             $event->trigger();
         }
     }
 
-    redirect(new moodle_url('/mod/mediagallery/view.php', array('g' => $gallery->id, 'editing' => 1)));
+    redirect(new moodle_url('/mod/mediagallery/view.php', ['g' => $gallery->id, 'editing' => 1]));
 } else if ($item) {
     $data = $item->get_record();
 
@@ -145,19 +145,19 @@ if ($mform->is_cancelled()) {
     $draftitemidthumb = file_get_submitted_draft_itemid('customthumbnail');
     file_prepare_draft_area($draftitemidthumb, $context->id, 'mod_mediagallery',
         'thumbnail', empty($data->id) ? null : $data->id,
-        array('subdirs' => 0), empty($data->customthumbnail) ? '' : $data->customthumbnail);
+        ['subdirs' => 0], empty($data->customthumbnail) ? '' : $data->customthumbnail);
     $data->customthumbnail = $draftitemidthumb;
 
 
     $draftideditor = file_get_submitted_draft_itemid('description');
     $currenttext = file_prepare_draft_area($draftideditor, $context->id, 'mod_mediagallery',
             'description', empty($data->id) ? null : $data->id,
-            array('subdirs' => 0), empty($data->description) ? '' : $data->description);
+            ['subdirs' => 0], empty($data->description) ? '' : $data->description);
 
     $data->content = $draftitemid;
-    $data->description = array('text' => $currenttext,
+    $data->description = ['text' => $currenttext,
                            'format' => editors_get_preferred_format(),
-                           'itemid' => $draftideditor);
+                           'itemid' => $draftideditor, ];
 
     $data->tags = core_tag_tag::get_item_tags_array('mod_mediagallery', 'mediagallery_item', $item->id);
     $mform->set_data($data);

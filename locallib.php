@@ -45,12 +45,12 @@ require_once($CFG->dirroot.'/tag/lib.php');
  * @return array
  */
 function mediagallery_filepicker_options($gallery) {
-    $pickeroptions = array(
+    $pickeroptions = [
         'maxbytes' => $gallery->get_collection()->maxbytes,
         'maxfiles' => 1,
         'return_types' => FILE_INTERNAL | FILE_REFERENCE,
         'subdirs' => false,
-    );
+    ];
     return $pickeroptions;
 }
 
@@ -63,7 +63,7 @@ function mediagallery_filepicker_options($gallery) {
  * @return array List of mediagallery's.
  */
 function mediagallery_get_sample_targets($course, $gallery) {
-    $list = array();
+    $list = [];
     $modinfo = get_fast_modinfo($course);
     foreach ($modinfo->get_instances_of('mediagallery') as $mgid => $cm) {
         if (!$cm->uservisible) {
@@ -99,7 +99,7 @@ function mediagallery_appears_valid_url($url) {
  */
 function mediagallery_get_file_storage_usage() {
     global $DB;
-    $usagedata = array('course' => array(), 'total' => 0);
+    $usagedata = ['course' => [], 'total' => 0];
 
     $sql = "SELECT c.id, c.fullname, c.category, f.contenthash, f.filesize
             FROM {course_modules} cm
@@ -108,7 +108,7 @@ function mediagallery_get_file_storage_usage() {
             JOIN {files} f ON f.contextid = cx.id
             WHERE f.component = 'mod_mediagallery'
             ORDER BY f.id ASC";
-    $seen = array();
+    $seen = [];
     if ($result = $DB->get_recordset_sql($sql)) {
         foreach ($result as $record) {
             if (isset($seen[$record->contenthash])) {
@@ -116,12 +116,12 @@ function mediagallery_get_file_storage_usage() {
             }
             $seen[$record->contenthash] = true;
             if (!isset($usagedata['course'][$record->id])) {
-                $usagedata['course'][$record->id] = (object)array(
+                $usagedata['course'][$record->id] = (object)[
                     'id' => $record->id,
                     'fullname' => $record->fullname,
                     'category' => $record->category,
                     'sum' => 0,
-                );
+                ];
             }
             $usagedata['course'][$record->id]->sum += $record->filesize;
         }
@@ -150,7 +150,7 @@ function mediagallery_get_file_storage_usage() {
  */
 function mediagallery_get_readable_collections($courses) {
     $instances = get_all_instances_in_courses('mediagallery', $courses);
-    $list = array();
+    $list = [];
     foreach ($instances as $instance) {
         $instance->cm = $instance->coursemodule;
         $list[$instance->id] = new \mod_mediagallery\collection($instance);
@@ -175,15 +175,15 @@ function mediagallery_search_items($searchterms, $courses, $limitfrom = 0, $limi
     $collections = mediagallery_get_readable_collections($courses);
 
     if (count($collections) == 0) {
-        return array(false, 0);
+        return [false, 0];
     }
 
-    $fullaccess = array();
-    $where = array();
-    $params = array();
+    $fullaccess = [];
+    $where = [];
+    $params = [];
 
     foreach ($collections as $collectionid => $collection) {
-        $select = array();
+        $select = [];
 
         $cm = $collection->cm;
         $context = $collection->context;
@@ -256,7 +256,7 @@ function mediagallery_search_items($searchterms, $courses, $limitfrom = 0, $limi
     $totalcount = $DB->count_records_sql($countsql, $params);
     $records = $DB->get_records_sql($searchsql, $params, $limitfrom, $limitnum);
 
-    return array($records, $totalcount);
+    return [$records, $totalcount];
 }
 
 /**
@@ -274,7 +274,7 @@ function mediagallery_generate_search_sql($parsetree) {
         $notregexp = $DB->sql_regex(false);
     }
 
-    $params = array();
+    $params = [];
 
     $ntokens = count($parsetree);
     if ($ntokens == 0) {
@@ -283,7 +283,7 @@ function mediagallery_generate_search_sql($parsetree) {
 
     $sqlstring = '';
 
-    $fields = array('caption', 'originalauthor', 'moralrights', 'medium', 'publisher', 'collection', 'name');
+    $fields = ['caption', 'originalauthor', 'moralrights', 'medium', 'publisher', 'collection', 'name'];
 
     for ($i = 0; $i < $ntokens; $i++) {
         if ($i > 0) { // We have more than one clause, need to tack on AND.
@@ -337,7 +337,7 @@ function mediagallery_generate_search_sql($parsetree) {
 
         $sqlstring .= ")";
     }
-    return array($sqlstring, $params);
+    return [$sqlstring, $params];
 
 }
 
@@ -358,7 +358,7 @@ function mediagallery_add_metainfo_fields(&$mform) {
     $mform->addHelpButton('originalauthor', 'originalauthor', 'mediagallery');
 
     $mform->addElement('date_selector', 'productiondate', get_string('productiondate', 'mediagallery'),
-        array('optional' => true, 'startyear' => 0));
+        ['optional' => true, 'startyear' => 0]);
     $mform->addHelpButton('productiondate', 'productiondate', 'mediagallery');
 
     $mform->addElement('text', 'medium', get_string('medium', 'mediagallery'));
@@ -415,8 +415,8 @@ function mod_mediagallery_get_tagged_collections($tag, $exclusivemode = false, $
                  AND cm.deletioninprogress = 0
                  AND mc.id %ITEMFILTER% AND c.id %COURSEFILTER%";
 
-    $params = array('itemtype' => 'mediagallery', 'tagid' => $tag->id, 'component' => 'mod_mediagallery',
-                    'coursemodulecontextlevel' => CONTEXT_MODULE);
+    $params = ['itemtype' => 'mediagallery', 'tagid' => $tag->id, 'component' => 'mod_mediagallery',
+                'coursemodulecontextlevel' => CONTEXT_MODULE, ];
 
     if ($ctx) {
         $context = $ctx ? context::instance_by_id($ctx) : context_system::instance();
@@ -470,14 +470,14 @@ function mod_mediagallery_get_tagged_collections($tag, $exclusivemode = false, $
             context_helper::preload_from_record($item);
             $modinfo = get_fast_modinfo($item->courseid);
             $cm = $modinfo->get_cm($item->cmid);
-            $pageurl = new moodle_url('/mod/mediagallery/view.php', array('g' => $item->id));
-            $pagename = format_string($item->name, true, array('context' => context_module::instance($item->cmid)));
+            $pageurl = new moodle_url('/mod/mediagallery/view.php', ['g' => $item->id]);
+            $pagename = format_string($item->name, true, ['context' => context_module::instance($item->cmid)]);
             $pagename = html_writer::link($pageurl, $pagename);
             $courseurl = course_get_url($item->courseid, $cm->sectionnum);
             $cmname = html_writer::link($cm->url, $cm->get_formatted_name());
-            $coursename = format_string($item->fullname, true, array('context' => context_course::instance($item->courseid)));
+            $coursename = format_string($item->fullname, true, ['context' => context_course::instance($item->courseid)]);
             $coursename = html_writer::link($courseurl, $coursename);
-            $icon = html_writer::link($pageurl, html_writer::empty_tag('img', array('src' => $cm->get_icon_url())));
+            $icon = html_writer::link($pageurl, html_writer::empty_tag('img', ['src' => $cm->get_icon_url()]));
             $tagfeed->add($icon, $pagename, $cmname.'<br>'.$coursename);
         }
 
@@ -523,8 +523,8 @@ function mod_mediagallery_get_tagged_galleries($tag, $exclusivemode = false, $fr
                  AND cm.deletioninprogress = 0
                  AND mg.id %ITEMFILTER% AND c.id %COURSEFILTER%";
 
-    $params = array('itemtype' => 'mediagallery_gallery', 'tagid' => $tag->id, 'component' => 'mod_mediagallery',
-                    'coursemodulecontextlevel' => CONTEXT_MODULE);
+    $params = ['itemtype' => 'mediagallery_gallery', 'tagid' => $tag->id, 'component' => 'mod_mediagallery',
+                'coursemodulecontextlevel' => CONTEXT_MODULE, ];
 
     if ($ctx) {
         $context = $ctx ? context::instance_by_id($ctx) : context_system::instance();
@@ -580,14 +580,14 @@ function mod_mediagallery_get_tagged_galleries($tag, $exclusivemode = false, $fr
             context_helper::preload_from_record($item);
             $modinfo = get_fast_modinfo($item->courseid);
             $cm = $modinfo->get_cm($item->cmid);
-            $pageurl = new moodle_url('/mod/mediagallery/view.php', array('g' => $item->id));
-            $pagename = format_string($item->name, true, array('context' => context_module::instance($item->cmid)));
+            $pageurl = new moodle_url('/mod/mediagallery/view.php', ['g' => $item->id]);
+            $pagename = format_string($item->name, true, ['context' => context_module::instance($item->cmid)]);
             $pagename = html_writer::link($pageurl, $pagename);
             $courseurl = course_get_url($item->courseid, $cm->sectionnum);
             $cmname = html_writer::link($cm->url, $cm->get_formatted_name());
-            $coursename = format_string($item->fullname, true, array('context' => context_course::instance($item->courseid)));
+            $coursename = format_string($item->fullname, true, ['context' => context_course::instance($item->courseid)]);
             $coursename = html_writer::link($courseurl, $coursename);
-            $icon = html_writer::link($pageurl, html_writer::empty_tag('img', array('src' => $cm->get_icon_url())));
+            $icon = html_writer::link($pageurl, html_writer::empty_tag('img', ['src' => $cm->get_icon_url()]));
             $tagfeed->add($icon, $pagename, $cmname.'<br>'.$coursename);
         }
 
@@ -635,8 +635,8 @@ function mod_mediagallery_get_tagged_items($tag, $exclusivemode = false, $fromct
                  AND cm.deletioninprogress = 0
                  AND mi.id %ITEMFILTER% AND c.id %COURSEFILTER%";
 
-    $params = array('itemtype' => 'mediagallery_item', 'tagid' => $tag->id, 'component' => 'mod_mediagallery',
-                    'coursemodulecontextlevel' => CONTEXT_MODULE);
+    $params = ['itemtype' => 'mediagallery_item', 'tagid' => $tag->id, 'component' => 'mod_mediagallery',
+                'coursemodulecontextlevel' => CONTEXT_MODULE, ];
 
     if ($ctx) {
         $context = $ctx ? context::instance_by_id($ctx) : context_system::instance();
@@ -691,14 +691,14 @@ function mod_mediagallery_get_tagged_items($tag, $exclusivemode = false, $fromct
             context_helper::preload_from_record($item);
             $modinfo = get_fast_modinfo($item->courseid);
             $cm = $modinfo->get_cm($item->cmid);
-            $pageurl = new moodle_url('/mod/mediagallery/view.php', array('g' => $item->id));
-            $pagename = format_string($item->caption, true, array('context' => context_module::instance($item->cmid)));
+            $pageurl = new moodle_url('/mod/mediagallery/view.php', ['g' => $item->id]);
+            $pagename = format_string($item->caption, true, ['context' => context_module::instance($item->cmid)]);
             $pagename = html_writer::link($pageurl, $pagename);
             $courseurl = course_get_url($item->courseid, $cm->sectionnum);
             $cmname = html_writer::link($cm->url, $cm->get_formatted_name());
-            $coursename = format_string($item->fullname, true, array('context' => context_course::instance($item->courseid)));
+            $coursename = format_string($item->fullname, true, ['context' => context_course::instance($item->courseid)]);
             $coursename = html_writer::link($courseurl, $coursename);
-            $icon = html_writer::link($pageurl, html_writer::empty_tag('img', array('src' => $cm->get_icon_url())));
+            $icon = html_writer::link($pageurl, html_writer::empty_tag('img', ['src' => $cm->get_icon_url()]));
             $tagfeed->add($icon, $pagename, $cmname.'<br>'.$coursename);
         }
 

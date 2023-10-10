@@ -25,9 +25,9 @@
 
 namespace mod_mediagallery\privacy;
 
-use \core_privacy\request\approved_contextlist;
-use \core_privacy\request\writer;
-use \core_privacy\metadata\item_collection;
+use core_privacy\request\approved_contextlist;
+use core_privacy\request\writer;
+use core_privacy\metadata\item_collection;
 
 /**
  * Subcontext helper trait.

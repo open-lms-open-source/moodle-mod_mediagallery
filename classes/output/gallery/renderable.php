@@ -29,18 +29,18 @@ class renderable implements \renderable {
     public $mediasizeclass = '';
     public $comments = null;
     public $syncstamp = null;
-    public $options = array();
+    public $options = [];
     public $nosample = false;
     public $focus = null;
     public $galleryview;
 
-    public function __construct(\mod_mediagallery\gallery $gallery, $editing = false, $options = array()) {
+    public function __construct(\mod_mediagallery\gallery $gallery, $editing = false, $options = []) {
         $this->gallery = $gallery;
         $this->options = $options;
         $this->editing = $editing;
         $this->galleryview = $gallery->get_display_settings()->galleryview;
 
-        foreach (array('page', 'comments', 'mediasize', 'syncstamp', 'nosample', 'focus') as $opt) {
+        foreach (['page', 'comments', 'mediasize', 'syncstamp', 'nosample', 'focus'] as $opt) {
             if (isset($options[$opt])) {
                 $this->$opt = $options[$opt];
             }

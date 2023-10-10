@@ -39,7 +39,7 @@ abstract class base {
     protected $record;
     static protected $table;
 
-    public function __construct($recordorid, $options = array()) {
+    public function __construct($recordorid, $options = []) {
         global $DB;
 
         if (empty(static::$table)) {
@@ -52,7 +52,7 @@ abstract class base {
             }
             $this->record = $recordorid;
         } else {
-            $this->record = $DB->get_record(static::$table, array('id' => $recordorid), '*', MUST_EXIST);
+            $this->record = $DB->get_record(static::$table, ['id' => $recordorid], '*', MUST_EXIST);
         }
 
         $this->options = $options;
@@ -81,7 +81,7 @@ abstract class base {
         $class = get_called_class();
 
         $data->id = $DB->insert_record(static::$table, $data);
-        $record = $DB->get_record(static::$table, array('id' => $data->id));
+        $record = $DB->get_record(static::$table, ['id' => $data->id]);
 
         // Return an instance of the gallery class.
         $object = new $class($record);
@@ -90,10 +90,10 @@ abstract class base {
         return $object;
     }
 
-    public function delete($options = array()) {
+    public function delete($options = []) {
         global $DB;
 
-        $DB->delete_records(static::$table, array('id' => $this->record->id));
+        $DB->delete_records(static::$table, ['id' => $this->record->id]);
         \core_tag_tag::remove_all_item_tags('mod_mediagallery', static::$table, $this->id);
 
         return true;
@@ -156,10 +156,10 @@ abstract class base {
             $this->set_tags();
 
             if (empty($data->noevent)) {
-                $params = array(
+                $params = [
                     'context' => $this->get_context(),
                     'objectid' => $this->id,
-                );
+                ];
                 if (isset($data->nosync) && $data->nosync) {
                     $params['other']['nosync'] = true;
                 }
@@ -182,7 +182,7 @@ abstract class base {
         if (is_null($userid)) {
             $userid = $USER->id;
         } else if ($userid != $USER->id) {
-            $username = $DB->get_field('user', 'username', array('id' => $userid));
+            $username = $DB->get_field('user', 'username', ['id' => $userid]);
         }
 
         if ($username == $this->creator || $this->creator == 'z9999999') {
