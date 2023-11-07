@@ -414,16 +414,16 @@ class provider implements
             \core_tag\privacy\provider::delete_item_tags_select($context, 'mod_mediagallery', 'item',
                 "IN ($itemidsql)", $iparams);
 
+            \core_comment\privacy\provider::delete_comments_for_all_users_select($context, 'mod_mediagallery',
+                                                                    'gallery', "IN ($galleryidsql)", $gparams);
+            \core_comment\privacy\provider::delete_comments_for_all_users_select($context, 'mod_mediagallery',
+                                                                    'item', "IN ($itemidsql)", $iparams);
+
             // We delete these last as the deletes above depend on these records.
 
             $DB->delete_records_select('mediagallery_userfeedback', "itemid IN ($itemidsql)", $iparams);
             $DB->delete_records_select('mediagallery_item', "id IN ($itemidsql)", $iparams);
             $DB->delete_records('mediagallery_gallery', ['userid' => $userid, 'instanceid' => $instanceid]);
-
-            \core_comment\privacy\provider::delete_comments_for_all_users_select($context, 'mod_mediagallery',
-                                                                    'gallery', "IN ($galleryidsql)", $gparams);
-            \core_comment\privacy\provider::delete_comments_for_all_users_select($context, 'mod_mediagallery',
-                                                                    'item', "IN ($itemidsql)", $iparams);
         }
 
         \core_comment\privacy\provider::delete_comments_for_user($contextlist, 'mod_mediagallery', 'gallery');
@@ -530,16 +530,17 @@ class provider implements
         \core_tag\privacy\provider::delete_item_tags_select($context, 'mod_mediagallery', 'item',
             "IN ($itemidsql)", $iparams);
 
+        \core_comment\privacy\provider::delete_comments_for_all_users_select($context, 'mod_mediagallery',
+                                                                'gallery', "IN ($galleryidsql)", $gparams);
+        \core_comment\privacy\provider::delete_comments_for_all_users_select($context, 'mod_mediagallery',
+                                                                'item', "IN ($itemidsql)", $iparams);
+
         // We delete these last as the deletes above depend on these records.
 
         $DB->delete_records_select('mediagallery_userfeedback', "itemid IN ($itemidsql)", $iparams);
         $DB->delete_records_select('mediagallery_item', "id IN ($itemidsql)", $iparams);
         $DB->delete_records_select('mediagallery_gallery', "userid $ginsql AND instanceid = :instanceid1", $gparams);
 
-        \core_comment\privacy\provider::delete_comments_for_all_users_select($context, 'mod_mediagallery',
-                                                                    'gallery', "IN ($galleryidsql)", $gparams);
-        \core_comment\privacy\provider::delete_comments_for_all_users_select($context, 'mod_mediagallery',
-                                                                    'item', "IN ($itemidsql)", $iparams);
         \core_comment\privacy\provider::delete_comments_for_users($userlist, 'mod_mediagallery', 'gallery');
         \core_comment\privacy\provider::delete_comments_for_users($userlist, 'mod_mediagallery', 'item');
     }
