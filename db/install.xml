@@ -32,6 +32,9 @@
         <FIELD NAME="maxgalleries" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Maximum number of galleries per user/group"/>
         <FIELD NAME="allowcomments" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Allow users to comment of items and galleries"/>
         <FIELD NAME="allowlikes" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Allow users to like items"/>
+        <FIELD NAME="completiongalleries" TYPE="int" LENGTH="9" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Nonzero if a certain number of galleries are required to mark this Media collection completed for a user."/>
+        <FIELD NAME="completionitems" TYPE="int" LENGTH="9" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Nonzero if a certain number of items are required to mark this Media collection complete for a user."/>
+        <FIELD NAME="completioncomments" TYPE="int" LENGTH="9" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Nonzero if a certain number of comments are required to mark this Media collection complete for a user."/>
         <FIELD NAME="objectid" TYPE="char" LENGTH="36" NOTNULL="false" SEQUENCE="false" COMMENT="Remote objectid if connected with an external system."/>
         <FIELD NAME="source" TYPE="char" LENGTH="10" NOTNULL="true" DEFAULT="moodle" SEQUENCE="false" COMMENT="Was this created in moodle or imported from elsewhere"/>
         <FIELD NAME="creator" TYPE="char" LENGTH="100" NOTNULL="false" SEQUENCE="false" COMMENT="If linked to external content, creator field from the external source."/>

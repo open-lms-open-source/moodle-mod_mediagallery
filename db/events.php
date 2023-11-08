@@ -15,21 +15,23 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Defines the version of mediagallery
- *
- * This code fragment is called by moodle_needs_upgrading() and
- * /admin/index.php
+ * Media collection event handler definition.
  *
  * @package    mod_mediagallery
- * @copyright  2014 NetSpot Pty Ltd
- * @author     Adam Olley <adam.olley@netspot.com.au>
+ * @copyright  2023 Te Pūkenga – New Zealand Institute of Skills and Technology
+ * @author     James Calder
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2023060300;  // TODO: Set actual version number.
-$plugin->requires = 2022041200;
-$plugin->component = 'mod_mediagallery';
-$plugin->maturity = MATURITY_STABLE;
-$plugin->release = '4.0.2';
+$observers = [
+    [
+        'eventname' => '\mod_mediagallery\event\comment_created',
+        'callback' => '\mod_mediagallery\observers::comment_created',
+    ],
+    [
+        'eventname' => '\mod_mediagallery\event\comment_deleted',
+        'callback' => '\mod_mediagallery\observers::comment_deleted',
+    ],
+];
