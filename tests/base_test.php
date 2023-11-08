@@ -83,7 +83,7 @@ class base_test extends \advanced_testcase {
         $this->students[] = $student2;
     }
 
-    public function test_collection_read_only() {
+    public function test_collection_read_only(): void {
         $options = ['colltype' => 'instructor', 'course' => $this->course->id];
         $record = $this->getDataGenerator()->create_module('mediagallery', $options);
 
@@ -101,7 +101,7 @@ class base_test extends \advanced_testcase {
         $this->assertFalse($contributed->is_read_only());
     }
 
-    public function test_gallery_access_permissions() {
+    public function test_gallery_access_permissions(): void {
         $options = ['colltype' => 'contributed', 'course' => $this->course->id];
         $record = $this->getDataGenerator()->create_module('mediagallery', $options);
         $collection = new \mod_mediagallery\collection($record);

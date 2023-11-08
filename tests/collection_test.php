@@ -81,7 +81,7 @@ class collection_test extends \advanced_testcase {
         $this->students[] = $student2;
     }
 
-    public function test_user_can_add_children() {
+    public function test_user_can_add_children(): void {
         $options = [
             'colltype' => 'contributed',
             'course' => $this->course->id,
