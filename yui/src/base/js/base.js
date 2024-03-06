@@ -324,6 +324,9 @@ M.mod_mediagallery.base = {
                     if (selector) {
                         Y.one(selector + '[data-id=' + data.id + ']').remove();
                     }
+                    if (responsetext.actinfohtml && Y.one('.activity-information')) {
+                        Y.one('.activity-information').replace(responsetext.actinfohtml);
+                    }
                     if (data['class'] === 'collection') {
                         // Redirect to course.
                         window.location.href = M.cfg.wwwroot + '/course/view.php?id=' + this.courseid;
@@ -747,6 +750,9 @@ M.mod_mediagallery.base = {
                                     }
                                 } catch (e) {
                                     new M.core.ajaxException();
+                                }
+                                if (responsetext.actinfohtml && Y.one('.activity-information')) {
+                                    Y.one('.activity-information').replace(responsetext.actinfohtml);
                                 }
                             },
                             failure : function() {

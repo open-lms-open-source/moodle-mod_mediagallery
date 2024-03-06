@@ -43,7 +43,7 @@ function mediagallery_supports($feature) {
         case FEATURE_COMPLETION_TRACKS_VIEWS:
             return true;
         case FEATURE_COMPLETION_HAS_RULES:
-            return false;
+            return true;
         case FEATURE_GRADE_HAS_GRADE:
             return false;
         case FEATURE_GRADE_OUTCOMES:
@@ -453,6 +453,82 @@ function mediagallery_pluginfile($course, $cm, $context, $filearea, array $args,
     }
 
     send_stored_file($file, 0, 0, $forcedownload, $options); // Download MUST be forced - security!
+}
+
+/**
+ * Add a get_coursemodule_info function in case any Media collection type wants to add 'extra' information
+ * for the course (see resource).
+ *
+ * Given a course_module object, this function returns any "extra" information that may be needed
+ * when printing this activity in a course listing.  See get_array_of_activities() in course/lib.php.
+ *
+ * @param stdClass $coursemodule The coursemodule object (record).
+ * @return cached_cm_info An object on information that the courses
+ *                        will know about (most noticeably, an icon).
+ */
+function mediagallery_get_coursemodule_info($coursemodule) {
+    global $DB;
+
+    $dbparams = ['id' => $coursemodule->instance];
+    $fields = 'id, name, intro, introformat, completiongalleries, completionitems, completioncomments';
+    if (!$collection = $DB->get_record('mediagallery', $dbparams, $fields)) {
+        return false;
+    }
+
+    $result = new cached_cm_info();
+    $result->name = $collection->name;
+
+    if ($coursemodule->showdescription) {
+        // Convert intro to html. Do not filter cached version, filters run at display time.
+        $result->content = format_module_intro('mediagallery', $collection, $coursemodule->id, false);
+    }
+
+    // Populate the custom completion rules as key => value pairs, but only if the completion mode is 'automatic'.
+    if ($coursemodule->completion == COMPLETION_TRACKING_AUTOMATIC) {
+        $result->customdata['customcompletionrules']['completiongalleries'] = $collection->completiongalleries;
+        $result->customdata['customcompletionrules']['completionitems'] = $collection->completionitems;
+        $result->customdata['customcompletionrules']['completioncomments'] = $collection->completioncomments;
+    }
+
+    return $result;
+}
+
+/**
+ * Callback which returns human-readable strings describing the active completion custom rules for the module instance.
+ *
+ * @param cm_info|stdClass $cm object with fields ->completion and ->customdata['customcompletionrules']
+ * @return string[] $descriptions the array of descriptions for the custom rules.
+ */
+function mod_mediagallery_get_completion_active_rule_descriptions($cm): array {
+    // Values will be present in cm_info, and we assume these are up to date.
+    if (empty($cm->customdata['customcompletionrules'])
+        || $cm->completion != COMPLETION_TRACKING_AUTOMATIC) {
+        return [];
+    }
+
+    $descriptions = [];
+    foreach ($cm->customdata['customcompletionrules'] as $key => $val) {
+        switch ($key) {
+            case 'completiongalleries':
+                if (!empty($val)) {
+                    $descriptions[] = get_string('completiongalleriesdesc', 'mediagallery', $val);
+                }
+                break;
+            case 'completionitems':
+                if (!empty($val)) {
+                    $descriptions[] = get_string('completionitemsdesc', 'mediagallery', $val);
+                }
+                break;
+            case 'completioncomments':
+                if (!empty($val)) {
+                    $descriptions[] = get_string('completioncommentsdesc', 'mediagallery', $val);
+                }
+                break;
+            default:
+                break;
+        }
+    }
+    return $descriptions;
 }
 
 /**
