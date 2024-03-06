@@ -34,7 +34,7 @@ class restore_mediagallery_activity_structure_step extends restore_activity_stru
 
     protected function define_structure() {
 
-        $paths = array();
+        $paths = [];
         $userinfo = $this->get_setting_value('userinfo');
 
         $mediagallery = new restore_path_element('mediagallery', '/activity/mediagallery');
@@ -179,7 +179,7 @@ class restore_mediagallery_activity_structure_step extends restore_activity_stru
 
         // Can't do thumbnail mapping before the item is restored, so we do it here.
         $mgid = $this->task->get_activityid();
-        if ($records = $DB->get_records('mediagallery_gallery', array('instanceid' => $mgid))) {
+        if ($records = $DB->get_records('mediagallery_gallery', ['instanceid' => $mgid])) {
             foreach ($records as $record) {
                 if ($record->thumbnail) {
                     $record->thumbnail = $this->get_mappingid('mediagallery_item', $record->thumbnail);

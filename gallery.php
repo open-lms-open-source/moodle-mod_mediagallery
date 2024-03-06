@@ -41,9 +41,9 @@ if ($g) {
     $m = $gallery->instanceid;
 }
 
-$mediagallery = $DB->get_record('mediagallery', array('id' => $m), '*', MUST_EXIST);
+$mediagallery = $DB->get_record('mediagallery', ['id' => $m], '*', MUST_EXIST);
 $mediagallery = new \mod_mediagallery\collection($mediagallery);
-$course = $DB->get_record('course', array('id' => $mediagallery->course), '*', MUST_EXIST);
+$course = $DB->get_record('course', ['id' => $mediagallery->course], '*', MUST_EXIST);
 $cm = get_coursemodule_from_instance('mediagallery', $mediagallery->id, $course->id, false, MUST_EXIST);
 
 require_login($course, true, $cm);
@@ -58,7 +58,7 @@ if (!$gallery && !$mediagallery->user_can_add_children()) {
     throw new moodle_exception('errortoomanygalleries', 'mediagallery', '', $maxgalleries);
 }
 
-$pageurl = new moodle_url('/mod/mediagallery/gallery.php', array('m' => $mediagallery->id));
+$pageurl = new moodle_url('/mod/mediagallery/gallery.php', ['m' => $mediagallery->id]);
 $PAGE->set_url($pageurl);
 $PAGE->set_title(format_string($mediagallery->name));
 $PAGE->set_heading(format_string($course->fullname));
@@ -72,10 +72,10 @@ if (has_capability('moodle/site:accessallgroups', $context) && $groupmode != NOG
     $groups = groups_get_all_groups($cm->course, $USER->id, $cm->groupingid);
 }
 
-$mform = new mod_mediagallery_gallery_form(null, array('mediagallery' => $mediagallery,
-    'groups' => $groups, 'groupmode' => $groupmode, 'context' => $context, 'gallery' => $gallery));
+$mform = new mod_mediagallery_gallery_form(null, ['mediagallery' => $mediagallery,
+    'groups' => $groups, 'groupmode' => $groupmode, 'context' => $context, 'gallery' => $gallery, ]);
 if ($mform->is_cancelled()) {
-    redirect(new moodle_url('/mod/mediagallery/view.php', array('m' => $mediagallery->id, 'editing' => 1)));
+    redirect(new moodle_url('/mod/mediagallery/view.php', ['m' => $mediagallery->id, 'editing' => 1]));
 } else if ($data = $mform->get_data()) {
     if (!isset($data->contributable) || $mediagallery->colltype == 'instructor') {
         $data->contributable = 0;
@@ -103,7 +103,7 @@ if ($mform->is_cancelled()) {
     }
     core_tag_tag::set_item_tags('mod_mediagallery', 'mediagallery_gallery', $gallery->id, $context, $data->tags);
 
-    redirect(new moodle_url('/mod/mediagallery/view.php', array('g' => $gallery->id, 'editing' => 1)));
+    redirect(new moodle_url('/mod/mediagallery/view.php', ['g' => $gallery->id, 'editing' => 1]));
 } else if ($gallery) {
     if (!$gallery->user_can_edit()) {
         throw new \moodle_exception('nopermissions', 'error', $pageurl, 'edit gallery');

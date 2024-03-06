@@ -65,12 +65,12 @@ class mod_mediagallery_file_info extends file_info {
      * @return array with keys contextid, filearea, itemid, filepath and filename
      */
     public function get_params() {
-        return array('contextid' => $this->context->id,
-                     'component' => 'mod_mediagallery',
-                     'filearea' => $this->filearea,
-                     'itemid' => null,
-                     'filepath' => null,
-                     'filename' => null);
+        return ['contextid' => $this->context->id,
+                'component' => 'mod_mediagallery',
+                'filearea' => $this->filearea,
+                'itemid' => null,
+                'filepath' => null,
+                'filename' => null, ];
     }
 
     /**
@@ -108,7 +108,7 @@ class mod_mediagallery_file_info extends file_info {
     /**
      * Help function to return files matching extensions or their count
      *
-     * @param string|array $extensions either '*' or array of lowercase extensions, i.e. array('.gif','.jpg')
+     * @param string|array $extensions either '*' or array of lowercase extensions, i.e. ['.gif','.jpg']
      * @param bool|int $countonly if false returns the children, if an int returns just the
      *    count of children but stops counting when $countonly number of children is reached
      * @param bool $returnemptyfolders if true returns items that don't have matching files inside
@@ -117,7 +117,7 @@ class mod_mediagallery_file_info extends file_info {
     private function get_filtered_children($extensions = '*', $countonly = false, $returnemptyfolders = false) {
         $galleries = \mod_mediagallery\collection::get_public_galleries_by_contextid($this->context->id, false);
 
-        $children = array();
+        $children = [];
         $urlbase = $CFG->wwwroot.'/pluginfile.php';
         foreach ($galleries as $id => $name) {
             $storedfile = new virtual_root_file($this->context->id, 'mod_mediagallery', 'gallery', $id);
@@ -140,7 +140,7 @@ class mod_mediagallery_file_info extends file_info {
      * Returns list of children which are either files matching the specified extensions
      * or folders that contain at least one such file.
      *
-     * @param string|array $extensions either '*' or array of lowercase extensions, i.e. array('.gif','.jpg')
+     * @param string|array $extensions either '*' or array of lowercase extensions, i.e. ['.gif','.jpg']
      * @return array of file_info instances
      */
     public function get_non_empty_children($extensions = '*') {
@@ -151,7 +151,7 @@ class mod_mediagallery_file_info extends file_info {
      * Returns the number of children which are either files matching the specified extensions
      * or folders containing at least one such file.
      *
-     * @param string|array $extensions for example '*' or array('.gif','.jpg')
+     * @param string|array $extensions for example '*' or ['.gif','.jpg']
      * @param int $limit stop counting after at least $limit non-empty children are found
      * @return int
      */

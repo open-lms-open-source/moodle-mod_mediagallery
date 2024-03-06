@@ -65,7 +65,7 @@ class gallery_viewed extends \core\event\base {
      * @return \moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/mod/mediagallery/view.php', array('g' => $this->objectid));
+        return new \moodle_url('/mod/mediagallery/view.php', ['g' => $this->objectid]);
     }
 
     /**
@@ -74,8 +74,8 @@ class gallery_viewed extends \core\event\base {
      * @return array|null
      */
     protected function get_legacy_logdata() {
-        return array($this->courseid, 'mediagallery', 'view', 'view.php?g=' . $this->objectid,
-            $this->objectid, $this->contextinstanceid);
+        return [$this->courseid, 'mediagallery', 'view', 'view.php?g=' . $this->objectid,
+            $this->objectid, $this->contextinstanceid, ];
     }
 
 }

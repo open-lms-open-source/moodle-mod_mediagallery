@@ -34,43 +34,43 @@ class backup_mediagallery_activity_structure_step extends backup_activity_struct
         $userinfo = $this->get_setting_value('userinfo');
 
         // Define each element separated.
-        $mediagallery = new backup_nested_element('mediagallery', array('id'), array(
+        $mediagallery = new backup_nested_element('mediagallery', ['id'], [
             'course', 'name', 'intro', 'introformat', 'timecreated', 'timemodified',
             'thumbnailsperpage', 'thumbnailsperrow', 'displayfullcaption',
             'captionposition', 'galleryfocus', 'carousel', 'grid', 'gridrows',
             'gridcolumns', 'enforcedefaults', 'readonlyfrom', 'readonlyto',
             'maxbytes', 'maxitems', 'maxgalleries', 'allowcomments', 'allowlikes',
             'colltype', 'objectid', 'source', 'mode', 'creator', 'userid',
-        ));
+        ]);
 
         $userfeedbacks = new backup_nested_element('userfeedback');
-        $userfeedback = new backup_nested_element('feedback', array('id'), array(
-            'itemid', 'userid', 'liked', 'rating'
-        ));
+        $userfeedback = new backup_nested_element('feedback', ['id'], [
+            'itemid', 'userid', 'liked', 'rating',
+        ]);
 
         $gallerys = new backup_nested_element('gallerys');
-        $gallery = new backup_nested_element('gallery', array('id'), array(
+        $gallery = new backup_nested_element('gallery', ['id'], [
             'instanceid', 'name', 'userid', 'nameposition', 'exportable', 'galleryview',
             'gridrows', 'gridcolumns', 'visibleinstructor', 'visibleother', 'thumbnail',
             'galleryfocus', 'groupid', 'mode', 'objectid', 'source', 'creator',
             'contributable',
-        ));
+        ]);
 
         $items = new backup_nested_element('items');
-        $item = new backup_nested_element('item', array('id'), array(
+        $item = new backup_nested_element('item', ['id'], [
             'galleryid', 'userid', 'caption', 'description', 'sortorder', 'display', 'moralrights',
             'originalauthor', 'productiondate', 'medium', 'publisher', 'reference', 'externalurl',
             'timecreated', 'broadcaster', 'objectid', 'source', 'processing_status', 'creator',
-        ));
+        ]);
 
         $ctags = new backup_nested_element('collectiontags');
-        $ctag = new backup_nested_element('collectiontag', array('id'), array('itemid', 'rawname'));
+        $ctag = new backup_nested_element('collectiontag', ['id'], ['itemid', 'rawname']);
 
         $gtags = new backup_nested_element('gallerytags');
-        $gtag = new backup_nested_element('gallerytag', array('id'), array('itemid', 'rawname'));
+        $gtag = new backup_nested_element('gallerytag', ['id'], ['itemid', 'rawname']);
 
         $itags = new backup_nested_element('itemtags');
-        $itag = new backup_nested_element('itemtag', array('id'), array('itemid', 'rawname'));
+        $itag = new backup_nested_element('itemtag', ['id'], ['itemid', 'rawname']);
 
         // Build the tree.
 
@@ -90,13 +90,13 @@ class backup_mediagallery_activity_structure_step extends backup_activity_struct
         $itags->add_child($itag);
 
         // Define sources.
-        $mediagallery->set_source_table('mediagallery', array('id' => backup::VAR_ACTIVITYID));
+        $mediagallery->set_source_table('mediagallery', ['id' => backup::VAR_ACTIVITYID]);
 
         // All the rest of elements only happen if we are including user info.
         if ($userinfo) {
-            $gallery->set_source_table('mediagallery_gallery', array('instanceid' => backup::VAR_PARENTID));
-            $item->set_source_table('mediagallery_item', array('galleryid' => backup::VAR_PARENTID));
-            $userfeedback->set_source_table('mediagallery_userfeedback', array('itemid' => backup::VAR_PARENTID));
+            $gallery->set_source_table('mediagallery_gallery', ['instanceid' => backup::VAR_PARENTID]);
+            $item->set_source_table('mediagallery_item', ['galleryid' => backup::VAR_PARENTID]);
+            $userfeedback->set_source_table('mediagallery_userfeedback', ['itemid' => backup::VAR_PARENTID]);
 
             if (core_tag_tag::is_enabled('mod_mediagallery', 'mediagallery')) {
                 $ctag->set_source_sql('SELECT t.id, ti.itemid, t.rawname
@@ -107,7 +107,7 @@ class backup_mediagallery_activity_structure_step extends backup_activity_struct
                                  AND ti.contextid = ?', [
                     backup_helper::is_sqlparam('mediagallery'),
                     backup_helper::is_sqlparam('mod_mediagallery'),
-                    backup::VAR_CONTEXTID]);
+                    backup::VAR_CONTEXTID, ]);
             }
 
             if (core_tag_tag::is_enabled('mod_mediagallery', 'mediagallery_gallery')) {
@@ -119,7 +119,7 @@ class backup_mediagallery_activity_structure_step extends backup_activity_struct
                                  AND ti.contextid = ?', [
                     backup_helper::is_sqlparam('mediagallery_gallery'),
                     backup_helper::is_sqlparam('mod_mediagallery'),
-                    backup::VAR_CONTEXTID]);
+                    backup::VAR_CONTEXTID, ]);
             }
 
             if (core_tag_tag::is_enabled('mod_mediagallery', 'mediagallery_item')) {
@@ -131,7 +131,7 @@ class backup_mediagallery_activity_structure_step extends backup_activity_struct
                                  AND ti.contextid = ?', [
                     backup_helper::is_sqlparam('mediagallery_item'),
                     backup_helper::is_sqlparam('mod_mediagallery'),
-                    backup::VAR_CONTEXTID]);
+                    backup::VAR_CONTEXTID, ]);
             }
         }
 
