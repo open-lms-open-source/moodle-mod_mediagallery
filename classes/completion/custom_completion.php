@@ -27,7 +27,7 @@ use core_completion\activity_custom_completion;
  * of the custom completion rules for a given Media collection instance and a user.
  *
  * @package   mod_mediagallery
- * @copyright 2023 Te Pūkenga – New Zealand Institute of Skills and Technology
+ * @copyright 2023 Otago Polytechnic
  * @author    James Calder
  * @copyright based on work by Simey Lameze <simey@moodle.com>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later

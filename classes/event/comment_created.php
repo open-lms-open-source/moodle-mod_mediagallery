@@ -18,7 +18,7 @@
  * The mod_mediagallery comment created event.
  *
  * @package    mod_mediagallery
- * @copyright  2023 Te Pūkenga – New Zealand Institute of Skills and Technology
+ * @copyright  2023 Otago Polytechnic
  * @author     James Calder
  * @copyright  based on work by 2013 Rajesh Taneja <rajesh@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -30,7 +30,7 @@ namespace mod_mediagallery\event;
  * The mod_mediagallery comment created event class.
  *
  * @package    mod_mediagallery
- * @copyright  2023 Te Pūkenga – New Zealand Institute of Skills and Technology
+ * @copyright  2023 Otago Polytechnic
  * @author     James Calder
  * @copyright  based on work by 2013 Rajesh Taneja <rajesh@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later

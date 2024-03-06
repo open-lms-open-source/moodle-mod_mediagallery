@@ -18,7 +18,7 @@
  * Media collection event handler definition.
  *
  * @package    mod_mediagallery
- * @copyright  2023 Te Pūkenga – New Zealand Institute of Skills and Technology
+ * @copyright  2023 Otago Polytechnic
  * @author     James Calder
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
