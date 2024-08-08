@@ -39,7 +39,6 @@ $viewcontrols = 'gallery';
 $gallery = false;
 
 $mediasize = get_user_preferences('mod_mediagallery_mediasize', \mod_mediagallery\output\gallery\renderable::MEDIASIZE_MD);
-user_preference_allow_ajax_update('mod_mediagallery_mediasize', PARAM_INT);
 
 $options = array(
     'focus' => $focus,
