@@ -87,6 +87,9 @@ function mediagallery_add_instance(stdClass $mediagallery, mod_mediagallery_mod_
         $collection->set_tags($mediagallery->mctags);
     }
 
+    $completionexpected = (!empty($mediagallery->completionexpected)) ? $mediagallery->completionexpected : null;
+    \core_completion\api::update_completion_date_event($mediagallery->coursemodule, 'mediagallery', $mediagallery->id, $completionexpected);
+
     return $mediagallery->id;
 }
 
@@ -113,6 +116,9 @@ function mediagallery_update_instance(stdClass $mediagallery, mod_mediagallery_m
     $mediagallery = mediagallery_formfield_transform($mediagallery);
     $mediagallery->timemodified = time();
     $mediagallery->id = $mediagallery->instance;
+
+    $completionexpected = (!empty($mediagallery->completionexpected)) ? $mediagallery->completionexpected : null;
+    \core_completion\api::update_completion_date_event($mediagallery->coursemodule, 'mediagallery', $mediagallery->id, $completionexpected);
 
     $result = $DB->update_record('mediagallery', $mediagallery);
 
