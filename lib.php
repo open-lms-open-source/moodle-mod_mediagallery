@@ -515,3 +515,19 @@ function mediagallery_comment_display($comments, $args) {
     }
     return $comments;
 }
+
+/**
+ * Get the current user preferences that are available
+ *
+ * @return array[]
+ */
+function mod_mediagallery_user_preferences(): array {
+    return [
+        'mod_mediagallery_mediasize' => [
+            'type' => PARAM_INT,
+            'null' => NULL_NOT_ALLOWED,
+            'default' => \mod_mediagallery\output\gallery\renderable::MEDIASIZE_MD,
+            'permissioncallback' => [\core_user::class, 'is_current_user'],
+        ],
+    ];
+}
