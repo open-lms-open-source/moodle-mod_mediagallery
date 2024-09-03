@@ -45,29 +45,29 @@ class mcsearch {
 
     public function get_results() {
         global $DB;
-        $results = array();
+        $results = [];
 
         if (is_null($this->params['search'])) {
             return $this->results = $results;
         }
 
         $fullname = $DB->sql_fullname('u.firstname', 'u.lastname');
-        $search = array();
+        $search = [];
         $searchsql = "";
         if ($this->params['search']) {
-            $search = array(
+            $search = [
                 $DB->sql_like('i.caption', '?', false, false),
                 $DB->sql_like($fullname, '?', false, false),
                 $DB->sql_like('u.username', '?', false, false),
                 $DB->sql_like('f.filename', '?', false, false),
-            );
+            ];
             $searchsql = 'AND ('.implode(' OR ', $search).')';
         }
 
-        $params = array(
+        $params = [
             $this->params['context']->id,
             $this->params['collection']->id,
-        );
+        ];
 
         $groupswhere = '';
         if ($this->params['group']) {
@@ -108,17 +108,17 @@ class mcsearch {
                 WHERE m.id = ? $groupswhere $roleswhere $searchsql";
         $grs = $DB->get_recordset_sql($sql, $params);
 
-        $gallerys = array();
+        $gallerys = [];
         foreach ($grs as $galleryrecord) {
-            $gallerys[$galleryrecord->id] = new gallery($galleryrecord, array('collection' => $this->params['collection']));
+            $gallerys[$galleryrecord->id] = new gallery($galleryrecord, ['collection' => $this->params['collection']]);
         }
 
         $sql = str_replace('g.*', $select, $sql);
         $rs = $DB->get_recordset_sql($sql, $params);
 
-        $userids = array();
+        $userids = [];
         foreach ($rs as $record) {
-            $item = new item($record, array('nogallery' => true));
+            $item = new item($record, ['nogallery' => true]);
             if ($this->params['type'] != base::TYPE_ALL && $item->type() != $this->params['type']) {
                 continue;
             }
@@ -142,8 +142,8 @@ class mcsearch {
             if (isset($roles[$record->userid])) {
                 asort($roles[$record->userid]);
             }
-            $record->groups = isset($groups[$record->userid]) ? $groups[$record->userid] : array();
-            $record->roles = isset($roles[$record->userid]) ? $roles[$record->userid] : array();
+            $record->groups = isset($groups[$record->userid]) ? $groups[$record->userid] : [];
+            $record->roles = isset($roles[$record->userid]) ? $roles[$record->userid] : [];
         }
 
         return $this->results = $results;
@@ -158,10 +158,10 @@ class mcsearch {
     public function get_groups_for_users($userids) {
         global $DB;
         if (empty($userids)) {
-            return array();
+            return [];
         }
 
-        $groups = array();
+        $groups = [];
 
         list ($insql, $params) = $DB->get_in_or_equal($userids);
         $sql = "SELECT gm.id, g.name, gm.userid, g.id as groupid
@@ -185,10 +185,10 @@ class mcsearch {
     public function get_roles_for_users($userids) {
         global $DB;
         if (empty($userids)) {
-            return array();
+            return [];
         }
 
-        $roles = array();
+        $roles = [];
 
         $context = $this->params['context'];
         list ($insql, $params) = $DB->get_in_or_equal($userids);
@@ -215,21 +215,21 @@ class mcsearch {
     public function download_csv() {
         $csv = new \csv_export_writer();
         $csv->set_filename('mediacollection_search');
-        $csv->add_data(array(
+        $csv->add_data([
             get_string('caption', 'mod_mediagallery'),
             get_string('gallery', 'mod_mediagallery'),
             get_string('creator', 'mod_mediagallery'),
             get_string('groups'),
             get_string('roles'),
-        ));
+        ]);
         foreach ($this->results as $row) {
-            $csv->add_data(array(
+            $csv->add_data([
                 $row->itemcaption,
                 $row->galleryname,
                 $row->creator,
                 implode(', ', $row->groups),
                 implode(', ', $row->roles),
-            ));
+            ]);
         }
         $csv->download_file();
         exit;

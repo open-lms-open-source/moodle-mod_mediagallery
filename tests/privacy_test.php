@@ -62,26 +62,26 @@ class privacy_test extends provider_testcase {
     }
 
     private function create_gallery($cm, $user) {
-        $record = array(
+        $record = [
             'name' => 'Test gallery '.$cm->id.'_'.$user->id,
             'instanceid' => $cm->id,
             'contributable' => 1,
             'userid' => $user->id,
-        );
+        ];
         return self::getDataGenerator()
             ->get_plugin_generator('mod_mediagallery')->create_gallery($record);
     }
 
     private function create_item($gallery, $user) {
-        $record = array(
+        $record = [
             'galleryid' => $gallery->id,
             'userid' => $user->id,
-        );
+        ];
         return self::getDataGenerator()
             ->get_plugin_generator('mod_mediagallery')->create_item($record);
     }
 
-    public function test_get_contexts_for_userid() {
+    public function test_get_contexts_for_userid(): void {
         $dg = $this->getDataGenerator();
 
         $c1 = $dg->create_course();
@@ -125,7 +125,7 @@ class privacy_test extends provider_testcase {
         $this->assertTrue(in_array(\context_module::instance($cm2b->cmid)->id, $contextids));
     }
 
-    public function test_delete_data_for_all_users_in_context() {
+    public function test_delete_data_for_all_users_in_context(): void {
         global $DB;
         $dg = $this->getDataGenerator();
 
@@ -142,7 +142,7 @@ class privacy_test extends provider_testcase {
         $this->assertFalse($DB->record_exists('mediagallery_gallery', ['userid' => $users[1]->id, 'instanceid' => $cm1b->id]));
     }
 
-    public function test_delete_data_for_user() {
+    public function test_delete_data_for_user(): void {
         global $DB;
         $dg = $this->getDataGenerator();
         $fs = get_file_storage();
@@ -180,7 +180,7 @@ class privacy_test extends provider_testcase {
         $this->assertTrue($DB->record_exists('mediagallery_gallery', ['userid' => $users[1]->id, 'instanceid' => $cm1b->id]));
     }
 
-    public function test_export_data_for_user() {
+    public function test_export_data_for_user(): void {
         global $DB;
         $dg = $this->getDataGenerator();
         $fs = get_file_storage();

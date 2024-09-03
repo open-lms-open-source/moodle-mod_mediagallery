@@ -25,12 +25,12 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-use \mod_mediagallery\collection,
-    \mod_mediagallery\gallery,
-    \mod_mediagallery\item,
-    \mod_mediagallery\base as mcbase;
-use \mod_mediagallery\output\collection\renderable as rencollection;
-use \mod_mediagallery\output\gallery\renderable as rengallery;
+use mod_mediagallery\collection,
+    mod_mediagallery\gallery,
+    mod_mediagallery\item,
+    mod_mediagallery\base as mcbase;
+use mod_mediagallery\output\collection\renderable as rencollection;
+use mod_mediagallery\output\gallery\renderable as rengallery;
 
 /**
  * Main renderer.
@@ -73,19 +73,19 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
         $this->page->requires->css('/mod/mediagallery/css/fontawesome.min.css?1667793614');
         $this->page->requires->js('/mod/mediagallery/js/screenfull.min.js');
         $this->page->requires->yui_module('moodle-mod_mediagallery-base', 'M.mod_mediagallery.base.init',
-            array(
+            [
                 $controller->course->id,
                 $controller->collection->id,
                 $controller->options['viewcontrols'],
                 $controller->options['editing'],
-                $galleryid, $jsoptions));
+                $galleryid, $jsoptions, ]);
 
         if (!$controller->options['editing'] && $controller->options['action'] == 'viewgallery') {
             $this->setup_mediabox($controller->collection, $controller->gallery);
         }
         $this->page->requires->jquery();
 
-        $jsstrs = array('confirmgallerydelete', 'confirmitemdelete', 'deletegallery',
+        $jsstrs = ['confirmgallerydelete', 'confirmitemdelete', 'deletegallery',
             'deleteitem', 'like', 'likedby', 'comments', 'unlike', 'others', 'other',
             'addsamplegallery', 'mediagallery', 'information', 'caption',
             'moralrights', 'originalauthor', 'productiondate', 'medium', 'collection',
@@ -96,20 +96,20 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
             'deleteorremovegallery', 'deleteorremovegallerywarn',
             'deleteorremoveitem', 'deleteorremoveitemwarn',
             'removecollectionconfirm', 'removegalleryconfirm', 'removeitemconfirm',
-            'youmusttypedelete', 'copyright', 'mediainformation');
+            'youmusttypedelete', 'copyright', 'mediainformation', ];
         $this->page->requires->strings_for_js($jsstrs, 'mod_mediagallery');
-        $this->page->requires->strings_for_js(array(
+        $this->page->requires->strings_for_js([
             'move', 'add', 'description', 'no', 'yes', 'group', 'fullnameuser', 'username', 'next', 'previous', 'submit',
-        ), 'moodle');
+        ], 'moodle');
         $this->page->requires->string_for_js('thisdirection', 'core_langconfig');
 
         $canedit = $controller->gallery && $controller->gallery->user_can_contribute();
         if ($controller->gallery && $canedit) {
             if (!$controller->options['editing']) {
-                $url = new moodle_url('/mod/mediagallery/view.php', array('g' => $controller->gallery->id, 'editing' => 1));
+                $url = new moodle_url('/mod/mediagallery/view.php', ['g' => $controller->gallery->id, 'editing' => 1]);
                 $this->page->set_button($this->output->single_button($url, get_string('turneditingon', 'core', 'get')));
             } else {
-                $url = new moodle_url('/mod/mediagallery/view.php', array('g' => $controller->gallery->id));
+                $url = new moodle_url('/mod/mediagallery/view.php', ['g' => $controller->gallery->id]);
                 $this->page->set_button($this->output->single_button($url, get_string('turneditingoff', 'core', 'get')));
                 $this->page->requires->yui_module('moodle-mod_mediagallery-dragdrop', 'M.mod_mediagallery.dragdrop.init');
             }
@@ -125,20 +125,20 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
      * @return void
      */
     protected function setup_mediabox($collection, $gallery) {
-        $mediaboxparams = array(
+        $mediaboxparams = [
             'metainfouri' => (new moodle_url('/mod/mediagallery/rest.php'))->out(),
-            'metainfodata' => array(
+            'metainfodata' => [
                 'sesskey' => sesskey(),
                 'm' => $collection->id,
                 'class' => 'item',
-            ),
-        );
+            ],
+        ];
         if ($gallery) {
             $mediaboxparams['enablecomments'] = $gallery->can_comment();
             $mediaboxparams['enablelikes'] = $gallery->can_like();
         }
         $this->page->requires->yui_module('moodle-mod_mediagallery-mediabox', 'M.mod_mediagallery.init_mediabox',
-            array($mediaboxparams));
+            [$mediaboxparams]);
     }
 
     /**
@@ -153,7 +153,7 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
         $rowopen = false;
         $count = 0;
 
-        $o = html_writer::start_tag('div', array('class' => 'gallery_list'));
+        $o = html_writer::start_tag('div', ['class' => 'gallery_list']);
         foreach ($renderable->galleries as $gallery) {
             if ($renderable->thumbnailsperrow > 0 && $column > $renderable->thumbnailsperrow) {
                 // Row complete.
@@ -163,7 +163,7 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
                 $row++;
             }
             if ($column == 1) {
-                $o .= html_writer::start_tag('div', array('class' => 'row clearfix'));
+                $o .= html_writer::start_tag('div', ['class' => 'row clearfix']);
                 $rowopen = true;
             }
             if ($renderable->thumbnailsperpage > 0 && $count >= $renderable->thumbnailsperpage) {
@@ -198,25 +198,25 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
     public function gallery_list_item($gallery) {
         global $COURSE, $USER;
         $o = html_writer::start_tag('div',
-            array('class' => 'gallery_list_item', 'data-title' => $gallery->name, 'data-id' => $gallery->id));
+            ['class' => 'gallery_list_item', 'data-title' => $gallery->name, 'data-id' => $gallery->id]);
 
-        $url = new moodle_url('/mod/mediagallery/view.php', array('g' => $gallery->id));
-        $img = html_writer::empty_tag('img', array('src' => $gallery->get_thumbnail()));
+        $url = new moodle_url('/mod/mediagallery/view.php', ['g' => $gallery->id]);
+        $img = html_writer::empty_tag('img', ['src' => $gallery->get_thumbnail()]);
         $link = html_writer::link($url, $img);
-        $o .= html_writer::tag('div', $link, array('class' => 'gthumbnail'));
-        $o .= html_writer::start_tag('div', array('class' => 'title'));
+        $o .= html_writer::tag('div', $link, ['class' => 'gthumbnail']);
+        $o .= html_writer::start_tag('div', ['class' => 'title']);
         $heading = format_string($gallery->name);
         $o .= $this->output->heading($heading, 6);
         $o .= html_writer::tag('span', $heading, ['class' => 'tooltiptext']);
         $o .= html_writer::end_tag('div');
 
-        $o .= html_writer::start_tag('div', array('class' => 'controls'));
+        $o .= html_writer::start_tag('div', ['class' => 'controls']);
 
         $this->page->requires->yui_module('moodle-mod_mediagallery-base', 'M.mod_mediagallery.base.add_gallery_info_modal',
-            array($COURSE->id, $gallery->get_metainfo()), null, true);
-        $url = new moodle_url('/mod/mediagallery/gallery.php', array('g' => $gallery->id, 'action' => 'info'));
+            [$COURSE->id, $gallery->get_metainfo()], null, true);
+        $url = new moodle_url('/mod/mediagallery/gallery.php', ['g' => $gallery->id, 'action' => 'info']);
         $o .= $this->output->action_icon($url, new pix_icon('i/info', get_string('information', 'mediagallery')), null,
-            array('class' => 'action-icon info'));
+            ['class' => 'action-icon info']);
 
         $actions = $this->gallery_list_item_actions($gallery);
         $o .= $this->action_menu($actions);
@@ -233,15 +233,15 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
      * @return string[]
      */
     public function gallery_list_item_actions($gallery) {
-        $actions = array();
+        $actions = [];
 
         if ($gallery->user_can_edit()) {
-            $url = new moodle_url('/mod/mediagallery/view.php', array('g' => $gallery->id, 'editing' => 1));
+            $url = new moodle_url('/mod/mediagallery/view.php', ['g' => $gallery->id, 'editing' => 1]);
             $actions['edit'] = $this->iconlink(get_string('editgallery', 'mediagallery'), $url, 'pencil-square-o', '', true);
         }
 
         if ($gallery->user_can_remove()) {
-            $url = new moodle_url('/mod/mediagallery/gallery.php', array('g' => $gallery->id, 'action' => 'delete'));
+            $url = new moodle_url('/mod/mediagallery/gallery.php', ['g' => $gallery->id, 'action' => 'delete']);
             $isowner = $gallery->is_thebox_creator_or_agent() ? ' owner' : '';
             $actions['delete'] = $this->iconlink(get_string('deletegallery', 'mediagallery'),
                 $url, 'trash-o', "delete$isowner", true);
@@ -290,14 +290,14 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
      * @return string
      */
     private function focus_selector($currentfocus) {
-        $options = array(
+        $options = [
             mcbase::TYPE_ALL => get_string('typeall', 'mediagallery'),
             mcbase::TYPE_IMAGE => get_string('typeimage', 'mediagallery'),
             mcbase::TYPE_VIDEO => get_string('typevideo', 'mediagallery'),
             mcbase::TYPE_AUDIO => get_string('typeaudio', 'mediagallery'),
-        );
+        ];
 
-        $select = new single_select($this->page->url, 'focus', $options, $currentfocus, array());
+        $select = new single_select($this->page->url, 'focus', $options, $currentfocus, []);
         $select->label = get_string('galleryfocus', 'mod_mediagallery');
         $select->method = 'get';
         return html_writer::div($this->output->render($select), 'focus_selector');
@@ -311,13 +311,13 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
      * @return string
      */
     private function mediasize_selector($currentsize = rengallery::MEDIASIZE_MD) {
-        $options = array(
+        $options = [
             rengallery::MEDIASIZE_SM => get_string('mediasizesm', 'mediagallery'),
             rengallery::MEDIASIZE_MD => get_string('mediasizemd', 'mediagallery'),
             rengallery::MEDIASIZE_LG => get_string('mediasizelg', 'mediagallery'),
-        );
+        ];
         $label = html_writer::label(get_string('mediasize', 'mod_mediagallery'), 'mediasize');
-        $select = html_writer::select($options, 'mediasize', $currentsize, array());
+        $select = html_writer::select($options, 'mediasize', $currentsize, []);
         return html_writer::div($label.$select, 'mediasize_selector');
     }
 
@@ -338,10 +338,10 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
                 $class = ' no';
                 $pix = 'i/invalid';
             }
-            $indicator = html_writer::empty_tag('img', array('src' => $this->output->image_url($pix)));
-            $o .= html_writer::tag('div', $indicator, array('class' => 'moralrights'.$class));
-            $link = html_writer::link('#', get_string('sample', 'mediagallery'), array('id' => 'mg_sample'));
-            $o .= html_writer::tag('div', $link, array('class' => 'moralrights_title'));
+            $indicator = html_writer::empty_tag('img', ['src' => $this->output->image_url($pix)]);
+            $o .= html_writer::tag('div', $indicator, ['class' => 'moralrights'.$class]);
+            $link = html_writer::link('#', get_string('sample', 'mediagallery'), ['id' => 'mg_sample']);
+            $o .= html_writer::tag('div', $link, ['class' => 'moralrights_title']);
         }
 
         if ($gallery->mode != 'youtube' && !$renderable->editing) {
@@ -380,7 +380,7 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
         }
         // If the user normally could edit, but can't currently due to read-only time or submission, display export link.
         if ($gallery->user_can_edit(null, true) && !$gallery->user_can_edit()) {
-            $exporturl = new moodle_url('/mod/mediagallery/export.php', array('g' => $gallery->id));
+            $exporturl = new moodle_url('/mod/mediagallery/export.php', ['g' => $gallery->id]);
             $o .= html_writer::div(html_writer::link($exporturl, get_string('exportgallery', 'mediagallery')), 'exportlink');
         }
         $o .= html_writer::div('', 'clearfix');
@@ -395,7 +395,7 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
      * @return string
      */
     protected function gallery_viewing_page(rengallery $renderable) {
-        $o = html_writer::start_tag('div', array('class' => 'gallery'.$renderable->mediasizeclass));
+        $o = html_writer::start_tag('div', ['class' => 'gallery'.$renderable->mediasizeclass]);
         $items = $renderable->gallery->get_items();
         if (empty($items)) {
             $o .= get_string('noitemsadded', 'mediagallery');
@@ -418,7 +418,7 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
      * @param gallery $gallery The gallery to display.
      */
     public function gallery_editing_page(gallery $gallery) {
-        $o = html_writer::start_tag('div', array('class' => 'gallery_items editing'));
+        $o = html_writer::start_tag('div', ['class' => 'gallery_items editing']);
         foreach ($gallery->get_items() as $item) {
             $o .= $this->item_editing($item, $gallery);
         }
@@ -448,20 +448,20 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
      * @return array A list of actions.
      */
     public function collection_editing_actions_list(rencollection $renderable) {
-        $links = array();
+        $links = [];
 
         if ($renderable->normallycanadd && !$renderable->readonly) {
             if ($renderable->maxreached) {
                 $links['maxgalleries'] = $this->iconlink(get_string('maxgalleriesreached', 'mediagallery'), null);
             } else {
-                $url = new moodle_url('/mod/mediagallery/gallery.php', array('m' => $renderable->id));
+                $url = new moodle_url('/mod/mediagallery/gallery.php', ['m' => $renderable->id]);
                 $links['addgallery'] = $this->iconlink(get_string('addagallery', 'mediagallery'), $url, 'plus');
             }
         }
 
         if ($renderable->linkedassigncmid && $renderable->userorgrouphasgallery) {
             $url = new moodle_url('/mod/assign/view.php',
-                array('id' => $renderable->linkedassigncmid, 'action' => 'editsubmission'));
+                ['id' => $renderable->linkedassigncmid, 'action' => 'editsubmission']);
             if ($renderable->submissionsopen) {
                 $str = $renderable->hassubmitted ? 'assignedit' : 'assignsubmit';
                 $links['submitassign'] = $this->iconlink(get_string($str, 'mediagallery'), $url, 'check-square');
@@ -471,7 +471,7 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
             }
         }
 
-        $url = new moodle_url('/mod/mediagallery/view.php', array('id' => $this->page->context->instanceid, 'action' => 'search'));
+        $url = new moodle_url('/mod/mediagallery/view.php', ['id' => $this->page->context->instanceid, 'action' => 'search']);
         $links['search'] = $this->iconlink(get_string('search', 'mediagallery'), $url, 'search');
 
         return $links;
@@ -512,7 +512,7 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
     public function gallery_editing_actions(gallery $gallery) {
         $actions = $this->gallery_editing_actions_list($gallery);
 
-        $o = html_writer::start_tag('div', array('class' => 'actions'));
+        $o = html_writer::start_tag('div', ['class' => 'actions']);
         $o .= implode(' &nbsp; ', $actions);
         $o .= html_writer::end_tag('div');
 
@@ -526,12 +526,12 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
      * @return array A list of actions.
      */
     protected function gallery_editing_actions_list($gallery) {
-        $additemurl = new moodle_url('/mod/mediagallery/item.php', array('g' => $gallery->id));
-        $addbulkitemurl = new moodle_url('/mod/mediagallery/item.php', array('g' => $gallery->id, 'bulk' => 1));
-        $viewurl = new moodle_url('/mod/mediagallery/view.php', array('g' => $gallery->id));
-        $editurl = new moodle_url('/mod/mediagallery/gallery.php', array('g' => $gallery->id));
-        $exporturl = new moodle_url('/mod/mediagallery/export.php', array('g' => $gallery->id));
-        $actions = array();
+        $additemurl = new moodle_url('/mod/mediagallery/item.php', ['g' => $gallery->id]);
+        $addbulkitemurl = new moodle_url('/mod/mediagallery/item.php', ['g' => $gallery->id, 'bulk' => 1]);
+        $viewurl = new moodle_url('/mod/mediagallery/view.php', ['g' => $gallery->id]);
+        $editurl = new moodle_url('/mod/mediagallery/gallery.php', ['g' => $gallery->id]);
+        $exporturl = new moodle_url('/mod/mediagallery/export.php', ['g' => $gallery->id]);
+        $actions = [];
 
         $maxitems = $gallery->get_collection()->maxitems;
         if ($maxitems == 0 || count($gallery->get_items()) < $maxitems) {
@@ -566,13 +566,13 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
     protected function iconlink($text, $link = null, $fa = null, $linkclass = '', $actionmenu = false) {
         $o = '';
         if ($fa) {
-            $icon = html_writer::tag('i', '', array('class' => 'mgfa mgfa-fw mgfa-lg mgfa-'.$fa));
+            $icon = html_writer::tag('i', '', ['class' => 'mgfa mgfa-fw mgfa-lg mgfa-'.$fa]);
         }
 
         if ($link) {
             $class = $actionmenu ? 'action-menu' : 'maction';
             $linkclass = trim($linkclass.' '.$class);
-            $o = html_writer::link($link, $icon.$text, array('class' => $linkclass));
+            $o = html_writer::link($link, $icon.$text, ['class' => $linkclass]);
         } else {
             $o = html_writer::span($text);
         }
@@ -588,26 +588,26 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
      */
     public function item_editing(item $item, $gallery) {
         global $USER;
-        $o = html_writer::start_tag('div', array('class' => 'item', 'data-id' => $item->id, 'data-title' => $item->caption));
+        $o = html_writer::start_tag('div', ['class' => 'item', 'data-id' => $item->id, 'data-title' => $item->caption]);
 
-        $img = html_writer::empty_tag('img', array('src' => $item->get_image_url_by_type('thumbnail')));
+        $img = html_writer::empty_tag('img', ['src' => $item->get_image_url_by_type('thumbnail')]);
         $link = html_writer::link(null, $img);
-        $o .= html_writer::tag('div', $link, array('class' => 'gthumbnail'));
-        $o .= html_writer::start_tag('div', array('class' => 'title'));
+        $o .= html_writer::tag('div', $link, ['class' => 'gthumbnail']);
+        $o .= html_writer::start_tag('div', ['class' => 'title']);
         $heading = format_string($item->caption);
         $o .= $this->output->heading($heading, 6);
         $o .= html_writer::tag('span', $heading, ['class' => 'tooltiptext']);
         $o .= html_writer::end_tag('div');
 
-        $o .= html_writer::start_tag('div', array('class' => 'controls'));
+        $o .= html_writer::start_tag('div', ['class' => 'controls']);
 
         $metainfo = $item->get_metainfo();
         $metainfo->tags = $this->tag_list($metainfo->tags, '', 'item-tags');
         $this->page->requires->yui_module('moodle-mod_mediagallery-base', 'M.mod_mediagallery.base.add_item_info_modal',
-            array($metainfo), null, true);
-        $url = new moodle_url('/mod/mediagallery/item.php', array('i' => $item->id, 'action' => 'info'));
+            [$metainfo], null, true);
+        $url = new moodle_url('/mod/mediagallery/item.php', ['i' => $item->id, 'action' => 'info']);
         $o .= $this->output->action_icon($url, new pix_icon('i/info', get_string('information', 'mediagallery')), null,
-            array('class' => 'action-icon info'));
+            ['class' => 'action-icon info']);
 
         $actions = $this->item_editing_actions_list($item, $gallery);
         $o .= $this->action_menu($actions);
@@ -626,13 +626,13 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
      * @return array A list of actions.
      */
     protected function item_editing_actions_list($item, $gallery) {
-        $actions = array();
+        $actions = [];
 
         $type = $item->type(true);
         $boxcreatoragent = $gallery->get_collection()->mode == 'thebox'
             && ($gallery->is_thebox_creator_or_agent() || $gallery->get_collection()->is_thebox_creator_or_agent());
         if ($item->user_can_edit() || $boxcreatoragent) {
-            $url = new moodle_url('/mod/mediagallery/item.php', array('i' => $item->id));
+            $url = new moodle_url('/mod/mediagallery/item.php', ['i' => $item->id]);
             $str = is_null($type) ? 'edititem' : 'edititemtype';
             $actions['edit'] = $this->iconlink(get_string($str, 'mediagallery', $type),
                 $url, 'pencil-square-o', "edit", true);
@@ -640,7 +640,7 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
 
         $isowner = $item->is_thebox_creator_or_agent() ? ' owner' : '';
         if (($gallery->mode != 'thebox' && $item->user_can_remove()) || $gallery->is_thebox_creator_or_agent()) {
-            $url = new moodle_url('/mod/mediagallery/item.php', array('i' => $item->id, 'action' => 'delete'));
+            $url = new moodle_url('/mod/mediagallery/item.php', ['i' => $item->id, 'action' => 'delete']);
             $str = is_null($type) ? 'deleteitem' : 'deleteitemtype';
             $actions['delete'] = $this->iconlink(get_string($str, 'mediagallery', $type),
                 $url, 'trash-o', "delete$isowner", true);
@@ -662,7 +662,7 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
             if (!$item->display) {
                 continue;
             }
-            $image = $this->output->pix_icon($item->file_icon(), $item->caption, 'moodle', array('class' => 'icon'));
+            $image = $this->output->pix_icon($item->file_icon(), $item->caption, 'moodle', ['class' => 'icon']);
             if ($gallery->mode != 'thebox' || $item->thebox_processed()) {
                 $entry = html_writer::link($item->get_embed_url(), $image.$item->caption);
             } else {
@@ -682,20 +682,20 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
      * @param array $options
      * @return string
      */
-    public function view_carousel(gallery $gallery, array $options = array()) {
-        $o = html_writer::start_tag('div', array('class' => 'jcarousel-wrapper'));
+    public function view_carousel(gallery $gallery, array $options = []) {
+        $o = html_writer::start_tag('div', ['class' => 'jcarousel-wrapper']);
         $o .= html_writer::start_tag('div',
-            array('class' => 'jcarousel type_'.$gallery->type(true), 'data-jcarousel' => 'true', 'data-wrap' => 'circular'));
+            ['class' => 'jcarousel type_'.$gallery->type(true), 'data-jcarousel' => 'true', 'data-wrap' => 'circular']);
 
         $o .= html_writer::start_tag('ul');
         foreach ($gallery->get_items_by_type() as $item) {
             if (!$item->display) {
                 continue;
             }
-            $itemhtml = html_writer::empty_tag('img', array('src' => $item->get_image_url_by_type('thumbnail')));
+            $itemhtml = html_writer::empty_tag('img', ['src' => $item->get_image_url_by_type('thumbnail')]);
             $attribs = $this->linkattribs($gallery, $item);
             if (!empty($options['filter'])) {
-                $attribs['href'] = new moodle_url('/mod/mediagallery/view.php', array('g' => $gallery->id));
+                $attribs['href'] = new moodle_url('/mod/mediagallery/view.php', ['g' => $gallery->id]);
             } else {
                 $attribs['href'] = $item->get_image_url_by_type('lowres');
             }
@@ -704,18 +704,18 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
         $o .= html_writer::end_tag('ul');
 
         $o .= html_writer::end_tag('div');
-        $o .= html_writer::tag('a', '&lsaquo;', array('data-jcarousel-control' => 'true', 'data-target' => '-=1',
-            'href' => '#', 'class' => 'jcarousel-control-prev'));
-        $o .= html_writer::tag('a', '&rsaquo;', array('data-jcarousel-control' => 'true', 'data-target' => '+=1',
-            'href' => '#', 'class' => 'jcarousel-control-next'));
-        $o .= html_writer::tag('p', '', array('data-jcarouselpagination' => 'true', 'class' => 'jcarousel-pagination'));
+        $o .= html_writer::tag('a', '&lsaquo;', ['data-jcarousel-control' => 'true', 'data-target' => '-=1',
+            'href' => '#', 'class' => 'jcarousel-control-prev', ]);
+        $o .= html_writer::tag('a', '&rsaquo;', ['data-jcarousel-control' => 'true', 'data-target' => '+=1',
+            'href' => '#', 'class' => 'jcarousel-control-next', ]);
+        $o .= html_writer::tag('p', '', ['data-jcarouselpagination' => 'true', 'class' => 'jcarousel-pagination']);
         $o .= html_writer::end_tag('div');
 
         // For whatever reason, including the JS earlier doesn't work.
-        $o .= html_writer::tag('script', '', array(
+        $o .= html_writer::tag('script', '', [
             'type' => 'text/javascript',
             'src' => new moodle_url('/theme/jquery.php/mod_mediagallery/jcarousel/jquery.jcarousel.v2.js'),
-        ));
+        ]);
 
         return $o;
     }
@@ -740,7 +740,7 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
     protected function linkattribs($gallery, $item) {
         $type = $item->type();
         $player = $type == mcbase::TYPE_AUDIO || ($type == mcbase::TYPE_VIDEO && $item->externalurl == '') ? $type : 1;
-        $attribs = array(
+        $attribs = [
             'data-mediabox' => 'gallery_'.$gallery->id,
             'title' => $item->caption,
             'data-id' => $item->id,
@@ -748,7 +748,7 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
             'data-player' => $player,
             'data-url' => $item->get_embed_url(),
             'data-objectid' => $item->objectid,
-        );
+        ];
         return $attribs;
     }
 
@@ -788,7 +788,7 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
                 $row++;
             }
             if ($column == 1) {
-                $o .= html_writer::start_tag('div', array('class' => 'grid_row clearfix'));
+                $o .= html_writer::start_tag('div', ['class' => 'grid_row clearfix']);
                 $rowopen = true;
             }
             if ($row > $view->gridrows && $view->gridrows != 0) {
@@ -796,15 +796,15 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
                 break;
             }
 
-            $url = new moodle_url('/mod/mediagallery/item.php', array('i' => $item->id, 'action' => 'info'));
+            $url = new moodle_url('/mod/mediagallery/item.php', ['i' => $item->id, 'action' => 'info']);
             $infoicon = html_writer::tag('div',
                 $this->output->action_icon($url, new pix_icon('i/info', get_string('information', 'mediagallery')), null,
-                    array('class' => 'action-icon info')),
-                array('class' => 'info')
+                    ['class' => 'action-icon info']),
+                ['class' => 'info']
             );
 
-            $caption = html_writer::tag('div', $infoicon.$item->caption, array('class' => 'caption'));
-            $img = html_writer::empty_tag('img', array('src' => $item->get_image_url_by_type('thumbnail')));
+            $caption = html_writer::tag('div', $infoicon.$item->caption, ['class' => 'caption']);
+            $img = html_writer::empty_tag('img', ['src' => $item->get_image_url_by_type('thumbnail')]);
             $linkattribs = $this->linkattribs($gallery, $item);
             $link = html_writer::link($item->get_image_url_by_type('lowres'), $img, $linkattribs);
 
@@ -812,18 +812,18 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
             if ($cappos == mcbase::POS_TOP) {
                 $itemframe .= $caption;
             }
-            $itemframe .= html_writer::tag('div', $link, array('class' => 'item-thumb'));
+            $itemframe .= html_writer::tag('div', $link, ['class' => 'item-thumb']);
             if ($cappos == mcbase::POS_BOTTOM) {
                 $itemframe .= $caption;
             }
-            $itemframe = html_writer::tag('div', $itemframe, array('class' => 'item-wrapper'));
+            $itemframe = html_writer::tag('div', $itemframe, ['class' => 'item-wrapper']);
 
-            $o .= html_writer::tag('div', $itemframe, array('class' => 'item grid_item', 'data-id' => $item->id,
-                'data-title' => $item->caption, 'id' => 'gallery_item_'.$item->id));
+            $o .= html_writer::tag('div', $itemframe, ['class' => 'item grid_item', 'data-id' => $item->id,
+                'data-title' => $item->caption, 'id' => 'gallery_item_'.$item->id, ]);
             $metainfo = $item->get_metainfo();
             $metainfo->tags = $this->tag_list($metainfo->tags, '', 'item-tags');
             $this->page->requires->yui_module('moodle-mod_mediagallery-base', 'M.mod_mediagallery.base.add_item_info_modal',
-                array($metainfo), null, true);
+                [$metainfo], null, true);
 
             $column++;
         }
@@ -832,7 +832,7 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
         }
         $count = count($items);
         if ($count > $perpage && $perpage != 0) {
-            $url = new moodle_url('/mod/mediagallery/view.php', array('g' => $gallery->id, 'page' => $options['page']));
+            $url = new moodle_url('/mod/mediagallery/view.php', ['g' => $gallery->id, 'page' => $options['page']]);
             $o .= $this->output->paging_bar($count, $options['page'], $perpage, $url);
         }
 
@@ -871,13 +871,13 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
         $t = new html_table();
 
         $row = new html_table_row();
-        $fields = array(
+        $fields = [
             get_string('caption', 'mod_mediagallery'),
             get_string('gallery', 'mod_mediagallery'),
             get_string('creator', 'mod_mediagallery'),
             get_string('groups'),
             get_string('roles'),
-        );
+        ];
 
         foreach ($fields as $field) {
             $headercell = new html_table_cell($field);
@@ -888,14 +888,14 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
         $t->data[] = $row;
 
         foreach ($renderable->results as $results) {
-            $row = array();
+            $row = [];
             $row[] = new html_table_cell($results->itemcaption);
 
-            $url = new moodle_url('/mod/mediagallery/view.php', array('g' => $results->galleryid));
+            $url = new moodle_url('/mod/mediagallery/view.php', ['g' => $results->galleryid]);
             $gallery = html_writer::link($url, $results->galleryname);
             $row[] = new html_table_cell($gallery);
 
-            $url = new moodle_url('/user/view.php', array('id' => $results->userid, 'course' => $this->page->course->id));
+            $url = new moodle_url('/user/view.php', ['id' => $results->userid, 'course' => $this->page->course->id]);
             $user = html_writer::link($url, $results->creator);
             $row[] = new html_table_cell($user);
 
@@ -932,9 +932,9 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
             $counts->to = $totalcount;
         }
         $o = get_string('searchdisplayxtoyofzresults', 'mediagallery', $counts);
-        $o .= html_writer::start_tag('ol', array('start' => $counts->from));
+        $o .= html_writer::start_tag('ol', ['start' => $counts->from]);
         foreach ($items as $item) {
-            $url = new moodle_url('/mod/mediagallery/view.php', array('g' => $item->galleryid));
+            $url = new moodle_url('/mod/mediagallery/view.php', ['g' => $item->galleryid]);
             $text = html_writer::link($url, $item->caption);
             $o .= html_writer::tag('li', $text);
         }
@@ -967,7 +967,7 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
             $o .= $catname;
             $o .= html_writer::start_tag('ul');
             foreach ($usagedata['category'][$catid] as $courseid) {
-                $link = html_writer::link(new moodle_url('/course/view.php', array('id' => $courseid)),
+                $link = html_writer::link(new moodle_url('/course/view.php', ['id' => $courseid]),
                     $usagedata['course'][$courseid]->fullname);
                 $entry = $link.' : '.$this->convert_size($usagedata['course'][$courseid]->sum);
                 $o .= html_writer::tag('li', $entry);
@@ -1023,11 +1023,11 @@ class mod_mediagallery_standard_renderer extends mod_mediagallery_renderer {
         $actions = parent::gallery_list_item_actions($gallery);
 
         if ($gallery->mode == 'standard' && $gallery->user_can_edit()) {
-            $exporturl = new moodle_url('/mod/mediagallery/export.php', array('g' => $gallery->id));
+            $exporturl = new moodle_url('/mod/mediagallery/export.php', ['g' => $gallery->id]);
             $actions['export'] = $this->iconlink(get_string('exportgallery', 'mediagallery'), $exporturl, 'share', '', true);
         }
 
-        $order = array_flip(array('edit', 'export', 'delete'));
+        $order = array_flip(['edit', 'export', 'delete']);
         uksort($actions, function($a, $b) use ($order) {
             return $order[$a] - $order[$b];
         });
