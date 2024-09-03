@@ -59,14 +59,4 @@ class course_module_viewed extends \core\event\course_module_viewed {
         return new \moodle_url('/mod/mediagallery/view.php', array('id' => $this->contextinstanceid));
     }
 
-    /**
-     * Return the legacy event log data.
-     *
-     * @return array|null
-     */
-    protected function get_legacy_logdata() {
-        return array($this->courseid, 'mediagallery', 'view', 'view.php?id=' . $this->contextinstanceid,
-            $this->objectid, $this->contextinstanceid);
-    }
-
 }

@@ -443,7 +443,7 @@ function xmldb_mediagallery_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2015082600, 'mediagallery');
     }
 
-    if ($oldversion < 2023060300) {  // TODO: Set actual version number.
+    if ($oldversion < 2024080802) {  // TODO: Set actual version number.
         $table = new xmldb_table('mediagallery');
         $fields = [
             new xmldb_field('completiongalleries', XMLDB_TYPE_INTEGER, '9', null, XMLDB_NOTNULL, null,
@@ -460,7 +460,7 @@ function xmldb_mediagallery_upgrade($oldversion) {
             }
         }
 
-        upgrade_mod_savepoint(true, 2023060300, 'mediagallery');  // TODO: Set actual version number.
+        upgrade_mod_savepoint(true, 2024080802, 'mediagallery');  // TODO: Set actual version number.
     }
 
     return true;

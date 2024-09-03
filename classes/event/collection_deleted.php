@@ -59,14 +59,4 @@ class collection_deleted extends \core\event\base {
         return get_string('eventcollectiondeleted', 'mod_mediagallery');
     }
 
-    /**
-     * Return the legacy event log data.
-     *
-     * @return array|null
-     */
-    protected function get_legacy_logdata() {
-        return array($this->courseid, 'mediagallery', 'delete collection', 'view.php?id=' . $this->contextinstanceid,
-            $this->objectid, $this->contextinstanceid);
-    }
-
 }

@@ -220,7 +220,9 @@ M.mod_mediagallery.base = {
                 g.addClass(newclass);
             }
 
-            M.util.set_user_preference('mod_mediagallery_mediasize', size);
+            require(['core_user/repository'], function(UserRepository) {
+                UserRepository.setUserPreference('mod_mediagallery_mediasize', size);
+            });
         });
 
     },
