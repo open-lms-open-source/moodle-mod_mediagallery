@@ -258,6 +258,25 @@ class mod_mediagallery_mod_form extends moodleform_mod {
         if (isset($toform['galleryfocus'])) {
             $toform['gallerytypeoptions']['focus'] = $toform['galleryfocus'];
         }
+
+        // Set up the completion checkboxes which aren't part of standard data.
+        // We also make the default value (if you turn on the checkbox) for those
+        // numbers to be 1, this will not apply unless checkbox is ticked.
+        $toform['completiongalleriesenabled'] =
+            !empty($toform['completiongalleries']) ? 1 : 0;
+        if (empty($toform['completiongalleries'])) {
+            $toform['completiongalleries'] = 1;
+        }
+        $toform['completionitemsenabled'] =
+            !empty($toform['completionitems']) ? 1 : 0;
+        if (empty($toform['completionitems'])) {
+            $toform['completionitems'] = 1;
+        }
+        $toform['completioncommentsenabled'] =
+            !empty($toform['completioncomments']) ? 1 : 0;
+        if (empty($toform['completioncomments'])) {
+            $toform['completioncomments'] = 1;
+        }
     }
 
     /**
@@ -275,6 +294,79 @@ class mod_mediagallery_mod_form extends moodleform_mod {
             }
         }
         parent::set_data($data);
+    }
+
+    /**
+     * Add custom completion rules.
+     *
+     * @return string[] Array of string IDs of added items, empty array if none
+     */
+    public function add_completion_rules(): array {
+        $mform =& $this->_form;
+
+        $group = [];
+        $group[] =& $mform->createElement('checkbox', 'completiongalleriesenabled', '',
+                                            get_string('completiongalleries', 'mediagallery'));
+        $group[] =& $mform->createElement('text', 'completiongalleries', '', ['size' => 3]);
+        $mform->setType('completiongalleries', PARAM_INT);
+        $mform->addGroup($group, 'completiongalleriesgroup', get_string('completiongalleriesgroup', 'mediagallery'), [' '],
+                        false);
+        $mform->disabledIf('completiongalleries', 'completiongalleriesenabled', 'notchecked');
+
+        $group = [];
+        $group[] =& $mform->createElement('checkbox', 'completionitemsenabled', '', get_string('completionitems', 'mediagallery'));
+        $group[] =& $mform->createElement('text', 'completionitems', '', ['size' => 3]);
+        $mform->setType('completionitems', PARAM_INT);
+        $mform->addGroup($group, 'completionitemsgroup', get_string('completionitemsgroup', 'mediagallery'), [' '], false);
+        $mform->disabledIf('completionitems', 'completionitemsenabled', 'notchecked');
+
+        $group = [];
+        $group[] =& $mform->createElement('checkbox', 'completioncommentsenabled', '',
+                                            get_string('completioncomments', 'mediagallery'));
+        $group[] =& $mform->createElement('text', 'completioncomments', '', ['size' => 3]);
+        $mform->setType('completioncomments', PARAM_INT);
+        $mform->addGroup($group, 'completioncommentsgroup', get_string('completioncommentsgroup', 'mediagallery'), [' '],
+                        false);
+        $mform->disabledIf('completioncomments', 'completioncommentsenabled', 'notchecked');
+
+        return ['completiongalleriesgroup', 'completionitemsgroup', 'completioncommentsgroup'];
+    }
+
+    /**
+     * Called during validation. Indicates whether a module-specific completion rule is selected.
+     *
+     * @param array $data Input data (not yet validated)
+     * @return bool True if one or more rules is enabled, false if none are.
+     */
+    public function completion_rule_enabled($data): bool {
+        return (!empty($data['completiongalleriesenabled']) && $data['completiongalleries'] != 0) ||
+            (!empty($data['completionitemsenabled']) && $data['completionitems'] != 0) ||
+            (!empty($data['completioncommentsenabled']) && $data['completioncomments'] != 0);
+    }
+
+    /**
+     * Allows module to modify the data returned by form get_data().
+     * This method is also called in the bulk activity completion form.
+     *
+     * Only available on moodleform_mod.
+     *
+     * @param stdClass $data the form data to be modified.
+     */
+    public function data_postprocessing($data): void {
+        parent::data_postprocessing($data);
+        // Turn off completion settings if the checkboxes aren't ticked.
+        if (!empty($data->completionunlocked)) {
+            $autocompletion = !empty($data->completion) && $data->completion == COMPLETION_TRACKING_AUTOMATIC;
+            if (empty($data->completiongalleriesenabled) || !$autocompletion) {
+                $data->completiongalleries = 0;
+            }
+            if (empty($data->completionitemsenabled) || !$autocompletion) {
+                $data->completionitems = 0;
+            }
+            if (empty($data->completioncommentsenabled) || !$autocompletion) {
+                $data->completioncomments = 0;
+            }
+        }
     }
 
 }

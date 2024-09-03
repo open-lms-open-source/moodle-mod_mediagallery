@@ -86,7 +86,16 @@ switch($requestmethod) {
             $info->likes = $count;
             echo json_encode($info);
         } else if ($action == 'sample') {
-            $info = $object->copy($data[0]);
+            $object->copy($data[0]);
+            // Return new activity completion info.
+            $cminfo = get_fast_modinfo($course, $USER->id)->cms[$cm->id];
+            $completion = \core_completion\cm_completion_details::get_instance($cminfo, $USER->id);
+            $activitydates = \core\activity_dates::get_dates_for_module($cminfo, $USER->id);
+            $actinfo = new \core_course\output\activity_information($cminfo, $completion, $activitydates);
+            $actinfoeft = $actinfo->export_for_template($OUTPUT);
+            $actinfohtml = $OUTPUT->render_from_template('core_course/activity_info', $actinfoeft);
+            $info = new stdClass();
+            $info->actinfohtml = $actinfohtml;
             echo json_encode($info);
         }
     break;
@@ -112,7 +121,16 @@ switch($requestmethod) {
 
         }
         if ($success) {
-            echo json_encode('success');
+            // Return new activity completion info.
+            $cminfo = get_fast_modinfo($course, $USER->id)->cms[$cm->id];
+            $completion = \core_completion\cm_completion_details::get_instance($cminfo, $USER->id);
+            $activitydates = \core\activity_dates::get_dates_for_module($cminfo, $USER->id);
+            $actinfo = new \core_course\output\activity_information($cminfo, $completion, $activitydates);
+            $actinfoeft = $actinfo->export_for_template($OUTPUT);
+            $actinfohtml = $OUTPUT->render_from_template('core_course/activity_info', $actinfoeft);
+            $info = new stdClass();
+            $info->actinfohtml = $actinfohtml;
+            echo json_encode($info);
         } else {
             throw new moodle_exception("failed to delete $class $id");
         }

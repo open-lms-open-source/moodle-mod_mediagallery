@@ -443,5 +443,25 @@ function xmldb_mediagallery_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2015082600, 'mediagallery');
     }
 
+    if ($oldversion < 2024080802) {  // TODO: Set actual version number.
+        $table = new xmldb_table('mediagallery');
+        $fields = [
+            new xmldb_field('completiongalleries', XMLDB_TYPE_INTEGER, '9', null, XMLDB_NOTNULL, null,
+                            '0', 'allowlikes'),
+            new xmldb_field('completionitems', XMLDB_TYPE_INTEGER, '9', null, XMLDB_NOTNULL, null,
+                            '0', 'completiongalleries'),
+            new xmldb_field('completioncomments', XMLDB_TYPE_INTEGER, '9', null, XMLDB_NOTNULL, null,
+                            '0', 'completionitems'),
+        ];
+
+        foreach ($fields as $field) {
+            if (!$dbman->field_exists($table, $field)) {
+                $dbman->add_field($table, $field);
+            }
+        }
+
+        upgrade_mod_savepoint(true, 2024080802, 'mediagallery');  // TODO: Set actual version number.
+    }
+
     return true;
 }
