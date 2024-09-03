@@ -87,6 +87,9 @@ function mediagallery_add_instance(stdClass $mediagallery, mod_mediagallery_mod_
         $collection->set_tags($mediagallery->mctags);
     }
 
+    $completionexpected = (!empty($mediagallery->completionexpected)) ? $mediagallery->completionexpected : null;
+    \core_completion\api::update_completion_date_event($mediagallery->coursemodule, 'mediagallery', $mediagallery->id, $completionexpected);
+
     return $mediagallery->id;
 }
 
@@ -113,6 +116,9 @@ function mediagallery_update_instance(stdClass $mediagallery, mod_mediagallery_m
     $mediagallery = mediagallery_formfield_transform($mediagallery);
     $mediagallery->timemodified = time();
     $mediagallery->id = $mediagallery->instance;
+
+    $completionexpected = (!empty($mediagallery->completionexpected)) ? $mediagallery->completionexpected : null;
+    \core_completion\api::update_completion_date_event($mediagallery->coursemodule, 'mediagallery', $mediagallery->id, $completionexpected);
 
     $result = $DB->update_record('mediagallery', $mediagallery);
 
@@ -508,4 +514,20 @@ function mediagallery_comment_display($comments, $args) {
         throw new comment_exception('invalidcommentitemid');
     }
     return $comments;
+}
+
+/**
+ * Get the current user preferences that are available
+ *
+ * @return array[]
+ */
+function mod_mediagallery_user_preferences(): array {
+    return [
+        'mod_mediagallery_mediasize' => [
+            'type' => PARAM_INT,
+            'null' => NULL_NOT_ALLOWED,
+            'default' => \mod_mediagallery\output\gallery\renderable::MEDIASIZE_MD,
+            'permissioncallback' => [\core_user::class, 'is_current_user'],
+        ],
+    ];
 }

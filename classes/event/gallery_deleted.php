@@ -78,14 +78,4 @@ class gallery_deleted extends \core\event\base {
         return new \moodle_url('/mod/mediagallery/view.php', ['id' => $this->contextinstanceid]);
     }
 
-    /**
-     * Return the legacy event log data.
-     *
-     * @return array|null
-     */
-    protected function get_legacy_logdata() {
-        return [$this->courseid, 'mediagallery', 'delete gallery', 'view.php?id=' . $this->contextinstanceid,
-            $this->objectid, $this->contextinstanceid, ];
-    }
-
 }

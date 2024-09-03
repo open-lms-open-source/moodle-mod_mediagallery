@@ -39,7 +39,6 @@ $viewcontrols = 'gallery';
 $gallery = false;
 
 $mediasize = get_user_preferences('mod_mediagallery_mediasize', \mod_mediagallery\output\gallery\renderable::MEDIASIZE_MD);
-user_preference_allow_ajax_update('mod_mediagallery_mediasize', PARAM_INT);
 
 $options = [
     'focus' => $focus,
@@ -128,7 +127,7 @@ if ($gallery) {
 $PAGE->set_url($pageurl);
 require_login($course, true, $cm);
 
-if ($gallery) {
+if ($gallery && $mediagallery->colltype != "single") {
     $navnode = $PAGE->navigation->find($cm->id, navigation_node::TYPE_ACTIVITY);
     if (empty($navnode)) {
         $navnode = $PAGE->navbar;

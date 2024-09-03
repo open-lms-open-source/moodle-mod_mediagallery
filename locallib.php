@@ -21,8 +21,8 @@
  * logic, should go here. Never include this file from your lib.php!
  *
  * @package    mod_mediagallery
- * @copyright  NetSpot Pty Ltd
- * @author     Adam Olley <adam.olley@netspot.com.au>
+ * @copyright  Copyright (c) 2021 Open LMS.
+ * @author     Adam Olley <adam.olley@openlms.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -470,7 +470,7 @@ function mod_mediagallery_get_tagged_collections($tag, $exclusivemode = false, $
             context_helper::preload_from_record($item);
             $modinfo = get_fast_modinfo($item->courseid);
             $cm = $modinfo->get_cm($item->cmid);
-            $pageurl = new moodle_url('/mod/mediagallery/view.php', ['g' => $item->id]);
+            $pageurl = new moodle_url('/mod/mediagallery/view.php', ['m' => $item->id]);
             $pagename = format_string($item->name, true, ['context' => context_module::instance($item->cmid)]);
             $pagename = html_writer::link($pageurl, $pagename);
             $courseurl = course_get_url($item->courseid, $cm->sectionnum);
@@ -621,7 +621,7 @@ function mod_mediagallery_get_tagged_items($tag, $exclusivemode = false, $fromct
 
     // Build the SQL query.
     $ctxselect = context_helper::get_preload_record_columns_sql('ctx');
-    $query = "SELECT mg.*, mi.id, mi.caption,
+    $query = "SELECT mg.*, mg.id as galleryid, mi.id, mi.caption,
                     cm.id AS cmid, c.id AS courseid, c.shortname, c.fullname, $ctxselect
                 FROM {mediagallery_item} mi
                 JOIN {mediagallery_gallery} mg ON mg.id = mi.galleryid
@@ -691,7 +691,7 @@ function mod_mediagallery_get_tagged_items($tag, $exclusivemode = false, $fromct
             context_helper::preload_from_record($item);
             $modinfo = get_fast_modinfo($item->courseid);
             $cm = $modinfo->get_cm($item->cmid);
-            $pageurl = new moodle_url('/mod/mediagallery/view.php', ['g' => $item->id]);
+            $pageurl = new moodle_url('/mod/mediagallery/view.php', ['g' => $item->galleryid]);
             $pagename = format_string($item->caption, true, ['context' => context_module::instance($item->cmid)]);
             $pagename = html_writer::link($pageurl, $pagename);
             $courseurl = course_get_url($item->courseid, $cm->sectionnum);
