@@ -565,6 +565,8 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
      */
     protected function iconlink($text, $link = null, $fa = null, $linkclass = '', $actionmenu = false) {
         $o = '';
+        $icon = null;
+
         if ($fa) {
             $icon = html_writer::tag('i', '', array('class' => 'mgfa mgfa-fw mgfa-lg mgfa-'.$fa));
         }
