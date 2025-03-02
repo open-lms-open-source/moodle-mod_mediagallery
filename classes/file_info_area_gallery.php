@@ -53,7 +53,10 @@ class mod_mediagallery_file_info_area_gallery extends file_info_stored {
 
         $items = $this->gallery->get_items();
         foreach ($items as $item) {
-            $result[] = new file_info_stored($this->browser, $this->context, $item->get_file());
+            $result[] = new file_info_stored($this->browser, $this->context,
+                $item->get_file(), $this->urlbase, $this->topvisiblename,
+                $this->itemidused, $this->readaccess, $this->writeaccess,
+                $this->areaonly);
         }
 
         return $result;
