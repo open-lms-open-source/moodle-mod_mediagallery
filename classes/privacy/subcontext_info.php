@@ -44,20 +44,9 @@ trait subcontext_info {
      */
     protected static function get_gallery_area(\stdClass $gallery) : array {
         $pathparts = [];
-        if (!empty($discussion->groupname)) {
-            $pathparts[] = get_string('groups');
-            $pathparts[] = $discussion->groupname;
-        }
-
-        $parts = [
-            $gallery->id,
-            $gallery->name,
-        ];
-
-        $galleryname = implode('-', $parts);
 
         $pathparts[] = get_string('areagallery', 'mod_mediagallery');
-        $pathparts[] = $galleryname;
+        $pathparts[] = "{$gallery->id}-{$gallery->name}";
 
         return $pathparts;
     }
