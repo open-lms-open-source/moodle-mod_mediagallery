@@ -115,6 +115,7 @@ class mod_mediagallery_file_info extends file_info {
      * @return array|int array of file_info instances or the count
      */
     private function get_filtered_children($extensions = '*', $countonly = false, $returnemptyfolders = false) {
+        global $CFG;
         $galleries = \mod_mediagallery\collection::get_public_galleries_by_contextid($this->context->id, false);
 
         $children = array();
