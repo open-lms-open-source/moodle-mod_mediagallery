@@ -34,10 +34,10 @@ $id = optional_param('id', 0, PARAM_INT);
 $action = optional_param('action', null, PARAM_ALPHAEXT);
 $data = optional_param_array('data', null, PARAM_RAW);
 
-$PAGE->set_url('/mod/mediagallery/rest.php', array('id' => $id, 'class' => $class, 'm' => $m));
+$PAGE->set_url('/mod/mediagallery/rest.php', ['id' => $id, 'class' => $class, 'm' => $m]);
 
-$mediagallery = $DB->get_record('mediagallery', array('id' => $m), '*', MUST_EXIST);
-$course = $DB->get_record('course', array('id' => $mediagallery->course), '*', MUST_EXIST);
+$mediagallery = $DB->get_record('mediagallery', ['id' => $m], '*', MUST_EXIST);
+$course = $DB->get_record('course', ['id' => $mediagallery->course], '*', MUST_EXIST);
 $cm = get_coursemodule_from_instance('mediagallery', $mediagallery->id, $course->id, false, MUST_EXIST);
 
 require_login($course, false, $cm);

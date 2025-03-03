@@ -52,16 +52,16 @@ class mod_mediagallery_item_form extends moodleform {
         // General settings.
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
-        $mform->addElement('text', 'caption', get_string('caption', 'mediagallery'), array('size' => '64'));
+        $mform->addElement('text', 'caption', get_string('caption', 'mediagallery'), ['size' => '64']);
         $mform->setType('caption', PARAM_TEXT);
         $mform->addRule('caption', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
         $mform->addHelpButton('caption', 'caption', 'mediagallery');
 
-        $options = array(
+        $options = [
             'collapsed' => true,
             'maxfiles' => 0,
             'return_types' => null,
-        );
+        ];
         $mform->addElement('editor', 'description', get_string('description'), null, $options);
 
         $mform->addElement('selectyesno', 'display', get_string('itemdisplay', 'mediagallery'));
@@ -81,19 +81,19 @@ class mod_mediagallery_item_form extends moodleform {
             $mform->addHelpButton('content', 'content', 'mediagallery');
 
             $fpoptions = mediagallery_filepicker_options($gallery);
-            $fpoptions['accepted_types'] = array('web_image');
+            $fpoptions['accepted_types'] = ['web_image'];
             $fpoptions['return_types'] = FILE_INTERNAL;
             $mform->addElement('filepicker', 'customthumbnail', get_string('thumbnail', 'mediagallery'), '0', $fpoptions);
             $mform->addHelpButton('customthumbnail', 'thumbnail', 'mediagallery');
         } else if ($gallery->mode == 'youtube') {
-            $mform->addElement('limitedurl', 'externalurl', get_string('youtubeurl', 'mediagallery'), array('size' => '60'),
-                array('usefilepicker' => true, 'repo' => 'youtube'));
+            $mform->addElement('limitedurl', 'externalurl', get_string('youtubeurl', 'mediagallery'), ['size' => '60'],
+                ['usefilepicker' => true, 'repo' => 'youtube']);
             $mform->setType('externalurl', PARAM_TEXT);
             $mform->addHelpButton('externalurl', 'externalurl', 'mediagallery');
         } else if ($gallery->mode == 'thebox') {
             if (empty($item->objectid)) {
                 $mform->addElement('uploader', 'content', get_string('content', 'mediagallery'), '0',
-                    array('maxfiles' => 1, 'return_types' => FILE_REFERENCE, 'repo' => 'thebox'));
+                    ['maxfiles' => 1, 'return_types' => FILE_REFERENCE, 'repo' => 'thebox']);
                 $mform->addHelpButton('content', 'content', 'mediagallery');
             } else {
                 $mform->removeElement('filecheck');
@@ -153,7 +153,7 @@ class mod_mediagallery_item_form extends moodleform {
     public function validation($data, $files) {
         global $CFG;
         $errors = parent::validation($data, $files);
-        $info = isset($data['content']) ? file_get_draft_area_info($data['content']) : array('filecount' => 0);
+        $info = isset($data['content']) ? file_get_draft_area_info($data['content']) : ['filecount' => 0];
         $url = isset($data['externalurl']) ? trim($data['externalurl']) : '';
 
         if (empty($data['externalurl']) && $info['filecount'] == 0 && empty($data['objectid'])) {

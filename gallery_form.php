@@ -28,7 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir.'/formslib.php');
 require_once($CFG->dirroot.'/mod/mediagallery/locallib.php');
 
-use \mod_mediagallery\gallery as gallery;
+use mod_mediagallery\gallery as gallery;
 
 /**
  * Module instance settings form
@@ -58,7 +58,7 @@ class mod_mediagallery_gallery_form extends moodleform {
         // General settings.
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
-        $mform->addElement('text', 'name', get_string('galleryname', 'mediagallery'), array('size' => '64'));
+        $mform->addElement('text', 'name', get_string('galleryname', 'mediagallery'), ['size' => '64']);
         if (!empty($CFG->formatstringstriptags)) {
             $mform->setType('name', PARAM_TEXT);
         } else {
@@ -70,7 +70,7 @@ class mod_mediagallery_gallery_form extends moodleform {
 
         if ($groupmode != NOGROUPS || $groupmode === 'aag') {
             if (count($groups) > 1) {
-                $opts = array();
+                $opts = [];
                 $counts = $mg->get_group_gallery_counts();
                 foreach ($groups as $group) {
                     $manage = has_capability('mod/mediagallery:manage', $context);
@@ -90,10 +90,10 @@ class mod_mediagallery_gallery_form extends moodleform {
         }
 
         // Mode. Normal or YT.
-        $opts = array(
+        $opts = [
             'standard' => get_string('modestandard', 'mod_mediagallery'),
             'youtube' => get_string('modeyoutube', 'mod_mediagallery'),
-        );
+        ];
         if (get_config('mediagallery', 'disablestandardgallery') || $mg->mode != 'standard') {
             unset($opts['standard']);
         }
@@ -116,12 +116,12 @@ class mod_mediagallery_gallery_form extends moodleform {
         // Gallery settings.
         $mform->addElement('header', 'display', get_string('settingsgallerydisplay', 'mediagallery'));
 
-        $options = array(
+        $options = [
             \mod_mediagallery\base::TYPE_ALL => get_string('typeall', 'mediagallery'),
             \mod_mediagallery\base::TYPE_IMAGE => get_string('typeimage', 'mediagallery'),
             \mod_mediagallery\base::TYPE_VIDEO => get_string('typevideo', 'mediagallery'),
             \mod_mediagallery\base::TYPE_AUDIO => get_string('typeaudio', 'mediagallery'),
-        );
+        ];
         $mform->addElement('select', 'galleryfocus', get_string('galleryfocus', 'mediagallery'), $options);
         $mform->addHelpButton('galleryfocus', 'galleryfocus', 'mediagallery');
         $mform->setDefault('galleryfocus', $mg->galleryfocus);
@@ -130,7 +130,7 @@ class mod_mediagallery_gallery_form extends moodleform {
             $mform->hardFreeze('galleryfocus');
         }
 
-        $options = array();
+        $options = [];
         if ($mg->grid) {
             $options[gallery::VIEW_GRID] = get_string('gridview', 'mediagallery');
         }
@@ -147,13 +147,13 @@ class mod_mediagallery_gallery_form extends moodleform {
 
         if (!$mg->enforcedefaults) {
             if (isset($options[gallery::VIEW_GRID])) {
-                $coloptions = array(0 => get_string('automatic', 'mediagallery'), 1 => 1, 2 => 2, 3 => 3, 4 => 4);
+                $coloptions = [0 => get_string('automatic', 'mediagallery'), 1 => 1, 2 => 2, 3 => 3, 4 => 4];
                 $mform->addElement('select', 'gridcolumns', get_string('gridviewcolumns', 'mediagallery'), $coloptions);
                 $mform->disabledIf('gridcolumns', 'galleryview', 'ne', gallery::VIEW_GRID);
                 $mform->setDefault('gridcolumns', $mg->gridcolumns);
 
-                $rowoptions = array(0 => get_string('automatic', 'mediagallery'), 1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5,
-                    6 => 6, 7 => 7, 8 => 8, 9 => 9, 10 => 10);
+                $rowoptions = [0 => get_string('automatic', 'mediagallery'), 1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5,
+                    6 => 6, 7 => 7, 8 => 8, 9 => 9, 10 => 10, ];
                 $mform->addElement('select', 'gridrows', get_string('gridviewrows', 'mediagallery'), $rowoptions);
                 $mform->disabledIf('gridrows', 'galleryview', 'ne', gallery::VIEW_GRID);
                 $mform->setDefault('gridrows', $mg->gridrows);
@@ -175,12 +175,12 @@ class mod_mediagallery_gallery_form extends moodleform {
 
         $mform->addElement('date_time_selector', 'visibleinstructor',
             get_string('visibleinstructor', 'mediagallery'),
-            array('optional' => true));
+            ['optional' => true]);
         $mform->addHelpButton('visibleinstructor', 'visibleinstructor', 'mediagallery');
 
         $mform->addElement('date_time_selector', 'visibleother',
             get_string('visibleother', 'mediagallery'),
-            array('optional' => true));
+            ['optional' => true]);
         $mform->addHelpButton('visibleother', 'visibleother', 'mediagallery');
         $mform->setDefault('visibleother', time());
 
@@ -204,7 +204,7 @@ class mod_mediagallery_gallery_form extends moodleform {
      * @return void
      */
     public function data_preprocessing(&$toform) {
-        $toform['galleryviewoptions'] = array();
+        $toform['galleryviewoptions'] = [];
         $toform['galleryviewoptions']['carousel'] = $toform['carousel'];
         $toform['galleryviewoptions']['grid'] = $toform['grid'];
     }
@@ -234,7 +234,7 @@ class mod_mediagallery_gallery_form extends moodleform {
      * @return array List of errors, if any.
      */
     public function validation($data, $files) {
-        $errors = array();
+        $errors = [];
         $collection = new \mod_mediagallery\collection($data['m']);
         return $errors;
     }

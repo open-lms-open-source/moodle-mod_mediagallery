@@ -25,9 +25,9 @@
 
 namespace mod_mediagallery\privacy;
 
-use \core_privacy\request\approved_contextlist;
-use \core_privacy\request\writer;
-use \core_privacy\metadata\item_collection;
+use core_privacy\request\approved_contextlist;
+use core_privacy\request\writer;
+use core_privacy\metadata\item_collection;
 
 /**
  * Subcontext helper trait.
@@ -42,7 +42,7 @@ trait subcontext_info {
      * @param   \stdClass   $gallery The gallery
      * @return  array
      */
-    protected static function get_gallery_area(\stdClass $gallery) : array {
+    protected static function get_gallery_area(\stdClass $gallery): array {
         $pathparts = [];
 
         $pathparts[] = get_string('areagallery', 'mod_mediagallery');
@@ -56,7 +56,7 @@ trait subcontext_info {
      *
      * @return  array
      */
-    protected static function get_item_area() : array {
+    protected static function get_item_area(): array {
         $pathparts = [
             get_string('areaitem', 'mod_mediagallery'),
         ];

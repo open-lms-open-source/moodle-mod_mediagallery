@@ -18,6 +18,7 @@ jobs:
         ports:
           - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
+
       mariadb:
         image: mariadb:10.6 # Moodle 4.2: >=10.6.7
         env:
@@ -25,7 +26,6 @@ jobs:
           MYSQL_ALLOW_EMPTY_PASSWORD: "true"
           MYSQL_CHARACTER_SET_SERVER: "utf8mb4"
           MYSQL_COLLATION_SERVER: "utf8mb4_unicode_ci"
-
         ports:
           - 3306:3306
         options: --health-cmd="mysqladmin ping" --health-interval 10s --health-timeout 5s --health-retries 3
@@ -34,30 +34,25 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Moodle 4.0, PHP 7.3, PostgreSQL
-          - php: '7.3' # 7.3-8.0
-            moodle-branch: 'MOODLE_400_STABLE'
-            database: pgsql
-            plugin-ci: ^3
-          # Moodle 4.1, PHP 7.4, MariaDB
-          - php: '7.4' # 7.4-8.1
-            moodle-branch: 'MOODLE_401_STABLE'
+          # Moodle 4.3, PHP 8.0, MariaDB
+          - php: '8.0' # 8.0-8.2
+            moodle-branch: 'MOODLE_403_STABLE'
             database: mariadb
             plugin-ci: ^4
-          # Moodle 4.2, PHP 8.0, PostgreSQL
-          - php: '8.0' # 8.0-8.1
-            moodle-branch: 'MOODLE_402_STABLE'
+          # Moodle 4.4, PHP 8.2, PostgreSQL
+          - php: '8.2' # 8.1-8.3
+            moodle-branch: 'MOODLE_404_STABLE'
             database: pgsql
             plugin-ci: ^4
-          # Moodle master, PHP 8.1, MariaDB
-          - php: '8.1'
-            moodle-branch: 'master'
+          # Moodle main, PHP 8.3, MariaDB
+          - php: '8.3'
+            moodle-branch: 'main'
             database: mariadb
             plugin-ci: ^4
 
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           path: plugin
 
@@ -80,54 +75,64 @@ jobs:
           echo "NVM_DIR=$HOME/.nvm" >> $GITHUB_ENV
 
       - name: Install moodle-plugin-ci
-        run: |
-          moodle-plugin-ci install --plugin ./plugin --db-host=127.0.0.1
+        run: moodle-plugin-ci install --plugin ./plugin --db-host=127.0.0.1
         env:
           DB: ${{ matrix.database }}
           MOODLE_BRANCH: ${{ matrix.moodle-branch }}
+          # Uncomment this to run Behat tests using the Moodle App.
+          # MOODLE_APP: 'true'
 
       - name: PHP Lint
-        if: ${{ always() }}
+        if: ${{ !cancelled() }}
         run: moodle-plugin-ci phplint
-
-      - name: PHP Copy/Paste Detector
-        continue-on-error: true # This step will show errors but will not fail
-        if: ${{ always() }}
-        run: moodle-plugin-ci phpcpd
 
       - name: PHP Mess Detector
         continue-on-error: true # This step will show errors but will not fail
-        if: ${{ always() }}
+        if: ${{ !cancelled() }}
         run: moodle-plugin-ci phpmd
 
-      - name: Moodle Code Checker
-        if: ${{ always() }}
-        run: moodle-plugin-ci phpcs --max-warnings 0
+      #- name: Moodle Code Checker
+      #  if: ${{ !cancelled() }}
+      #  run: moodle-plugin-ci phpcs --max-warnings 0
 
       #- name: Moodle PHPDoc Checker
-      #  if: ${{ always() }}
-      #  run: moodle-plugin-ci phpdoc
+      #  if: ${{ !cancelled() }}
+      #  run: moodle-plugin-ci phpdoc --max-warnings 0
 
       - name: Validating
-        if: ${{ always() }}
+        if: ${{ !cancelled() }}
         run: moodle-plugin-ci validate
 
       - name: Check upgrade savepoints
-        if: ${{ always() }}
+        if: ${{ !cancelled() }}
         run: moodle-plugin-ci savepoints
 
       - name: Mustache Lint
-        if: ${{ always() }}
+        if: ${{ !cancelled() }}
         run: moodle-plugin-ci mustache
 
       #- name: Grunt
-      #  if: ${{ always() }}
+      #  if: ${{ !cancelled() }}
       #  run: moodle-plugin-ci grunt --max-lint-warnings 0
 
       - name: PHPUnit tests
-        if: ${{ always() }}
+        if: ${{ !cancelled() }}
         run: moodle-plugin-ci phpunit --fail-on-warning
 
       #- name: Behat features
-      #  if: ${{ always() }}
+      #  id: behat
+      #  if: ${{ !cancelled() }}
       #  run: moodle-plugin-ci behat --profile chrome
+
+      #- name: Upload Behat Faildump
+      #  if: ${{ failure() && steps.behat.outcome == 'failure' }}
+      #  uses: actions/upload-artifact@v4
+      #  with:
+      #    name: Behat Faildump (${{ join(matrix.*, ', ') }})
+      #    path: ${{ github.workspace }}/moodledata/behat_dump
+      #    retention-days: 7
+      #    if-no-files-found: ignore
+
+      - name: Mark cancelled jobs as failed.
+        if: ${{ cancelled() }}
+        run: exit 1

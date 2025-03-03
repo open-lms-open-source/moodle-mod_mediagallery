@@ -65,7 +65,7 @@ class gallery_updated extends \core\event\base {
      * @return \moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/mod/mediagallery/view.php', array('g' => $this->objectid));
+        return new \moodle_url('/mod/mediagallery/view.php', ['g' => $this->objectid]);
     }
 
 }

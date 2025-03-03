@@ -56,11 +56,11 @@ class MoodleQuickForm_limitedurl extends MoodleQuickForm_url {
         $args->client_id = $clientid;
         $args->env = 'url';
 
-        $refrepos = repository::get_instances(array(
+        $refrepos = repository::get_instances([
             'currentcontext' => $PAGE->context,
             'return_types' => FILE_EXTERNAL,
-        ));
-        $disabled = array();
+        ]);
+        $disabled = [];
         foreach ($refrepos as $repo) {
             if (($name = $repo->get_typename()) != $this->_options['repo']) {
                 $disabled[] = $name;
@@ -86,9 +86,9 @@ EOD;
         $module = [
             'name' => 'form_url',
             'fullpath' => '/lib/form/url.js',
-            'requires' => ['core_filepicker']
+            'requires' => ['core_filepicker'],
         ];
-        $PAGE->requires->js_init_call('M.form_url.init', array($options), true, $module);
+        $PAGE->requires->js_init_call('M.form_url.init', [$options], true, $module);
 
         return $str;
     }
