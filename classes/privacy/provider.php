@@ -386,13 +386,14 @@ class provider implements
 
         $galleryidsql = "SELECT g.id
                          FROM {mediagallery_gallery} g
-                         WHERE userid = :userid AND instanceid = :instanceid";
+                         WHERE userid = :guserid AND instanceid = :instanceid1";
         $itemidsql = "SELECT i.id
                       FROM {mediagallery_item} i
-                      WHERE userid = :userid AND galleryid IN (
+                      WHERE galleryid IN ($galleryidsql)
+                      OR userid = :iuserid AND galleryid IN (
                         SELECT id
                         FROM {mediagallery_gallery}
-                        WHERE instanceid = :instanceid
+                        WHERE instanceid = :instanceid2
                       )";
         foreach ($contextlist->get_contexts() as $context) {
             if (!$context instanceof \context_module) {
@@ -400,25 +401,29 @@ class provider implements
             }
             $instanceid = $DB->get_field('course_modules', 'instance', ['id' => $context->instanceid], MUST_EXIST);
 
-            $params = [
-                'userid' => $userid,
-                'instanceid' => $instanceid,
-            ];
+            $gparams = ['guserid' => $userid, 'instanceid1' => $instanceid];
+            $iparams = ['guserid' => $userid, 'instanceid1' => $instanceid,
+                        'iuserid' => $userid, 'instanceid2' => $instanceid];
 
-            $fs->delete_area_files_select($context->id, 'mod_mediagallery', 'item', "IN ($itemidsql)", $params);
-            $fs->delete_area_files_select($context->id, 'mod_mediagallery', 'lowres', "IN ($itemidsql)", $params);
-            $fs->delete_area_files_select($context->id, 'mod_mediagallery', 'thumbnail', "IN ($itemidsql)", $params);
+            $fs->delete_area_files_select($context->id, 'mod_mediagallery', 'item', "IN ($itemidsql)", $iparams);
+            $fs->delete_area_files_select($context->id, 'mod_mediagallery', 'lowres', "IN ($itemidsql)", $iparams);
+            $fs->delete_area_files_select($context->id, 'mod_mediagallery', 'thumbnail', "IN ($itemidsql)", $iparams);
 
             \core_tag\privacy\provider::delete_item_tags_select($context, 'mod_mediagallery', 'gallery',
-                "IN ($galleryidsql)", $params);
+                "IN ($galleryidsql)", $gparams);
             \core_tag\privacy\provider::delete_item_tags_select($context, 'mod_mediagallery', 'item',
-                "IN ($itemidsql)", $params);
+                "IN ($itemidsql)", $iparams);
+
+            \core_comment\privacy\provider::delete_comments_for_all_users_select($context, 'mod_mediagallery',
+                                                                    'gallery', "IN ($galleryidsql)", $gparams);
+            \core_comment\privacy\provider::delete_comments_for_all_users_select($context, 'mod_mediagallery',
+                                                                    'item', "IN ($itemidsql)", $iparams);
 
             // We delete these last as the deletes above depend on these records.
 
-            $DB->delete_records_select('mediagallery_userfeedback', "itemid IN ($itemidsql)", $params);
-            $DB->delete_records_select('mediagallery_item', "galleryid IN ($galleryidsql)", $params);
-            $DB->delete_records('mediagallery_gallery', $params);
+            $DB->delete_records_select('mediagallery_userfeedback', "itemid IN ($itemidsql)", $iparams);
+            $DB->delete_records_select('mediagallery_item', "id IN ($itemidsql)", $iparams);
+            $DB->delete_records('mediagallery_gallery', ['userid' => $userid, 'instanceid' => $instanceid]);
         }
 
         \core_comment\privacy\provider::delete_comments_for_user($contextlist, 'mod_mediagallery', 'gallery');
@@ -495,37 +500,46 @@ class provider implements
             return;
         }
 
-        list($insql, $inparams) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
+        list($ginsql, $ginparams) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED, 'guserid');
+        list($iinsql, $iinparams) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED, 'iuserid');
 
         $fs = get_file_storage();
 
         $galleryidsql = "SELECT g.id
                          FROM {mediagallery_gallery} g
-                         WHERE userid $insql AND instanceid = :instanceid";
+                         WHERE userid $ginsql AND instanceid = :instanceid1";
         $itemidsql = "SELECT i.id
                       FROM {mediagallery_item} i
-                      WHERE userid $insql AND galleryid IN (
+                      WHERE galleryid IN ($galleryidsql)
+                      OR userid $iinsql AND galleryid IN (
                         SELECT id
                         FROM {mediagallery_gallery}
-                        WHERE instanceid = :instanceid
+                        WHERE instanceid = :instanceid2
                       )";
 
-        $params = array_merge(['instanceid' => $instanceid], $inparams);
+        $gparams = array_merge(['instanceid1' => $instanceid], $ginparams);
+        $iparams = array_merge(['instanceid1' => $instanceid], $ginparams,
+                               ['instanceid2' => $instanceid], $iinparams);
 
-        $fs->delete_area_files_select($context->id, 'mod_mediagallery', 'item', "IN ($itemidsql)", $params);
-        $fs->delete_area_files_select($context->id, 'mod_mediagallery', 'lowres', "IN ($itemidsql)", $params);
-        $fs->delete_area_files_select($context->id, 'mod_mediagallery', 'thumbnail', "IN ($itemidsql)", $params);
+        $fs->delete_area_files_select($context->id, 'mod_mediagallery', 'item', "IN ($itemidsql)", $iparams);
+        $fs->delete_area_files_select($context->id, 'mod_mediagallery', 'lowres', "IN ($itemidsql)", $iparams);
+        $fs->delete_area_files_select($context->id, 'mod_mediagallery', 'thumbnail', "IN ($itemidsql)", $iparams);
 
         \core_tag\privacy\provider::delete_item_tags_select($context, 'mod_mediagallery', 'gallery',
-            "IN ($galleryidsql)", $params);
+            "IN ($galleryidsql)", $gparams);
         \core_tag\privacy\provider::delete_item_tags_select($context, 'mod_mediagallery', 'item',
-            "IN ($itemidsql)", $params);
+            "IN ($itemidsql)", $iparams);
+
+        \core_comment\privacy\provider::delete_comments_for_all_users_select($context, 'mod_mediagallery',
+                                                                'gallery', "IN ($galleryidsql)", $gparams);
+        \core_comment\privacy\provider::delete_comments_for_all_users_select($context, 'mod_mediagallery',
+                                                                'item', "IN ($itemidsql)", $iparams);
 
         // We delete these last as the deletes above depend on these records.
 
-        $DB->delete_records_select('mediagallery_userfeedback', "itemid IN ($itemidsql)", $params);
-        $DB->delete_records_select('mediagallery_item', "galleryid IN ($galleryidsql)", $params);
-        $DB->delete_records('mediagallery_gallery', $params);
+        $DB->delete_records_select('mediagallery_userfeedback', "itemid IN ($itemidsql)", $iparams);
+        $DB->delete_records_select('mediagallery_item', "id IN ($itemidsql)", $iparams);
+        $DB->delete_records_select('mediagallery_gallery', "userid $ginsql AND instanceid = :instanceid1", $gparams);
 
         \core_comment\privacy\provider::delete_comments_for_users($userlist, 'mod_mediagallery', 'gallery');
         \core_comment\privacy\provider::delete_comments_for_users($userlist, 'mod_mediagallery', 'item');
