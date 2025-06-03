@@ -36,6 +36,7 @@ class restore_mediagallery_activity_structure_step extends restore_activity_stru
 
         $paths = array();
         $userinfo = $this->get_setting_value('userinfo');
+        $includecomments = $this->get_setting_value('comments');
 
         $mediagallery = new restore_path_element('mediagallery', '/activity/mediagallery');
         $paths[] = $mediagallery;
@@ -50,6 +51,13 @@ class restore_mediagallery_activity_structure_step extends restore_activity_stru
             $userfeedback = new restore_path_element('mediagallery_userfeedback',
                 '/activity/mediagallery/gallerys/gallery/items/item/userfeedback/feedback');
             $paths[] = $userfeedback;
+
+            if ($includecomments) {
+                $paths[] = new restore_path_element('mediagallery_gcomment',
+                    '/activity/mediagallery/gallerys/gallery/gallerycomments/gallerycomment');
+                $paths[] = new restore_path_element('mediagallery_icomment',
+                    '/activity/mediagallery/gallerys/gallery/items/item/itemcomments/itemcomment');
+            }
 
             $paths[] = new restore_path_element('mediagallery_ctag', '/activity/mediagallery/collectiontags/collectiontag');
             $paths[] = new restore_path_element('mediagallery_gtag',
@@ -125,6 +133,46 @@ class restore_mediagallery_activity_structure_step extends restore_activity_stru
         }
         $newitemid = $DB->insert_record('mediagallery_item', $data);
         $this->set_mapping('mediagallery_item', $oldid, $newitemid, true);
+    }
+
+    /**
+     * Process a gallery comment.
+     *
+     * @param object|array $data
+     * @return void
+     */
+    protected function process_mediagallery_gcomment($data): void {
+        global $DB;
+
+        $data = (object)$data;
+        $oldid = $data->id;
+
+        $data->itemid = $this->get_new_parentid('mediagallery_gallery');
+        $data->timecreated = $this->apply_date_offset($data->timecreated);
+        $data->userid = $this->get_mappingid('user', $data->userid);
+        $data->contextid = $this->get_mappingid('context', $data->contextid);
+        $newcommentid = $DB->insert_record('comments', $data);
+        $this->set_mapping('comments', $oldid, $newcommentid, true);
+    }
+
+    /**
+     * Process an item comment.
+     *
+     * @param object|array $data
+     * @return void
+     */
+    protected function process_mediagallery_icomment($data): void {
+        global $DB;
+
+        $data = (object)$data;
+        $oldid = $data->id;
+
+        $data->itemid = $this->get_new_parentid('mediagallery_item');
+        $data->timecreated = $this->apply_date_offset($data->timecreated);
+        $data->userid = $this->get_mappingid('user', $data->userid);
+        $data->contextid = $this->get_mappingid('context', $data->contextid);
+        $newcommentid = $DB->insert_record('comments', $data);
+        $this->set_mapping('comments', $oldid, $newcommentid, true);
     }
 
     protected function process_mediagallery_ctag($data) {

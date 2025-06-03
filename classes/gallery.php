@@ -81,23 +81,39 @@ class gallery extends base {
         $newgalleryrecord->userid = $USER->id;
         $newgalleryrecord->groupid = 0;
 
-        $newgallery = self::create($newgalleryrecord);
+        $newgallery = self::create($newgalleryrecord, ['nocompletionupdate' => true]);
+        $completionupdateuserids = [];
+        if ($newgallery->record->userid) {
+            $completionupdateuserids[$newgallery->record->userid] = true;
+        }
 
         $thumbnail = 0;
         foreach ($this->get_items() as $item) {
-            $newitem = $item->copy($newgallery->id);
+            $newitem = $item->copy($newgallery->id, ['nocompletionupdate' => true]);
             if ($item->id == $newgallery->thumbnail) {
                 $thumbnail = $newitem->id;
+            }
+            if ($newitem->record->userid) {
+                $completionupdateuserids[$newitem->record->userid] = true;
             }
         }
 
         // Update thumbnail.
         $DB->set_field('mediagallery_gallery', 'thumbnail', $thumbnail, array('id' => $newgallery->id));
 
+        // Update completion state.
+        $cm = get_coursemodule_from_instance('mediagallery', $newgallery->record->instanceid);
+        $completion = new \completion_info(get_course($cm->course));
+        if ($completion->is_enabled($cm) == COMPLETION_TRACKING_AUTOMATIC) {
+            foreach ($completionupdateuserids as $userid => $needschange) {
+                $completion->update_state($cm, COMPLETION_COMPLETE, $userid);
+            }
+        }
+
         return true;
     }
 
-    public static function create(\stdClass $data) {
+    public static function create(\stdClass $data, array $options = []) {
         if ($data->mode == 'youtube') {
             $data->galleryfocus = self::TYPE_VIDEO;
         }
@@ -105,6 +121,15 @@ class gallery extends base {
             $data->groupid = 0;
         }
         $result = parent::create($data);
+
+        // Update completion state.
+        if (empty($options['nocompletionupdate']) && $result->record->userid) {
+            $cm = get_coursemodule_from_instance('mediagallery', $result->record->instanceid);
+            $completion = new \completion_info(get_course($cm->course));
+            if ($completion->is_enabled($cm) == COMPLETION_TRACKING_AUTOMATIC) {
+                $completion->update_state($cm, COMPLETION_COMPLETE, $result->record->userid);
+            }
+        }
 
         $params = array(
             'context' => $result->get_collection()->context,
@@ -138,11 +163,42 @@ class gallery extends base {
         $event->add_record_snapshot('mediagallery_gallery', $this->record);
         $event->trigger();
 
+        // Get users for completion update.
+        $completionupdateparams = ['galleryid1' => $this->record->id, 'galleryid2' => $this->record->id,
+                                    'galleryid3' => $this->record->id, 'galleryid4' => $this->record->id];
+        $completionupdatesql =
+           "   (SELECT DISTINCT mgg.userid
+                FROM {mediagallery_gallery} mgg
+                WHERE mgg.id = :galleryid1 AND mgg.userid <> 0)
+            UNION
+               (SELECT DISTINCT mgi.userid
+                FROM {mediagallery_item} mgi
+                WHERE mgi.galleryid = :galleryid2 AND mgi.userid <> 0)
+            UNION
+               (SELECT DISTINCT c.userid
+                FROM {comments} c
+                LEFT JOIN {mediagallery_item} mgi
+                    ON c.component = 'mod_mediagallery' AND c.commentarea = 'item' AND mgi.id = c.itemid
+                WHERE c.component = 'mod_mediagallery'
+                    AND (c.commentarea = 'gallery' AND c.itemid = :galleryid3
+                        OR c.commentarea = 'item' AND mgi.galleryid = :galleryid4)
+                    AND c.userid <> 0)";
+        $completionupdateuserids = $DB->get_fieldset_sql($completionupdatesql, $completionupdateparams);
+
         // Delete all items and then the gallery.
         item::delete_all_by_gallery($this->record->id);
         \comment::delete_comments(array('commentarea' => 'gallery', 'itemid' => $this->record->id));
 
         parent::delete();
+
+        // Update completion state.
+        $cm = get_coursemodule_from_instance('mediagallery', $this->record->instanceid);
+        $completion = new \completion_info(get_course($cm->course));
+        if ($completion->is_enabled($cm) == COMPLETION_TRACKING_AUTOMATIC) {
+            foreach ($completionupdateuserids as $userid) {
+                $completion->update_state($cm, COMPLETION_INCOMPLETE, $userid);
+            }
+        }
 
         return true;
     }

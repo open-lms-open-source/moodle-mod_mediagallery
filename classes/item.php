@@ -67,12 +67,12 @@ class item extends base {
         }
     }
 
-    public function copy($targetid) {
+    public function copy($targetid, array $options = []) {
         $newitemrecord = clone $this->record;
         unset($newitemrecord->id);
         $newitemrecord->galleryid = $targetid;
 
-        $newitem = self::create($newitemrecord);
+        $newitem = self::create($newitemrecord, ['nocompletionupdate' => true]);
 
         $fs = get_file_storage();
         if ($file = $this->get_file()) { // Item.
@@ -96,10 +96,21 @@ class item extends base {
             );
             $fs->create_file_from_storedfile($fileinfo, $file);
         }
+
+        // Update completion state.
+        if (empty($options['nocompletionupdate']) && $newitem->record->userid) {
+            $gallery = $newitem->gallery ?? new gallery($newitem->record->galleryid);
+            $cm = get_coursemodule_from_instance('mediagallery', $gallery->record->instanceid);
+            $completion = new \completion_info(get_course($cm->course));
+            if ($completion->is_enabled($cm) == COMPLETION_TRACKING_AUTOMATIC) {
+                $completion->update_state($cm, COMPLETION_COMPLETE, $newitem->record->userid);
+            }
+        }
+
         return $newitem;
     }
 
-    public static function create(\stdClass $data) {
+    public static function create(\stdClass $data, array $options = []) {
         global $DB, $USER;
         foreach (static::$defaultvalues as $key => $val) {
             if (!isset($data->$key)) {
@@ -118,6 +129,16 @@ class item extends base {
             $DB->execute($sql, array('item' => $result->id, 'galleryid' => $result->galleryid));
         }
 
+        // Update completion state.
+        if (empty($options['nocompletionupdate']) && $result->record->userid) {
+            $gallery = $result->gallery ?? new gallery($result->record->galleryid);
+            $cm = get_coursemodule_from_instance('mediagallery', $gallery->record->instanceid);
+            $completion = new \completion_info(get_course($cm->course));
+            if ($completion->is_enabled($cm) == COMPLETION_TRACKING_AUTOMATIC) {
+                $completion->update_state($cm, COMPLETION_COMPLETE, $result->record->userid);
+            }
+        }
+
         $params = array(
             'context' => $result->get_context(),
             'objectid' => $result->id,
@@ -133,7 +154,7 @@ class item extends base {
     }
 
     public static function create_from_archive(gallery $gallery, \stored_file $storedfile, $formdata = array()) {
-        global $DB;
+        global $DB, $USER;
         $context = $gallery->get_collection()->context;
 
         $maxitems = $gallery->get_collection()->maxitems;
@@ -182,7 +203,7 @@ class item extends base {
                 $data->thumbnail = 1;
                 $count = 0;
             }
-            $item = self::create($data);
+            $item = self::create($data, ['nocompletionupdate' => true]);
 
             // Copy the file into the correct area.
             $fileinfo = array(
@@ -201,6 +222,16 @@ class item extends base {
             $count++;
         }
         $fs->delete_area_files($context->id, 'mod_mediagallery', 'unpacktemp', 0);
+
+        // Update completion state.
+        if ($USER->id) {
+            $cm = get_coursemodule_from_instance('mediagallery', $gallery->record->instanceid);
+            $completion = new \completion_info(get_course($cm->course));
+            if ($completion->is_enabled($cm) == COMPLETION_TRACKING_AUTOMATIC) {
+                $completion->update_state($cm, COMPLETION_COMPLETE, $USER->id);
+            }
+        }
+
     }
 
     /**
@@ -223,6 +254,19 @@ class item extends base {
         $event->add_record_snapshot('mediagallery_item', $this->record);
         $event->trigger();
 
+        // Get users for completion update.
+        $completionupdateparams = ['itemid1' => $this->record->id, 'itemid2' => $this->record->id];
+        $completionupdatesql =
+           "   (SELECT DISTINCT mgi.userid
+                FROM {mediagallery_item} mgi
+                WHERE mgi.id = :itemid1 AND mgi.userid <> 0)
+            UNION
+               (SELECT DISTINCT c.userid
+                FROM {comments} c
+                WHERE c.component = 'mod_mediagallery' AND c.commentarea = 'item' AND c.itemid = :itemid2
+                    AND c.userid <> 0)";
+        $completionupdateuserids = $DB->get_fieldset_sql($completionupdatesql, $completionupdateparams);
+
         $fs = get_file_storage();
         $fs->delete_area_files($this->get_context()->id, 'mod_mediagallery', 'item', $this->record->id);
         $fs->delete_area_files($this->get_context()->id, 'mod_mediagallery', 'lowres', $this->record->id);
@@ -231,7 +275,21 @@ class item extends base {
         $DB->delete_records('mediagallery_userfeedback', array('itemid' => $this->record->id));
         \comment::delete_comments(array('commentarea' => 'item', 'itemid' => $this->record->id));
 
-        return parent::delete();
+        $result = parent::delete();
+
+        // Update completion state.
+        if (empty($options['nocompletionupdate'])) {
+            $gallery = $this->gallery ?? new gallery($this->record->galleryid);
+            $cm = get_coursemodule_from_instance('mediagallery', $gallery->record->instanceid);
+            $completion = new \completion_info(get_course($cm->course));
+            if ($completion->is_enabled($cm) == COMPLETION_TRACKING_AUTOMATIC) {
+                foreach ($completionupdateuserids as $userid) {
+                    $completion->update_state($cm, COMPLETION_INCOMPLETE, $userid);
+                }
+            }
+        }
+
+        return $result;
     }
 
     public static function delete_all_by_gallery($galleryid) {
@@ -259,6 +317,10 @@ class item extends base {
                 )";
         $DB->execute($sql, array('galleryid' => $galleryid));
         $DB->delete_records('mediagallery_item', array('galleryid' => $galleryid));
+
+        // We don't need to update completion state here,
+        // because this function is only called from gallery::delete, which takes care of it.
+
         return true;
     }
 

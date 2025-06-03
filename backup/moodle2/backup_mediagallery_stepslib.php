@@ -32,6 +32,7 @@ class backup_mediagallery_activity_structure_step extends backup_activity_struct
 
         // To know if we are including userinfo.
         $userinfo = $this->get_setting_value('userinfo');
+        $includecomments = $this->get_setting_value('comments');
 
         // Define each element separated.
         $mediagallery = new backup_nested_element('mediagallery', array('id'), array(
@@ -40,7 +41,9 @@ class backup_mediagallery_activity_structure_step extends backup_activity_struct
             'captionposition', 'galleryfocus', 'carousel', 'grid', 'gridrows',
             'gridcolumns', 'enforcedefaults', 'readonlyfrom', 'readonlyto',
             'maxbytes', 'maxitems', 'maxgalleries', 'allowcomments', 'allowlikes',
-            'colltype', 'objectid', 'source', 'mode', 'creator', 'userid',
+            'colltype',
+            'completiongalleries', 'completionitems', 'completioncomments',
+            'objectid', 'source', 'mode', 'creator', 'userid',
         ));
 
         $userfeedbacks = new backup_nested_element('userfeedback');
@@ -63,6 +66,16 @@ class backup_mediagallery_activity_structure_step extends backup_activity_struct
             'timecreated', 'broadcaster', 'objectid', 'source', 'processing_status', 'creator',
         ));
 
+        $gcomments = new backup_nested_element('gallerycomments');
+        $gcomment = new backup_nested_element('gallerycomment', ['id'], [
+            'contextid', 'component', 'commentarea', 'itemid', 'content', 'format', 'userid', 'timecreated',
+        ]);
+
+        $icomments = new backup_nested_element('itemcomments');
+        $icomment = new backup_nested_element('itemcomment', ['id'], [
+            'contextid', 'component', 'commentarea', 'itemid', 'content', 'format', 'userid', 'timecreated',
+        ]);
+
         $ctags = new backup_nested_element('collectiontags');
         $ctag = new backup_nested_element('collectiontag', array('id'), array('itemid', 'rawname'));
 
@@ -80,12 +93,16 @@ class backup_mediagallery_activity_structure_step extends backup_activity_struct
 
         $gallerys->add_child($gallery);
         $gallery->add_child($items);
+        $gallery->add_child($gcomments);
+        $gcomments->add_child($gcomment);
         $gallery->add_child($gtags);
         $gtags->add_child($gtag);
 
         $items->add_child($item);
         $userfeedbacks->add_child($userfeedback);
         $item->add_child($userfeedbacks);
+        $item->add_child($icomments);
+        $icomments->add_child($icomment);
         $item->add_child($itags);
         $itags->add_child($itag);
 
@@ -97,6 +114,17 @@ class backup_mediagallery_activity_structure_step extends backup_activity_struct
             $gallery->set_source_table('mediagallery_gallery', array('instanceid' => backup::VAR_PARENTID));
             $item->set_source_table('mediagallery_item', array('galleryid' => backup::VAR_PARENTID));
             $userfeedback->set_source_table('mediagallery_userfeedback', array('itemid' => backup::VAR_PARENTID));
+
+            if ($includecomments) {
+                $gcomment->set_source_table('comments', [
+                                                        'contextid' => backup::VAR_CONTEXTID,
+                                                        'commentarea' => backup_helper::is_sqlparam('gallery'),
+                                                        'itemid' => backup::VAR_PARENTID]);
+                $icomment->set_source_table('comments', [
+                                                        'contextid' => backup::VAR_CONTEXTID,
+                                                        'commentarea' => backup_helper::is_sqlparam('item'),
+                                                        'itemid' => backup::VAR_PARENTID]);
+            }
 
             if (core_tag_tag::is_enabled('mod_mediagallery', 'mediagallery')) {
                 $ctag->set_source_sql('SELECT t.id, ti.itemid, t.rawname
@@ -143,6 +171,9 @@ class backup_mediagallery_activity_structure_step extends backup_activity_struct
         $userfeedback->annotate_ids('user', 'userid');
         $gallery->annotate_ids('user', 'userid');
         $item->annotate_ids('user', 'userid');
+
+        $gcomment->annotate_ids('user', 'userid');
+        $icomment->annotate_ids('user', 'userid');
 
         // Return the root element (mediagallery), wrapped into standard activity structure.
         return $this->prepare_activity_structure($mediagallery);

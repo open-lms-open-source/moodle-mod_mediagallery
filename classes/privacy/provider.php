@@ -332,13 +332,37 @@ class provider implements
      * @param \context $context the context to delete in.
      */
     public static function delete_data_for_all_users_in_context(\context $context) {
-        global $DB;
+        global $CFG, $DB;
+        require_once($CFG->libdir . '/completionlib.php');
 
         if (!$context instanceof \context_module) {
             return;
         }
 
         $instanceid = $DB->get_field('course_modules', 'instance', ['id' => $context->instanceid], MUST_EXIST);
+
+        // Get users for completion update.
+        $completionupdateparams = ['instanceid1' => $instanceid, 'instanceid2' => $instanceid, 'instanceid3' => $instanceid];
+        $completionupdatesql =
+           "   (SELECT DISTINCT mgg.userid
+                FROM {mediagallery_gallery} mgg
+                WHERE mgg.instanceid = :instanceid1 AND mgg.userid <> 0)
+            UNION
+               (SELECT DISTINCT mgi.userid
+                FROM {mediagallery_item} mgi
+                JOIN {mediagallery_gallery} mgg ON mgg.id = mgi.galleryid
+                WHERE mgg.instanceid = :instanceid2 AND mgi.userid <> 0)
+            UNION
+               (SELECT DISTINCT c.userid
+                FROM {comments} c
+                LEFT JOIN {mediagallery_item} mgi
+                    ON c.component = 'mod_mediagallery' AND c.commentarea = 'item' AND mgi.id = c.itemid
+                JOIN {mediagallery_gallery} mgg
+                    ON c.component = 'mod_mediagallery'
+                        AND (c.commentarea = 'gallery' AND mgg.id = c.itemid
+                            OR c.commentarea = 'item' AND mgg.id = mgi.galleryid)
+                WHERE c.component = 'mod_mediagallery' AND mgg.instanceid = :instanceid3 AND c.userid <> 0)";
+        $completionupdateuserids = $DB->get_fieldset_sql($completionupdatesql, $completionupdateparams);
 
         $DB->delete_records_select('mediagallery_userfeedback',
             "itemid IN (
@@ -367,6 +391,15 @@ class provider implements
 
         \core_tag\privacy\provider::delete_item_tags($context, 'mod_mediagallery', 'mediagallery_gallery');
         \core_tag\privacy\provider::delete_item_tags($context, 'mod_mediagallery', 'mediagallery_item');
+
+        // Update completion state.
+        $cm = get_coursemodule_from_instance('mediagallery', $instanceid);
+        $completion = new \completion_info(get_course($cm->course));
+        if ($completion->is_enabled($cm) == COMPLETION_TRACKING_AUTOMATIC) {
+            foreach ($completionupdateuserids as $userid) {
+                $completion->update_state($cm, COMPLETION_INCOMPLETE, $userid);
+            }
+        }
     }
 
     /**
@@ -375,7 +408,8 @@ class provider implements
      * @param approved_contextlist $contextlist a list of contexts approved for deletion.
      */
     public static function delete_data_for_user(approved_contextlist $contextlist) {
-        global $DB;
+        global $CFG, $DB;
+        require_once($CFG->libdir . '/completionlib.php');
 
         if (empty($contextlist->count())) {
             return;
@@ -384,6 +418,26 @@ class provider implements
         $userid = $contextlist->get_user()->id;
         $fs = get_file_storage();
 
+        $completionupdatesql =
+           "   (SELECT DISTINCT mgg.userid
+                FROM {mediagallery_gallery} mgg
+                WHERE mgg.instanceid = :instanceid1 AND mgg.userid = :guserid)
+            UNION
+               (SELECT DISTINCT mgi.userid
+                FROM {mediagallery_item} mgi
+                JOIN {mediagallery_gallery} mgg ON mgg.id = mgi.galleryid
+                WHERE mgg.instanceid = :instanceid2 AND (mgg.userid = :guserid2 OR mgi.userid = :iuserid))
+            UNION
+               (SELECT DISTINCT c.userid
+                FROM {comments} c
+                LEFT JOIN {mediagallery_item} mgi
+                    ON c.component = 'mod_mediagallery' AND c.commentarea = 'item' AND mgi.id = c.itemid
+                JOIN {mediagallery_gallery} mgg
+                    ON c.component = 'mod_mediagallery'
+                        AND (c.commentarea = 'gallery' AND mgg.id = c.itemid
+                            OR c.commentarea = 'item' AND mgg.id = mgi.galleryid)
+                WHERE c.component = 'mod_mediagallery' AND mgg.instanceid = :instanceid3
+                    AND (mgg.userid = :guserid3 OR mgi.userid = :iuserid2 OR c.userid = :cuserid))";
         $galleryidsql = "SELECT g.id
                          FROM {mediagallery_gallery} g
                          WHERE userid = :userid AND instanceid = :instanceid";
@@ -400,6 +454,14 @@ class provider implements
             }
             $instanceid = $DB->get_field('course_modules', 'instance', ['id' => $context->instanceid], MUST_EXIST);
 
+            // Get users for completion update.
+            $completionupdateparams = [
+                'instanceid1' => $instanceid, 'guserid' => $userid,
+                'instanceid2' => $instanceid, 'guserid2' => $userid, 'iuserid' => $userid,
+                'instanceid3' => $instanceid, 'guserid3' => $userid, 'iuserid2' => $userid, 'cuserid' => $userid,
+            ];
+            $completionupdateuserids = $DB->get_fieldset_sql($completionupdatesql, $completionupdateparams);
+
             $params = [
                 'userid' => $userid,
                 'instanceid' => $instanceid,
@@ -414,15 +476,27 @@ class provider implements
             \core_tag\privacy\provider::delete_item_tags_select($context, 'mod_mediagallery', 'item',
                 "IN ($itemidsql)", $params);
 
+            $singlecontextlist = new approved_contextlist($contextlist->get_user(), 'mod_mediagallery', [$context->id]);
+            \core_comment\privacy\provider::delete_comments_for_user($singlecontextlist, 'mod_mediagallery', 'gallery');
+            \core_comment\privacy\provider::delete_comments_for_user($singlecontextlist, 'mod_mediagallery', 'item');
+
             // We delete these last as the deletes above depend on these records.
 
             $DB->delete_records_select('mediagallery_userfeedback', "itemid IN ($itemidsql)", $params);
             $DB->delete_records_select('mediagallery_item', "galleryid IN ($galleryidsql)", $params);
             $DB->delete_records('mediagallery_gallery', $params);
-        }
 
-        \core_comment\privacy\provider::delete_comments_for_user($contextlist, 'mod_mediagallery', 'gallery');
-        \core_comment\privacy\provider::delete_comments_for_user($contextlist, 'mod_mediagallery', 'item');
+            // Update completion state.
+            // TODO: Test.
+            $cm = get_coursemodule_from_instance('mediagallery', $instanceid);
+            $completion = new \completion_info(get_course($cm->course));
+            if ($completion->is_enabled($cm) == COMPLETION_TRACKING_AUTOMATIC) {
+                foreach ($completionupdateuserids as $completionupdateuserid) {
+                    $completion->update_state($cm, COMPLETION_INCOMPLETE, $completionupdateuserid);
+                }
+            }
+
+        }
 
     }
 
@@ -482,7 +556,8 @@ class provider implements
      * @param approved_userlist $userlist The approved context and user information to delete information for.
      */
     public static function delete_data_for_users(approved_userlist $userlist) {
-        global $DB;
+        global $CFG, $DB;
+        require_once($CFG->libdir . '/completionlib.php');
 
         $context = $userlist->get_context();
         if ($context->contextlevel != CONTEXT_MODULE) {
@@ -496,6 +571,40 @@ class provider implements
         }
 
         list($insql, $inparams) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
+        list($ginsql, $ginparams) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED, 'guserid');
+        list($ginsql2, $ginparams2) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED, 'guserid2');
+        list($ginsql3, $ginparams3) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED, 'guserid3');
+        list($iinsql, $iinparams) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED, 'iuserid');
+        list($iinsql2, $iinparams2) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED, 'iuserid2');
+        list($cinsql, $cinparams) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED, 'cuserid');
+
+        // Get users for completion update.
+        $completionupdateparams = array_merge(
+            ['instanceid1' => $instanceid], $ginparams,
+            ['instanceid2' => $instanceid], $ginparams2, $iinparams,
+            ['instanceid3' => $instanceid], $ginparams3, $iinparams2, $cinparams
+        );
+        $completionupdatesql =
+        "   (SELECT DISTINCT mgg.userid
+             FROM {mediagallery_gallery} mgg
+             WHERE mgg.instanceid = :instanceid1 AND mgg.userid $ginsql)
+         UNION
+            (SELECT DISTINCT mgi.userid
+             FROM {mediagallery_item} mgi
+             JOIN {mediagallery_gallery} mgg ON mgg.id = mgi.galleryid
+             WHERE mgg.instanceid = :instanceid2 AND (mgg.userid $ginsql2 OR mgi.userid $iinsql))
+         UNION
+            (SELECT DISTINCT c.userid
+             FROM {comments} c
+             LEFT JOIN {mediagallery_item} mgi
+                 ON c.component = 'mod_mediagallery' AND c.commentarea = 'item' AND mgi.id = c.itemid
+             JOIN {mediagallery_gallery} mgg
+                 ON c.component = 'mod_mediagallery'
+                     AND (c.commentarea = 'gallery' AND mgg.id = c.itemid
+                         OR c.commentarea = 'item' AND mgg.id = mgi.galleryid)
+             WHERE c.component = 'mod_mediagallery' AND mgg.instanceid = :instanceid3
+                AND (mgg.userid $ginsql3 OR mgi.userid $iinsql2 OR c.userid $cinsql))";
+        $completionupdateuserids = $DB->get_fieldset_sql($completionupdatesql, $completionupdateparams);
 
         $fs = get_file_storage();
 
@@ -525,10 +634,20 @@ class provider implements
 
         $DB->delete_records_select('mediagallery_userfeedback', "itemid IN ($itemidsql)", $params);
         $DB->delete_records_select('mediagallery_item', "galleryid IN ($galleryidsql)", $params);
-        $DB->delete_records('mediagallery_gallery', $params);
+        $DB->delete_records_select('mediagallery_gallery', "userid $insql AND instanceid = :instanceid", $params);
 
         \core_comment\privacy\provider::delete_comments_for_users($userlist, 'mod_mediagallery', 'gallery');
         \core_comment\privacy\provider::delete_comments_for_users($userlist, 'mod_mediagallery', 'item');
+
+        // Update completion state.
+        // TODO: Test.
+        $cm = get_coursemodule_from_instance('mediagallery', $instanceid);
+        $completion = new \completion_info(get_course($cm->course));
+        if ($completion->is_enabled($cm) == COMPLETION_TRACKING_AUTOMATIC) {
+            foreach ($completionupdateuserids as $userid) {
+                $completion->update_state($cm, COMPLETION_INCOMPLETE, $userid);
+            }
+        }
     }
 
     protected static function get_mediagallery_id_from_context(\context_module $context) {
