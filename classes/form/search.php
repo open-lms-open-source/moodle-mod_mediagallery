@@ -33,12 +33,12 @@ class search extends \moodleform {
         $mform->addElement('text', 'search', get_string('search'));
         $mform->setType('search', PARAM_TEXT);
 
-        $options = array(
+        $options = [
             \mod_mediagallery\base::TYPE_ALL => get_string('typeall', 'mediagallery'),
             \mod_mediagallery\base::TYPE_IMAGE => get_string('typeimage', 'mediagallery'),
             \mod_mediagallery\base::TYPE_VIDEO => get_string('typevideo', 'mediagallery'),
             \mod_mediagallery\base::TYPE_AUDIO => get_string('typeaudio', 'mediagallery'),
-        );
+        ];
         $mform->addElement('select', 'type', get_string('mediatype', 'mediagallery'), $options);
 
         // Role select dropdown includes all roles, but using course-specific
@@ -51,7 +51,7 @@ class search extends \moodleform {
             $rolenames = role_fix_names(get_roles_used_in_context($context));
         }
         $mform->addElement('select', 'role', get_string('role'),
-                array(0 => get_string('all')) + $rolenames);
+                [0 => get_string('all')] + $rolenames);
 
         // Filter by group.
         $allgroups = groups_get_all_groups($collection->course);
@@ -66,7 +66,7 @@ class search extends \moodleform {
         // Submit button does not use add_action_buttons because that adds
         // another fieldset which causes the CSS style to break in an unfixable
         // way due to fieldset quirks.
-        $group = array();
+        $group = [];
         $group[] = $mform->createElement('submit', 'submitbutton', get_string('filter'));
         $group[] = $mform->createElement('submit', 'resetbutton', get_string('reset'));
         $group[] = $mform->createElement('submit', 'exportbutton', get_string('exportascsv', 'mediagallery'));

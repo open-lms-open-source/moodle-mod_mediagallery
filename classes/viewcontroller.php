@@ -28,7 +28,7 @@ class viewcontroller {
     public $pageurl;
     public $renderer;
 
-    public function __construct($context, $cm, $course, $collection, $gallery, $pageurl, $options = array()) {
+    public function __construct($context, $cm, $course, $collection, $gallery, $pageurl, $options = []) {
         global $PAGE;
         $this->cm = $cm;
         $this->course = $course;
@@ -70,23 +70,23 @@ class viewcontroller {
     }
 
     public function action_search() {
-        $urlparams = array(
+        $urlparams = [
             'search' => optional_param('search', null, PARAM_TEXT),
             'group' => optional_param('group', 0, PARAM_INT),
             'page' => optional_param('page', 1, PARAM_INT),
             'role' => optional_param('role', 0, PARAM_INT),
             'type' => optional_param('type', base::TYPE_ALL, PARAM_INT),
-        );
+        ];
 
         if (optional_param('resetbutton', 0, PARAM_ALPHA)) {
-            redirect(new \moodle_url('/mod/mediagallery/view.php', array('action' => 'search', 'id' => $this->cm->id)));
+            redirect(new \moodle_url('/mod/mediagallery/view.php', ['action' => 'search', 'id' => $this->cm->id]));
         }
 
-        $params = array_merge($urlparams, array(
+        $params = array_merge($urlparams, [
             'collection' => $this->collection,
             'courseid' => $this->course->id,
             'context' => $this->context,
-        ));
+        ]);
 
         $search = new mcsearch($params);
         $results = $search->get_results();
@@ -95,8 +95,8 @@ class viewcontroller {
             return $search->download_csv();
         };
 
-        $form = new form\search(null, array('context' => $this->context, 'collection' => $this->collection),
-            'post', '', array('id' => 'searchform'));
+        $form = new form\search(null, ['context' => $this->context, 'collection' => $this->collection],
+            'post', '', ['id' => 'searchform']);
 
         $pageurl = new \moodle_url('/mod/mediagallery/search.php', $urlparams);
 
@@ -108,10 +108,10 @@ class viewcontroller {
     }
 
     public function action_viewcollection() {
-        $params = array(
+        $params = [
             'context' => $this->context,
             'objectid' => $this->collection->id,
-        );
+        ];
         $event = event\course_module_viewed::create($params);
         $event->add_record_snapshot('course_modules', $this->cm);
         $event->add_record_snapshot('course', $this->course);
@@ -129,10 +129,10 @@ class viewcontroller {
     public function action_viewgallery() {
         global $DB;
         $gallery = $this->gallery;
-        $params = array(
+        $params = [
             'context' => $this->context,
             'objectid' => $this->gallery->id,
-        );
+        ];
         $event = event\gallery_viewed::create($params);
         $event->add_record_snapshot('course_modules', $this->cm);
         $event->add_record_snapshot('course', $this->course);

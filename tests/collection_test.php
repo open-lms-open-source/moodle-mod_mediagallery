@@ -42,12 +42,12 @@ class collection_test extends \advanced_testcase {
     /**
      * @var array List of teacher records.
      */
-    protected $teachers = array();
+    protected $teachers = [];
 
     /**
      * @var array List of student records.
      */
-    protected $students = array();
+    protected $students = [];
 
     /**
      * Setup function - we will create a course and add a mediagallery instance to it.
@@ -63,12 +63,12 @@ class collection_test extends \advanced_testcase {
         $student1 = $this->getDataGenerator()->create_user();
         $student2 = $this->getDataGenerator()->create_user();
 
-        $editingteacherrole = $DB->get_record('role', array('shortname' => 'editingteacher'));
+        $editingteacherrole = $DB->get_record('role', ['shortname' => 'editingteacher']);
         $this->getDataGenerator()->enrol_user($teacher1->id,
                                               $this->course->id,
                                               $editingteacherrole->id);
 
-        $studentrole = $DB->get_record('role', array('shortname' => 'student'));
+        $studentrole = $DB->get_record('role', ['shortname' => 'student']);
         $this->getDataGenerator()->enrol_user($student1->id,
                                               $this->course->id,
                                               $studentrole->id);
@@ -81,46 +81,46 @@ class collection_test extends \advanced_testcase {
         $this->students[] = $student2;
     }
 
-    public function test_user_can_add_children() {
+    public function test_user_can_add_children(): void {
         $options = [
             'colltype' => 'contributed',
             'course' => $this->course->id,
             'groupmode' => VISIBLEGROUPS,
-            'maxgalleries' => 1
+            'maxgalleries' => 1,
         ];
         $record = $this->getDataGenerator()->create_module('mediagallery', $options);
         $collection = new \mod_mediagallery\collection($record);
 
-        $group1 = $this->getDataGenerator()->create_group(array('courseid' => $this->course->id));
-        $group2 = $this->getDataGenerator()->create_group(array('courseid' => $this->course->id));
-        $this->getDataGenerator()->create_group_member((object)array('groupid' => $group1, 'userid' => $this->students[0]->id));
-        $this->getDataGenerator()->create_group_member((object)array('groupid' => $group2, 'userid' => $this->students[0]->id));
-        $this->getDataGenerator()->create_group_member((object)array('groupid' => $group2, 'userid' => $this->students[1]->id));
+        $group1 = $this->getDataGenerator()->create_group(['courseid' => $this->course->id]);
+        $group2 = $this->getDataGenerator()->create_group(['courseid' => $this->course->id]);
+        $this->getDataGenerator()->create_group_member((object)['groupid' => $group1, 'userid' => $this->students[0]->id]);
+        $this->getDataGenerator()->create_group_member((object)['groupid' => $group2, 'userid' => $this->students[0]->id]);
+        $this->getDataGenerator()->create_group_member((object)['groupid' => $group2, 'userid' => $this->students[1]->id]);
 
         $this->assertTrue($collection->user_can_add_children($this->students[0]->id));
         $this->assertTrue($collection->user_can_add_children($this->students[1]->id));
 
         $generator = self::getDataGenerator()->get_plugin_generator('mod_mediagallery');
-        $record = array(
+        $record = [
             'name' => 'Test gallery G1',
             'instanceid' => $collection->id,
             'contributable' => 1,
             'userid' => $this->students[0]->id,
             'groupid' => $group1->id,
-        );
+        ];
         $generator->create_gallery($record);
 
         // Limit is one per group, as both are in group2 which has no gallery yet, they should both still be able to add.
         $this->assertTrue($collection->user_can_add_children($this->students[0]->id));
         $this->assertTrue($collection->user_can_add_children($this->students[1]->id));
 
-        $record = array(
+        $record = [
             'name' => 'Test gallery G2',
             'instanceid' => $collection->id,
             'contributable' => 1,
             'userid' => $this->students[0]->id,
             'groupid' => $group2->id,
-        );
+        ];
         $generator->create_gallery($record);
 
         // Now that group2 has a gallery, neither should be able to add a new gallery.
@@ -128,7 +128,7 @@ class collection_test extends \advanced_testcase {
         $this->assertFalse($collection->user_can_add_children($this->students[1]->id));
 
         // Now test with a non-groupmode collection.
-        $options = array('colltype' => 'contributed', 'course' => $this->course->id, 'groupmode' => NOGROUPS, 'maxgalleries' => 1);
+        $options = ['colltype' => 'contributed', 'course' => $this->course->id, 'groupmode' => NOGROUPS, 'maxgalleries' => 1];
         $record = $this->getDataGenerator()->create_module('mediagallery', $options);
         $collection = new \mod_mediagallery\collection($record);
 
@@ -136,12 +136,12 @@ class collection_test extends \advanced_testcase {
         $this->assertTrue($collection->user_can_add_children($this->students[1]->id));
 
         $generator = self::getDataGenerator()->get_plugin_generator('mod_mediagallery');
-        $record = array(
+        $record = [
             'name' => 'Test gallery G1',
             'instanceid' => $collection->id,
             'contributable' => 1,
             'userid' => $this->students[0]->id,
-        );
+        ];
         $generator->create_gallery($record);
 
         // Limit is one per user, not in groupmode so groups don't matter.

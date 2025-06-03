@@ -35,14 +35,14 @@ class item extends base {
     protected $file = null;
     protected $lowres = null;
     protected $thumbnail = null;
-    protected static $defaultvalues = array(
+    protected static $defaultvalues = [
         'sortorder' => 1000000,
         'display' => 1,
         'moralrights' => 1,
         'productiondate' => '',
-    );
+    ];
 
-    public function __construct($recordorid, $options = array()) {
+    public function __construct($recordorid, $options = []) {
         if (!empty($options['gallery'])) {
             $this->gallery = $options['gallery'];
             unset($options['gallery']);
@@ -76,24 +76,24 @@ class item extends base {
 
         $fs = get_file_storage();
         if ($file = $this->get_file()) { // Item.
-            $fileinfo = array(
+            $fileinfo = [
                 'contextid' => $newitem->get_context()->id,
                 'itemid' => $newitem->id,
-            );
+            ];
             $fs->create_file_from_storedfile($fileinfo, $file);
         }
         if ($file = $this->get_file(true)) { // Thumbnail.
-            $fileinfo = array(
+            $fileinfo = [
                 'contextid' => $newitem->get_context()->id,
                 'itemid' => $newitem->id,
-            );
+            ];
             $fs->create_file_from_storedfile($fileinfo, $file);
         }
         if ($file = $this->get_stored_file_by_type('lowres')) { // Low res version of full image.
-            $fileinfo = array(
+            $fileinfo = [
                 'contextid' => $newitem->get_context()->id,
                 'itemid' => $newitem->id,
-            );
+            ];
             $fs->create_file_from_storedfile($fileinfo, $file);
         }
         return $newitem;
@@ -115,13 +115,13 @@ class item extends base {
             $sql = "UPDATE {mediagallery_gallery}
                     SET thumbnail = :item
                     WHERE id = :galleryid";
-            $DB->execute($sql, array('item' => $result->id, 'galleryid' => $result->galleryid));
+            $DB->execute($sql, ['item' => $result->id, 'galleryid' => $result->galleryid]);
         }
 
-        $params = array(
+        $params = [
             'context' => $result->get_context(),
             'objectid' => $result->id,
-        );
+        ];
         if (!empty($data->nosync)) {
             $params['other']['nosync'] = true;
         }
@@ -132,12 +132,12 @@ class item extends base {
         return $result;
     }
 
-    public static function create_from_archive(gallery $gallery, \stored_file $storedfile, $formdata = array()) {
+    public static function create_from_archive(gallery $gallery, \stored_file $storedfile, $formdata = []) {
         global $DB;
         $context = $gallery->get_collection()->context;
 
         $maxitems = $gallery->get_collection()->maxitems;
-        $count = $DB->count_records('mediagallery_item', array('galleryid' => $gallery->id));
+        $count = $DB->count_records('mediagallery_item', ['galleryid' => $gallery->id]);
         if ($maxitems != 0 && $count >= $maxitems) {
             return;
         }
@@ -164,15 +164,15 @@ class item extends base {
             $data->description = '';
             $data->display = 1;
 
-            $metafields = array(
+            $metafields = [
                 'moralrights' => 1,
                 'originalauthor' => '',
                 'productiondate' => 0,
                 'medium' => '',
                 'publisher' => '',
                 'broadcaster' => '',
-                'reference' => ''
-            );
+                'reference' => '',
+            ];
             foreach ($metafields as $field => $default) {
                 $data->$field = isset($formdata->$field) ? $formdata->$field : $default;
             }
@@ -185,14 +185,14 @@ class item extends base {
             $item = self::create($data);
 
             // Copy the file into the correct area.
-            $fileinfo = array(
+            $fileinfo = [
                 'contextid' => $context->id,
                 'component' => 'mod_mediagallery',
                 'filearea' => 'item',
                 'itemid' => $item->id,
                 'filepath' => '/',
-                'filename' => $filename
-            );
+                'filename' => $filename,
+            ];
             if (!$fs->get_file($context->id, 'mod_mediagallery', 'item', $item->id, '/', $filename)) {
                 $storedfile = $fs->create_file_from_storedfile($fileinfo, $storedfile);
             }
@@ -209,13 +209,13 @@ class item extends base {
      * @param array $options
      * @return bool
      */
-    public function delete($options = array()) {
+    public function delete($options = []) {
         global $DB;
 
-        $params = array(
+        $params = [
             'context' => $this->get_context(),
             'objectid' => $this->id,
-        );
+        ];
         if (!empty($options['nosync'])) {
             $params['other']['nosync'] = true;
         }
@@ -228,8 +228,8 @@ class item extends base {
         $fs->delete_area_files($this->get_context()->id, 'mod_mediagallery', 'lowres', $this->record->id);
         $fs->delete_area_files($this->get_context()->id, 'mod_mediagallery', 'thumbnail', $this->record->id);
 
-        $DB->delete_records('mediagallery_userfeedback', array('itemid' => $this->record->id));
-        \comment::delete_comments(array('commentarea' => 'item', 'itemid' => $this->record->id));
+        $DB->delete_records('mediagallery_userfeedback', ['itemid' => $this->record->id]);
+        \comment::delete_comments(['commentarea' => 'item', 'itemid' => $this->record->id]);
 
         return parent::delete();
     }
@@ -238,7 +238,7 @@ class item extends base {
         global $DB;
 
         // Bulk delete files.
-        if ($itemids = $DB->get_records('mediagallery_item', array('galleryid' => $galleryid), '', 'id')) {
+        if ($itemids = $DB->get_records('mediagallery_item', ['galleryid' => $galleryid], '', 'id')) {
             $fs = get_file_storage();
 
             list($insql, $params) = $DB->get_in_or_equal(array_keys($itemids), SQL_PARAMS_NAMED, 'mgi');
@@ -257,8 +257,8 @@ class item extends base {
                     FROM {mediagallery_item}
                     WHERE galleryid = :galleryid
                 )";
-        $DB->execute($sql, array('galleryid' => $galleryid));
-        $DB->delete_records('mediagallery_item', array('galleryid' => $galleryid));
+        $DB->execute($sql, ['galleryid' => $galleryid]);
+        $DB->delete_records('mediagallery_item', ['galleryid' => $galleryid]);
         return true;
     }
 
@@ -282,14 +282,14 @@ class item extends base {
             return $newfile;
         }
 
-        $fileinfo = array(
+        $fileinfo = [
             'contextid' => $this->get_context()->id,
             'component' => 'mod_mediagallery',
             'filearea' => $type,
             'itemid' => $this->record->id,
             'userid' => $originalfile->get_userid(),
             'filepath' => $originalfile->get_filepath(),
-            'filename' => $originalfile->get_filename());
+            'filename' => $originalfile->get_filename(), ];
 
         if ($type == 'thumbnail') {
             $w = 250;
@@ -389,10 +389,10 @@ class item extends base {
             }
         }
 
-        $info = array(
+        $info = [
             'width' => imagesx($image),
             'height' => imagesy($image),
-        );
+        ];
 
         $cx = $info['width'] / 2;
         $cy = $info['height'] / 2;
@@ -528,7 +528,7 @@ class item extends base {
     public function get_structured_metainfo() {
         global $DB;
 
-        $displayfields = array(
+        $displayfields = [
             'caption' => get_string('caption', 'mod_mediagallery'),
             'description' => get_string('description'),
             'originalauthor' => get_string('originalauthor', 'mod_mediagallery'),
@@ -540,10 +540,10 @@ class item extends base {
             'moralrightsformatted' => get_string('moralrights', 'mod_mediagallery'),
             'copyrightformatted' => get_string('copyright', 'mod_mediagallery'),
             'tags' => get_string('tags'),
-        );
+        ];
 
         $info = $this->get_socialinfo();
-        $info->fields = array();
+        $info->fields = [];
 
         $data = clone $this->record;
         $data->timecreatedformatted = '';
@@ -561,21 +561,21 @@ class item extends base {
         }
         $data->moralrightsformatted = $data->moralrights ? get_string('yes') : get_string('no');
         foreach ($displayfields as $key => $displayname) {
-            $info->fields[] = array(
+            $info->fields[] = [
                 'displayname' => $displayname,
                 'name' => $key,
                 'value' => $data->$key,
-            );
+            ];
         }
 
-        if ($user = $DB->get_record('user', array('id' => $this->record->userid), 'id, firstname, lastname')) {
-            $linkurl = new \moodle_url('/user/profile.php', array('id' => $this->record->userid));
-            $info->fields[] = array(
+        if ($user = $DB->get_record('user', ['id' => $this->record->userid], 'id, firstname, lastname')) {
+            $linkurl = new \moodle_url('/user/profile.php', ['id' => $this->record->userid]);
+            $info->fields[] = [
                 'displayname' => get_string('uploader', 'mod_mediagallery'),
                 'name' => 'owner',
                 'link' => $linkurl->out(),
                 'value' => "{$user->firstname} {$user->lastname}",
-            );
+            ];
         }
 
         return $info;
@@ -714,7 +714,7 @@ class item extends base {
     public function get_like_count() {
         global $DB;
         $select = 'liked = 1 AND itemid = :itemid';
-        $count = $DB->count_records_select('mediagallery_userfeedback', $select, array('itemid' => $this->record->id));
+        $count = $DB->count_records_select('mediagallery_userfeedback', $select, ['itemid' => $this->record->id]);
         $count = is_null($count) ? 0 : $count;
         return $count;
     }
@@ -727,7 +727,7 @@ class item extends base {
         $info->ratings = null;
         $info->contextid = $this->get_context()->id;
         if ($this->gallery->can_like()) {
-            $info->likes = $DB->count_records('mediagallery_userfeedback', array('itemid' => $this->record->id, 'liked' => 1));
+            $info->likes = $DB->count_records('mediagallery_userfeedback', ['itemid' => $this->record->id, 'liked' => 1]);
             $info->likedbyme = false;
 
             if ($fb = $this->get_userfeedback()) {
@@ -759,7 +759,7 @@ class item extends base {
 
     public function get_userfeedback() {
         global $DB, $USER;
-        return $DB->get_record('mediagallery_userfeedback', array('itemid' => $this->record->id, 'userid' => $USER->id));
+        return $DB->get_record('mediagallery_userfeedback', ['itemid' => $this->record->id, 'userid' => $USER->id]);
     }
 
     public function file_icon() {
@@ -785,11 +785,11 @@ class item extends base {
             $fb->liked = 1;
             $DB->update_record('mediagallery_userfeedback', $fb);
         } else {
-            $fb = (object) array(
+            $fb = (object) [
                 'itemid' => $this->record->id,
                 'userid' => $USER->id,
                 'liked' => 1,
-            );
+            ];
             $DB->insert_record('mediagallery_userfeedback', $fb);
         }
         return $this->get_like_count();
@@ -813,7 +813,7 @@ class item extends base {
             return null;
         }
 
-        $videogroups = array('web_video');
+        $videogroups = ['web_video'];
         if (!empty($this->objectid)) {
             $videogroups[] = 'video';
         }
@@ -827,15 +827,15 @@ class item extends base {
             return $text ? 'video' : self::TYPE_VIDEO;
         }
 
-        $texttotype = array(
+        $texttotype = [
             'audio' => self::TYPE_AUDIO,
             'image' => self::TYPE_IMAGE,
             'video' => self::TYPE_VIDEO,
-        );
+        ];
 
         if ($mimetype == 'document/unknown' && !empty($this->objectid)) {
             $ref = $this->file->get_reference_details();
-            if (isset($ref->type) && in_array($ref->type, array('audio', 'image', 'video'))) {
+            if (isset($ref->type) && in_array($ref->type, ['audio', 'image', 'video'])) {
                 return $text ? $ref->type : $texttotype[$ref->type];
             }
         }
@@ -869,7 +869,7 @@ class item extends base {
             $sql = "UPDATE {mediagallery_gallery}
                     SET thumbnail = :item
                     WHERE id = :galleryid";
-            $DB->execute($sql, array('item' => $this->record->id, 'galleryid' => $this->record->galleryid));
+            $DB->execute($sql, ['item' => $this->record->id, 'galleryid' => $this->record->galleryid]);
         }
         if (!$this->is_thebox_creator_or_agent()) {
             $data->nosync = true;

@@ -18,7 +18,7 @@ namespace mod_mediagallery\output\searchresults;
 
 class renderable implements \renderable {
 
-    public $results = array();
+    public $results = [];
     public $pageurl;
     public $totalcount;
     public $page;

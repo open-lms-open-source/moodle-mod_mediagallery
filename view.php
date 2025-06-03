@@ -40,14 +40,14 @@ $gallery = false;
 
 $mediasize = get_user_preferences('mod_mediagallery_mediasize', \mod_mediagallery\output\gallery\renderable::MEDIASIZE_MD);
 
-$options = array(
+$options = [
     'focus' => $focus,
     'mediasize' => $mediasize,
     'editing' => $editing,
     'page' => $page,
     'action' => $action,
     'viewcontrols' => $viewcontrols,
-);
+];
 if ($g) {
     $gallery = new \mod_mediagallery\gallery($g, $options);
     $gallery->sync($forcesync);
@@ -55,15 +55,15 @@ if ($g) {
     $m = $gallery->instanceid;
     $options['viewcontrols'] = 'item';
     $mediagallery = $gallery->get_collection();
-    $course = $DB->get_record('course', array('id' => $mediagallery->course), '*', MUST_EXIST);
+    $course = $DB->get_record('course', ['id' => $mediagallery->course], '*', MUST_EXIST);
     $cm = $mediagallery->cm;
 } else if ($id) {
     $cm = get_coursemodule_from_id('mediagallery', $id, 0, false, MUST_EXIST);
-    $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
+    $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
     $mediagallery = new \mod_mediagallery\collection($cm->instance);
 } else if ($m) {
     $mediagallery = new \mod_mediagallery\collection($m);
-    $course = $DB->get_record('course', array('id' => $mediagallery->course), '*', MUST_EXIST);
+    $course = $DB->get_record('course', ['id' => $mediagallery->course], '*', MUST_EXIST);
     $cm = get_coursemodule_from_instance('mediagallery', $mediagallery->id, $course->id, false, MUST_EXIST);
 } else {
     throw new \moodle_exception('missingparameter');
@@ -75,7 +75,7 @@ if ($mediagallery->colltype == "single") {
     switch($mediagallery->count_galleries()) {
         case 0:
             // Redirect to adding a gallery.
-            redirect(new moodle_url('/mod/mediagallery/gallery.php', array('m' => $mediagallery->id)));
+            redirect(new moodle_url('/mod/mediagallery/gallery.php', ['m' => $mediagallery->id]));
             break;
         case 1:
             $galleries = $mediagallery->get_visible_galleries();
@@ -115,13 +115,13 @@ if ($mediagallery->is_read_only() || !$canedit) {
 
 
 if ($gallery) {
-    $pageurl = new moodle_url('/mod/mediagallery/view.php', array('g' => $g, 'page' => $page));
+    $pageurl = new moodle_url('/mod/mediagallery/view.php', ['g' => $g, 'page' => $page]);
 
     if ($options['editing']) {
         $pageurl->param('editing', true);
     }
 } else {
-    $pageurl = new moodle_url('/mod/mediagallery/view.php', array('id' => $cm->id));
+    $pageurl = new moodle_url('/mod/mediagallery/view.php', ['id' => $cm->id]);
 }
 
 $PAGE->set_url($pageurl);

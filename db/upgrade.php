@@ -301,12 +301,12 @@ function xmldb_mediagallery_upgrade($oldversion) {
 
     if ($oldversion < 2015011600) {
         $table = new xmldb_table('mediagallery_item');
-        $fields = array();
-        $fields = array(
+        $fields = [];
+        $fields = [
             new xmldb_field('extpath', XMLDB_TYPE_TEXT, null, null, null, null, null, 'objectid'),
             new xmldb_field('theme_id', XMLDB_TYPE_CHAR, '36', null, null, null, null, 'extpath'),
             new xmldb_field('copyright_video_id', XMLDB_TYPE_CHAR, '36', null, null, null, null, 'theme_id'),
-        );
+        ];
 
         foreach ($fields as $field) {
             if (!$dbman->field_exists($table, $field)) {
@@ -386,11 +386,11 @@ function xmldb_mediagallery_upgrade($oldversion) {
     }
 
     if ($oldversion < 2015021000) {
-        $tables = array(
+        $tables = [
             new xmldb_table('mediagallery'),
             new xmldb_table('mediagallery_gallery'),
             new xmldb_table('mediagallery_item'),
-        );
+        ];
         $field = new xmldb_field('agents', XMLDB_TYPE_TEXT, null, null, null, null, null, 'creator');
 
         foreach ($tables as $table) {

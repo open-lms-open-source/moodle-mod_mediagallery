@@ -25,9 +25,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugins = array(
-    'jcarousel' => array('files' => array(
+$plugins = [
+    'jcarousel' => ['files' => [
             'jcarousel/jquery.jcarousel.v2.min.js',
-        )
-    ),
-);
+        ],
+    ],
+];
