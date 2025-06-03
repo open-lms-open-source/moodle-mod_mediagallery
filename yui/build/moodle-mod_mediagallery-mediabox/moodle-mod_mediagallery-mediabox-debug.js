@@ -526,7 +526,7 @@ Y.extend(MEDIABOX, Y.Base, {
         var collapsed = M.util.image_url('t/collapsed', 'moodle');
         var expanded = M.util.image_url('t/expanded', 'moodle');
 
-        var imagenode = Y.Node.create('<img title="' + title + '"/>');
+        var imagenode = Y.Node.create('<img title="' + title + '" class="icon"/>');
         imagenode.setAttribute('src', collapsed);
 
         var node = Y.Node.create('<a href="#" class="toggle">' + title + '</a>');
