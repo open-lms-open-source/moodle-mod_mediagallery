@@ -43,7 +43,7 @@ class gallery extends base {
     protected $items = null;
     static protected $table = 'mediagallery_gallery';
 
-    public function __construct($recordorid, $options = array()) {
+    public function __construct($recordorid, $options = []) {
         if (!empty($options['collection'])) {
             $this->collection = $options['collection'];
             unset($options['collection']);
@@ -71,7 +71,7 @@ class gallery extends base {
 
     public function copy($targetid) {
         global $DB, $USER;
-        if (!$DB->record_exists('mediagallery', array('id' => $targetid))) {
+        if (!$DB->record_exists('mediagallery', ['id' => $targetid])) {
             return false;
         }
         // Create a gallery matching this one in the target collection.
@@ -92,7 +92,7 @@ class gallery extends base {
         }
 
         // Update thumbnail.
-        $DB->set_field('mediagallery_gallery', 'thumbnail', $thumbnail, array('id' => $newgallery->id));
+        $DB->set_field('mediagallery_gallery', 'thumbnail', $thumbnail, ['id' => $newgallery->id]);
 
         return true;
     }
@@ -106,10 +106,10 @@ class gallery extends base {
         }
         $result = parent::create($data);
 
-        $params = array(
+        $params = [
             'context' => $result->get_collection()->context,
             'objectid' => $result->id,
-        );
+        ];
         if (!empty($data->nosync)) {
             $params['other']['nosync'] = true;
         }
@@ -122,15 +122,15 @@ class gallery extends base {
         return $result;
     }
 
-    public function delete($options = array()) {
+    public function delete($options = []) {
         global $DB;
 
         $coll = $this->get_collection();
 
-        $params = array(
+        $params = [
             'context' => $coll->context,
             'objectid' => $this->id,
-        );
+        ];
         if (!empty($options['nosync'])) {
             $params['other']['nosync'] = true;
         }
@@ -140,7 +140,7 @@ class gallery extends base {
 
         // Delete all items and then the gallery.
         item::delete_all_by_gallery($this->record->id);
-        \comment::delete_comments(array('commentarea' => 'gallery', 'itemid' => $this->record->id));
+        \comment::delete_comments(['commentarea' => 'gallery', 'itemid' => $this->record->id]);
 
         parent::delete();
 
@@ -153,13 +153,13 @@ class gallery extends base {
      * @param array $list List of item id's to download. Empty array means all files.
      * @return void
      */
-    public function download_items(array $list = array()) {
+    public function download_items(array $list = []) {
         global $CFG, $DB;
 
         // More efficient to load this here.
         require_once($CFG->libdir.'/filelib.php');
 
-        $filesforzipping = array();
+        $filesforzipping = [];
 
         $fs = get_file_storage();
         $filename = clean_filename('mediagallery-export-'.$this->record->name.'.zip');
@@ -239,7 +239,7 @@ class gallery extends base {
                 ORDER BY i.sortorder ASC";
 
         $fs = get_file_storage();
-        $filelist = array();
+        $filelist = [];
 
         $files = $fs->get_area_files($this->get_collection()->context->id, 'mod_mediagallery', 'item', false, 'id', false);
         foreach ($files as $file) {
@@ -254,16 +254,16 @@ class gallery extends base {
             $filelist[$file->get_itemid()]['lowres'] = $file;
         }
 
-        $items = array();
-        if ($records = $DB->get_records_sql($sql, array('galleryid' => $this->record->id))) {
+        $items = [];
+        if ($records = $DB->get_records_sql($sql, ['galleryid' => $this->record->id])) {
             $tags = \core_tag_tag::get_items_tags('mod_mediagallery', 'mediagallery_item', array_keys($records));
 
             foreach ($records as $record) {
                 $files = !empty($filelist[$record->id]) ? $filelist[$record->id] : false;
-                $options = array(
+                $options = [
                     'files' => $files,
                     'gallery' => $this,
-                );
+                ];
 
                 if (!empty($tags[$record->id])) {
                     $options['tags'] = $tags[$record->id];
@@ -296,7 +296,7 @@ class gallery extends base {
             $currentfocus = $this->options['focus'];
         }
 
-        $list = array();
+        $list = [];
         foreach ($this->get_items() as $item) {
             $matches = false;
             $type = $item->type();
@@ -322,7 +322,7 @@ class gallery extends base {
         if (!is_null($this->items)) {
             return !empty($this->items);
         }
-        $result = $DB->count_records('mediagallery_item', array('galleryid' => $this->record->id));
+        $result = $DB->count_records('mediagallery_item', ['galleryid' => $this->record->id]);
         return !empty($result);
     }
 
@@ -333,7 +333,7 @@ class gallery extends base {
         global $DB, $OUTPUT;
         $record = false;
         if (empty($this->record->thumbnail) ||
-            (!$record = $DB->get_record('mediagallery_item', array('id' => $this->record->thumbnail)))) {
+            (!$record = $DB->get_record('mediagallery_item', ['id' => $this->record->thumbnail]))) {
             // The thumbnail item got deleted, pick the first item as the new thumbnail.
             $items = $this->get_items();
             if (empty($items)) {
@@ -344,21 +344,21 @@ class gallery extends base {
                 $thumbid = $record->id;
             }
             if ($this->record->thumbnail != $thumbid) {
-                $DB->set_field('mediagallery_gallery', 'thumbnail', $thumbid, array('id' => $this->id));
+                $DB->set_field('mediagallery_gallery', 'thumbnail', $thumbid, ['id' => $this->id]);
             }
         }
         if (!$record) {
             return $OUTPUT->image_url('galleryicon', 'mediagallery')->out(false);
             return null;
         }
-        $item = new item($record, array('gallery' => $this));
+        $item = new item($record, ['gallery' => $this]);
         return $item->get_image_url(true);
     }
 
     public function moral_rights_asserted() {
         global $DB;
 
-        $count = $DB->count_records('mediagallery_item', array('galleryid' => $this->record->id, 'moralrights' => 0));
+        $count = $DB->count_records('mediagallery_item', ['galleryid' => $this->record->id, 'moralrights' => 0]);
         return $count == 0;
     }
 
@@ -379,7 +379,7 @@ class gallery extends base {
     public function update_sortorder($data) {
         global $DB;
         $flipped = array_flip($data);
-        $items = $DB->get_records('mediagallery_item', array('galleryid' => $this->record->id), '', 'id, sortorder');
+        $items = $DB->get_records('mediagallery_item', ['galleryid' => $this->record->id], '', 'id, sortorder');
         foreach ($items as $item) {
             if (isset($flipped[$item->id]) && $item->sortorder == $flipped[$item->id]) {
                 unset($flipped[$item->id]);
@@ -388,7 +388,7 @@ class gallery extends base {
 
         // TODO: Optimize this.
         foreach ($flipped as $id => $order) {
-            $DB->set_field('mediagallery_item', 'sortorder', $order, array('id' => $id));
+            $DB->set_field('mediagallery_item', 'sortorder', $order, ['id' => $id]);
         }
         return true;
     }

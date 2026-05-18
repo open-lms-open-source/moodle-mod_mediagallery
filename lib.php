@@ -73,7 +73,7 @@ function mediagallery_supports($feature) {
  * @param mod_mediagallery_mod_form $mform
  * @return int The id of the newly inserted mediagallery record
  */
-function mediagallery_add_instance(stdClass $mediagallery, mod_mediagallery_mod_form $mform = null) {
+function mediagallery_add_instance(stdClass $mediagallery, ?mod_mediagallery_mod_form $mform = null) {
     global $DB, $USER;
 
     $mediagallery = mediagallery_formfield_transform($mediagallery);
@@ -104,7 +104,7 @@ function mediagallery_add_instance(stdClass $mediagallery, mod_mediagallery_mod_
  * @param mod_mediagallery_mod_form $mform
  * @return boolean Success/Fail
  */
-function mediagallery_update_instance(stdClass $mediagallery, mod_mediagallery_mod_form $mform = null) {
+function mediagallery_update_instance(stdClass $mediagallery, ?mod_mediagallery_mod_form $mform = null) {
     global $DB, $USER;
     if (empty($mediagallery->enforcedefaults)) {
         $mediagallery->enforcedefaults = 0;

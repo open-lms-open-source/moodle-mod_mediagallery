@@ -38,15 +38,15 @@ class collection extends base {
 
     public $cm;
     public $context;
-    public $options = array(
-        'groups' => array(),
-    );
+    public $options = [
+        'groups' => [],
+    ];
     protected $record;
     protected $submitted = null;
     static protected $table = 'mediagallery';
     private $deleted = false;
 
-    public function __construct($recordorid, $options = array()) {
+    public function __construct($recordorid, $options = []) {
         global $USER;
 
         parent::__construct($recordorid, $options);
@@ -79,17 +79,17 @@ class collection extends base {
         return new collection($data);
     }
 
-    public function delete($options = array()) {
+    public function delete($options = []) {
         global $DB;
 
-        $params = array(
+        $params = [
             'context' => $this->get_context(),
             'objectid' => $this->id,
-            'other' => array(
+            'other' => [
                 'modulename' => 'mediagallery',
                 'instanceid' => $this->id,
-            ),
-        );
+            ],
+        ];
         if (!empty($options['nosync'])) {
             $params['other']['nosync'] = true;
         }
@@ -101,7 +101,7 @@ class collection extends base {
                     JOIN {mediagallery_gallery} g ON g.id = i.galleryid
                     WHERE g.instanceid = ?
                 )";
-        $DB->execute($sql, array($this->id));
+        $DB->execute($sql, [$this->id]);
 
         // We trigger this early so observers can handle external deletion.
         if (!empty($params['context'])) {
@@ -116,9 +116,9 @@ class collection extends base {
                     FROM {mediagallery_gallery}
                     WHERE instanceid = ?
                 )";
-        $DB->execute($sql, array($this->id));
-        $DB->delete_records('mediagallery_gallery', array('instanceid' => $this->id));
-        $DB->delete_records('mediagallery', array('id' => $this->id));
+        $DB->execute($sql, [$this->id]);
+        $DB->delete_records('mediagallery_gallery', ['instanceid' => $this->id]);
+        $DB->delete_records('mediagallery', ['id' => $this->id]);
 
         return true;
     }
@@ -134,10 +134,10 @@ class collection extends base {
             $userid = $USER->id;
         }
 
-        $galleries = array();
+        $galleries = [];
 
         $select = "instanceid = :instanceid AND (userid = :userid";
-        $params = array();
+        $params = [];
         if ($this->options['groupmode'] != NOGROUPS) {
             if (!empty($this->options['groups'])) {
                 list($insql, $params) = $DB->get_in_or_equal(array_keys($this->options['groups']), SQL_PARAMS_NAMED);
@@ -149,7 +149,7 @@ class collection extends base {
         $params['userid'] = $userid;
         if ($records = $DB->get_records_select('mediagallery_gallery', $select, $params)) {
             foreach ($records as $record) {
-                $galleries[$record->id] = new gallery($record, array('collection' => $this));
+                $galleries[$record->id] = new gallery($record, ['collection' => $this]);
             }
         }
 
@@ -184,10 +184,10 @@ class collection extends base {
                     AND (a.duedate = 0 OR a.duedate < :time OR uf.locked = 1)
                 GROUP BY asub.id, asm.galleryid, asub.assignment, asub.status, asub.attemptnumber, asub.userid
                 ORDER BY asub.assignment ASC, asub.userid, asub.attemptnumber ASC";
-        $params = array('collection' => $this->record->id, 'time' => time());
+        $params = ['collection' => $this->record->id, 'time' => time()];
         if ($results = $DB->get_records_sql($sql, $params)) {
-            $this->submitted = array();
-            $submissions = array();
+            $this->submitted = [];
+            $submissions = [];
             foreach ($results as $result) {
                 if ($result->status == ASSIGN_SUBMISSION_STATUS_REOPENED) {
                     unset($this->submitted[$submissions[$result->assignment][$result->userid]]);
@@ -214,13 +214,13 @@ class collection extends base {
      */
     public function get_visible_galleries() {
         global $DB, $USER;
-        $galleries = array();
+        $galleries = [];
 
         $accessallgroups = has_capability('moodle/site:accessallgroups', $this->context);
         $viewall = has_capability('mod/mediagallery:viewall', $this->context);
 
         $select = "instanceid = :instanceid";
-        $params = array();
+        $params = [];
         if ($this->options['groupmode'] == SEPARATEGROUPS && !$accessallgroups && !$viewall) {
             if (!empty($this->options['groups'])) {
                 list($insql, $params) = $DB->get_in_or_equal(array_keys($this->options['groups']), SQL_PARAMS_NAMED);
@@ -239,7 +239,7 @@ class collection extends base {
                 ORDER BY gg.id ASC";
         if ($records = $DB->get_records_sql($sql, $params)) {
             foreach ($records as $record) {
-                $gallery = new gallery($record, array('collection' => $this));
+                $gallery = new gallery($record, ['collection' => $this]);
                 if ($viewall || $gallery->user_can_view()) {
                     $galleries[$record->id] = $gallery;
                 }
@@ -251,7 +251,7 @@ class collection extends base {
 
     public function count_galleries() {
         global $DB;
-        return $DB->count_records('mediagallery_gallery', array('instanceid' => $this->record->id));
+        return $DB->count_records('mediagallery_gallery', ['instanceid' => $this->record->id]);
     }
 
     /**
@@ -263,14 +263,14 @@ class collection extends base {
     public function get_galleries($filterbymode = false) {
         global $DB;
 
-        $list = array();
-        $params = array('instanceid' => $this->record->id);
+        $list = [];
+        $params = ['instanceid' => $this->record->id];
         if ($filterbymode) {
             $params['mode'] = $filterbymode;
         }
         $records = $DB->get_records('mediagallery_gallery', $params);
         foreach ($records as $record) {
-            $list[$record->id] = new gallery($record, array('collection' => $this));
+            $list[$record->id] = new gallery($record, ['collection' => $this]);
         }
         return $list;
     }
@@ -280,19 +280,19 @@ class collection extends base {
 
         $context = \context::instance_by_id($contextid);
         if (!$coursecontext = $context->get_course_context(false)) {
-            return array();
+            return [];
         }
-        $course = $DB->get_record('course', array('id' => $coursecontext->instanceid), '*', MUST_EXIST);
+        $course = $DB->get_record('course', ['id' => $coursecontext->instanceid], '*', MUST_EXIST);
 
         $collections = get_all_instances_in_course('mediagallery', $course);
 
-        $collids = array();
+        $collids = [];
         foreach ($collections as $collection) {
             $collids[] = $collection->id;
         }
 
         if (empty($collids)) {
-            return array();
+            return [];
         }
 
         $concat = $prefix ? $DB->sql_concat('mg.name', "' > '", 'g.name') : 'g.name';
@@ -302,7 +302,7 @@ class collection extends base {
                 FROM {mediagallery_gallery} g
                 JOIN {mediagallery} mg on (mg.id = g.instanceid)
                 WHERE instanceid $insql";
-        $list = array();
+        $list = [];
         foreach ($DB->get_records_sql($sql, $params) as $record) {
             $gallery = new gallery($record);
             if ($gallery->user_can_view()) {
@@ -317,13 +317,13 @@ class collection extends base {
 
         $context = \context::instance_by_id($contextid);
         if (!$coursecontext = $context->get_course_context(false)) {
-            return array();
+            return [];
         }
-        $course = $DB->get_record('course', array('id' => $coursecontext->instanceid), '*', MUST_EXIST);
+        $course = $DB->get_record('course', ['id' => $coursecontext->instanceid], '*', MUST_EXIST);
 
         $collections = get_all_instances_in_course('mediagallery', $course);
 
-        $collids = array();
+        $collids = [];
         $theboxenabled = false;
         foreach ($collections as $collection) {
             if (!$theboxenabled && $collection->mode == 'thebox') {
@@ -333,7 +333,7 @@ class collection extends base {
         }
 
         if (empty($collids)) {
-            return array();
+            return [];
         }
 
         list($insql, $params) = $DB->get_in_or_equal($collids, SQL_PARAMS_NAMED);
@@ -348,7 +348,7 @@ class collection extends base {
                 FROM {mediagallery_gallery} g
                 JOIN {mediagallery} mg on (mg.id = g.instanceid)
                 WHERE instanceid $insql $select";
-        $list = array();
+        $list = [];
         foreach ($DB->get_records_sql($sql, $params) as $record) {
             $gallery = new gallery($record);
             if ($gallery->user_can_edit(null, true)) {
@@ -371,7 +371,7 @@ class collection extends base {
         }
 
         $groupselect = '';
-        $params = array('collection' => $this->record->id, 'userid' => $USER->id);
+        $params = ['collection' => $this->record->id, 'userid' => $USER->id];
         if ($this->options['groupmode'] != NOGROUPS) {
             if (!empty($this->options['groups'])) {
                 list($insql, $gparams) = $DB->get_in_or_equal(array_keys($this->options['groups']), SQL_PARAMS_NAMED);
@@ -404,7 +404,7 @@ class collection extends base {
                 JOIN {assign_plugin_config} apc ON apc.assignment = cm.instance
                 WHERE apc.plugin = 'mediagallery' AND apc.name = 'mediagallery'
                     AND m.name = 'assign' AND ".$DB->sql_compare_text('apc.value')." = ?";
-        $params = array($this->record->id);
+        $params = [$this->record->id];
         return $DB->get_field_sql($sql, $params, IGNORE_MULTIPLE);
     }
 
@@ -475,23 +475,23 @@ class collection extends base {
             return false;
         }
 
-        $params = array(
+        $params = [
             'course' => $this->course,
             'module' => 'mediagallery',
             'action' => 'add',
             'cmid' => $this->cm->id,
-        );
+        ];
         if ($legacylog = $DB->get_record('log', $params, 'id, userid', IGNORE_MULTIPLE)) {
             return $legacylog->userid;
         }
 
         // It wasn't in the legacy log table, check the new logstore.
-        $params = array(
+        $params = [
             'courseid' => $this->course,
             'eventname' => '\core\event\course_module_created',
             'contextinstanceid' => $this->cm->id,
             'contextlevel' => CONTEXT_MODULE,
-        );
+        ];
         if ($standardlog = $DB->get_record('logstore_standard_log', $params, 'id, userid', IGNORE_MULTIPLE)) {
             return $standardlog->userid;
         }
