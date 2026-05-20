@@ -34,6 +34,11 @@ $id = optional_param('id', 0, PARAM_INT);
 $action = optional_param('action', null, PARAM_ALPHAEXT);
 $data = optional_param_array('data', null, PARAM_RAW);
 
+$validclasses = ['item', 'gallery', 'collection'];
+if (!in_array($class, $validclasses, true)) {
+    throw new moodle_exception('invalidparameter', 'debug');
+}
+
 $PAGE->set_url('/mod/mediagallery/rest.php', array('id' => $id, 'class' => $class, 'm' => $m));
 
 $mediagallery = $DB->get_record('mediagallery', array('id' => $m), '*', MUST_EXIST);
@@ -51,6 +56,19 @@ $classname = "\\mod_mediagallery\\{$class}";
 
 if (!empty($id)) {
     $object = new $classname($id);
+
+    $belongs = false;
+    if ($class === 'collection') {
+        $belongs = ((int)$object->id === (int)$m);
+    } else if ($class === 'gallery') {
+        $belongs = ((int)$object->instanceid === (int)$m);
+    } else if ($class === 'item') {
+        $belongs = $DB->record_exists('mediagallery_gallery',
+            ['id' => $object->galleryid, 'instanceid' => $m]);
+    }
+    if (!$belongs) {
+        throw new moodle_exception('nopermissions', 'error', '', 'access ' . $class);
+    }
 }
 
 switch($requestmethod) {
