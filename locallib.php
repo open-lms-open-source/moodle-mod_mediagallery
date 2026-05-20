@@ -165,10 +165,9 @@ function mediagallery_get_readable_collections($courses) {
  * @param array $courses
  * @param int $limitfrom
  * @param int $limitnum
- * @param string $extrasql
  * @return array
  */
-function mediagallery_search_items($searchterms, $courses, $limitfrom = 0, $limitnum = 50, $extrasql = '') {
+function mediagallery_search_items($searchterms, $courses, $limitfrom = 0, $limitnum = 50) {
     global $CFG, $DB, $USER;
     require_once($CFG->libdir.'/searchlib.php');
 
@@ -241,8 +240,7 @@ function mediagallery_search_items($searchterms, $courses, $limitfrom = 0, $limi
     $selectsql = " $messagesearch
                     AND i.galleryid = g.id
                     AND g.userid = u.id
-                    AND $selectgallery
-                        $extrasql";
+                    AND $selectgallery";
 
     $countsql = "SELECT COUNT(*)
                  FROM $fromsql
