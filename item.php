@@ -42,9 +42,6 @@ $item = false;
 if ($i) {
     $item = new \mod_mediagallery\item($i);
     $g = $item->galleryid;
-    if (!$item->user_can_edit()) {
-        throw new \moodle_exception('nopermissions', 'error', null, 'edit item');
-    }
 }
 
 $gallery = new \mod_mediagallery\gallery($g);
@@ -54,6 +51,9 @@ $cm = get_coursemodule_from_instance('mediagallery', $mediagallery->id, $course-
 
 require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
+if ($item && !$item->user_can_edit()) {
+    throw new \moodle_exception('nopermissions', 'error', null, 'edit item');
+}
 $pageurl = new moodle_url('/mod/mediagallery/item.php', array('g' => $gallery->id));
 if (!$gallery->user_can_contribute()) {
     throw new \moodle_exception('nopermissions', 'error', $pageurl, 'edit gallery');
