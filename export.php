@@ -40,6 +40,10 @@ $cm = get_coursemodule_from_instance('mediagallery', $mediagallery->id, $course-
 require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
 
+if (!$gallery->user_can_edit(null, true)) {
+    throw new moodle_exception('nopermissions', 'error', '', 'export gallery');
+}
+
 $galleryurl = new moodle_url('/mod/mediagallery/view.php', array('g' => $g, 'editing' => 1));
 $pageurl = new moodle_url('/mod/mediagallery/export.php', array('g' => $g));
 $PAGE->set_url($pageurl);
