@@ -105,7 +105,6 @@ $node = $navnode->add(get_string('pluginname', 'mediagallery'));
 $node = $node->add(get_string('search'), $pageurl);
 $node->make_active();
 
-$results = false;
 $mform = new search_form(null, array('course' => $course));
 $mform->set_data(array('search' => $search, 'moralrights' => $moralrights));
 
@@ -115,9 +114,6 @@ echo $OUTPUT->header();
 $output = $PAGE->get_renderer('mod_mediagallery');
 $mform->display();
 
-if (is_array($results)) {
-    echo 'test';
-}
 if (empty($searchstring)) {
     $items = false;
 } else {
