@@ -665,11 +665,12 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
                 continue;
             }
             $image = $this->output->pix_icon($item->file_icon(), $item->caption, 'moodle', array('class' => 'icon'));
+            $caption = format_string($item->caption);
             if ($gallery->mode != 'thebox' || $item->thebox_processed()) {
-                $entry = html_writer::link($item->get_embed_url(), $image.$item->caption);
+                $entry = html_writer::link($item->get_embed_url(), $image.$caption);
             } else {
                 $processstring = get_string('beingprocessed', 'mediagallery');
-                $entry = html_writer::span($image.$item->caption." ($processstring)");
+                $entry = html_writer::span($image.$caption." ($processstring)");
             }
             $o .= html_writer::tag('li', $entry);
         }
@@ -805,7 +806,7 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
                 array('class' => 'info')
             );
 
-            $caption = html_writer::tag('div', $infoicon.$item->caption, array('class' => 'caption'));
+            $caption = html_writer::tag('div', $infoicon.format_string($item->caption), ['class' => 'caption']);
             $img = html_writer::empty_tag('img', array('src' => $item->get_image_url_by_type('thumbnail')));
             $linkattribs = $this->linkattribs($gallery, $item);
             $link = html_writer::link($item->get_image_url_by_type('lowres'), $img, $linkattribs);
@@ -891,20 +892,20 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
 
         foreach ($renderable->results as $results) {
             $row = array();
-            $row[] = new html_table_cell($results->itemcaption);
+            $row[] = new html_table_cell(format_string($results->itemcaption));
 
             $url = new moodle_url('/mod/mediagallery/view.php', array('g' => $results->galleryid));
-            $gallery = html_writer::link($url, $results->galleryname);
+            $gallery = html_writer::link($url, format_string($results->galleryname));
             $row[] = new html_table_cell($gallery);
 
             $url = new moodle_url('/user/view.php', array('id' => $results->userid, 'course' => $this->page->course->id));
-            $user = html_writer::link($url, $results->creator);
+            $user = html_writer::link($url, s($results->creator));
             $row[] = new html_table_cell($user);
 
-            $groups = implode(', ', $results->groups);
+            $groups = implode(', ', array_map('format_string', $results->groups));
             $row[] = new html_table_cell($groups);
 
-            $roles = implode(', ', $results->roles);
+            $roles = implode(', ', array_map('format_string', $results->roles));
             $row[] = new html_table_cell($roles);
 
             $t->data[] = new html_table_row($row);
@@ -937,7 +938,7 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
         $o .= html_writer::start_tag('ol', array('start' => $counts->from));
         foreach ($items as $item) {
             $url = new moodle_url('/mod/mediagallery/view.php', array('g' => $item->galleryid));
-            $text = html_writer::link($url, $item->caption);
+            $text = html_writer::link($url, format_string($item->caption));
             $o .= html_writer::tag('li', $text);
         }
         $o .= html_writer::end_tag('ol');
