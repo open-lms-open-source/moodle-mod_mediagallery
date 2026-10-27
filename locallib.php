@@ -242,19 +242,38 @@ function mediagallery_search_items($searchterms, $courses, $limitfrom = 0, $limi
                     AND g.userid = u.id
                     AND $selectgallery";
 
-    $countsql = "SELECT COUNT(*)
-                 FROM $fromsql
-                 WHERE $selectsql";
+    if ($messagesearch === '') {
+        // Nothing searchable was left after parsing.
+        return [false, 0];
+    }
 
-    $searchsql = "SELECT i.*, g.name as galleryname, g.instanceid, u.firstname, u.lastname, u.email, u.picture, u.imagealt
+    $searchsql = "SELECT i.*, g.name as galleryname, g.instanceid, u.firstname, u.lastname
                   FROM $fromsql
                   WHERE $selectsql
                   ORDER BY i.id DESC";
 
-    $totalcount = $DB->count_records_sql($countsql, $params);
-    $records = $DB->get_records_sql($searchsql, $params, $limitfrom, $limitnum);
+    // Whether a user can see a gallery depends on groups, the collection type, release dates and capabilities, so
+    // each match is checked here, and the page of results is taken from the matches that remain.
+    $records = [];
+    $totalcount = 0;
+    $canview = [];
+    $rs = $DB->get_recordset_sql($searchsql, $params);
+    foreach ($rs as $record) {
+        if (!isset($canview[$record->galleryid])) {
+            $gallery = new \mod_mediagallery\gallery($record->galleryid, ['collection' => $collections[$record->instanceid]]);
+            $canview[$record->galleryid] = $gallery->user_can_view();
+        }
+        if ($record->userid != $USER->id && !$canview[$record->galleryid]) {
+            continue;
+        }
+        if ($totalcount >= $limitfrom && (!$limitnum || count($records) < $limitnum)) {
+            $records[$record->id] = $record;
+        }
+        $totalcount++;
+    }
+    $rs->close();
 
-    return array($records, $totalcount);
+    return [$records, $totalcount];
 }
 
 /**

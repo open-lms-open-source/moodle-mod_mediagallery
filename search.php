@@ -39,8 +39,8 @@ $collection = trim(optional_param('collection', '', PARAM_NOTAGS));
 $searchstring = trim(optional_param('searchstring', '', PARAM_TEXT));
 $courseonly = optional_param('courseonly', false, PARAM_BOOL);
 
-$page = optional_param('page', 0, PARAM_INT);
-$perpage = optional_param('perpage', 10, PARAM_INT);
+$page = max(0, optional_param('page', 0, PARAM_INT));
+$perpage = min(max(1, optional_param('perpage', 10, PARAM_INT)), 100);
 $showform = optional_param('showform', 0, PARAM_INT);
 
 $course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
