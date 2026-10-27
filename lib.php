@@ -449,6 +449,10 @@ function mediagallery_pluginfile($course, $cm, $context, $filearea, array $args,
 
     $itemid = (int)array_shift($args);
 
+    if (in_array($filearea, ['item', 'lowres', 'thumbnail']) && !mediagallery_user_can_access_item($cm, $itemid)) {
+        return false;
+    }
+
     $fs = get_file_storage();
     $relativepath = implode('/', $args);
     $fullpath = "/$context->id/mod_mediagallery/$filearea/$itemid/$relativepath";
@@ -461,6 +465,29 @@ function mediagallery_pluginfile($course, $cm, $context, $filearea, array $args,
     }
     header('X-Content-Type-Options: nosniff');
     send_stored_file($file, 0, 0, $forcedownload, $options);
+}
+
+/**
+ * Check whether the current user may see an item's files.
+ *
+ * The item must belong to the given collection. Its owner can always see it, and so can anyone who can see its gallery.
+ *
+ * @param stdClass|cm_info $cm The collection's course module.
+ * @param int $itemid
+ * @return bool
+ */
+function mediagallery_user_can_access_item($cm, int $itemid): bool {
+    global $DB, $USER;
+
+    $item = $DB->get_record('mediagallery_item', ['id' => $itemid]);
+    $gallery = $item ? $DB->get_record('mediagallery_gallery', ['id' => $item->galleryid]) : false;
+    if (!$gallery || $gallery->instanceid != $cm->instance) {
+        return false;
+    }
+    if ($item->userid == $USER->id) {
+        return true;
+    }
+    return (new \mod_mediagallery\gallery($gallery))->user_can_view();
 }
 
 /**

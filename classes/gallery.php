@@ -428,8 +428,9 @@ class gallery extends base {
             return false;
         }
 
+        // A contributable gallery is open to everyone who can see it, not to users the collection hides it from.
         $submitted = $this->submitted_for_grading();
-        if ($this->contributable && !$submitted) {
+        if ($this->contributable && !$submitted && $this->user_can_view($userid)) {
             return true;
         }
         return $this->user_can_edit($userid);
@@ -502,7 +503,7 @@ class gallery extends base {
             return true;
         }
 
-        $accessallgroups = has_capability('moodle/site:accessallgroups', $coll->context);
+        $accessallgroups = has_capability('moodle/site:accessallgroups', $coll->context, $userid);
         if ($userid != $USER->id) {
             $groups = groups_get_all_groups($coll->cm->course, $userid, $coll->cm->groupingid);
         } else {
@@ -517,18 +518,18 @@ class gallery extends base {
         }
 
         // Graders need to be able to see the gallery once its submitted no matter what.
-        if (has_capability('mod/mediagallery:grade', $coll->context) && $this->submitted_for_grading()) {
+        if (has_capability('mod/mediagallery:grade', $coll->context, $userid) && $this->submitted_for_grading()) {
             return true;
         }
 
-        if (!empty($this->record->visibleinstructor) && has_capability('mod/mediagallery:manage', $coll->context)) {
+        if (!empty($this->record->visibleinstructor) && has_capability('mod/mediagallery:manage', $coll->context, $userid)) {
             if (time() < $this->record->visibleinstructor) {
                 return false;
             }
             return true;
         }
 
-        if (has_capability('mod/mediagallery:viewall', $coll->context)) {
+        if (has_capability('mod/mediagallery:viewall', $coll->context, $userid)) {
             return true;
         }
 
@@ -537,7 +538,7 @@ class gallery extends base {
             return false;
         }
 
-        if (!empty($this->record->visibleother) && !has_capability('mod/mediagallery:viewall', $coll->context)) {
+        if (!empty($this->record->visibleother) && !has_capability('mod/mediagallery:viewall', $coll->context, $userid)) {
             if (time() < $this->record->visibleother) {
                 return false;
             }
