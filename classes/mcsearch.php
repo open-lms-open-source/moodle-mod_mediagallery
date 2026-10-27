@@ -108,22 +108,48 @@ class mcsearch {
                 WHERE m.id = ? $groupswhere $roleswhere $searchsql";
         $grs = $DB->get_recordset_sql($sql, $params);
 
+        // There's a row per matching item, so each gallery is only built the first time it's seen.
         $gallerys = array();
         foreach ($grs as $galleryrecord) {
-            $gallerys[$galleryrecord->id] = new gallery($galleryrecord, array('collection' => $this->params['collection']));
+            if (!isset($gallerys[$galleryrecord->id])) {
+                $gallerys[$galleryrecord->id] = new gallery($galleryrecord, array('collection' => $this->params['collection']));
+            }
         }
+        $grs->close();
 
         $sql = str_replace('g.*', $select, $sql);
         $rs = $DB->get_recordset_sql($sql, $params);
+        $records = array();
+        foreach ($rs as $record) {
+            if ($gallerys[$record->galleryid]->user_can_view()) {
+                $records[$record->id] = $record;
+            }
+        }
+        $rs->close();
+
+        // Load the files the type filter needs in one query per chunk, rather than one per item.
+        $files = array();
+        if ($this->params['type'] != base::TYPE_ALL) {
+            $fs = get_file_storage();
+            foreach (array_chunk(array_keys($records), 1000) as $itemids) {
+                foreach ($fs->get_area_files($this->params['context']->id, 'mod_mediagallery', 'item', $itemids, 'id', false)
+                        as $file) {
+                    $files[$file->get_itemid()] = $file;
+                }
+            }
+        }
 
         $userids = array();
-        foreach ($rs as $record) {
-            $item = new item($record, array('nogallery' => true));
-            if ($this->params['type'] != base::TYPE_ALL && $item->type() != $this->params['type']) {
-                continue;
-            }
-            if (!$gallerys[$record->galleryid]->user_can_view()) {
-                continue;
+        foreach ($records as $record) {
+            if ($this->params['type'] != base::TYPE_ALL) {
+                $options = array('gallery' => $gallerys[$record->galleryid]);
+                if (isset($files[$record->id])) {
+                    $options['files'] = array('item' => $files[$record->id]);
+                }
+                $item = new item($record, $options);
+                if ($item->type() != $this->params['type']) {
+                    continue;
+                }
             }
 
             $userids[$record->userid] = true;

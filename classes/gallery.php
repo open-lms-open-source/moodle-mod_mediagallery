@@ -243,24 +243,19 @@ class gallery extends base {
                 WHERE i.galleryid = :galleryid
                 ORDER BY i.sortorder ASC";
 
-        $fs = get_file_storage();
-        $filelist = [];
-
-        $files = $fs->get_area_files($this->get_collection()->context->id, 'mod_mediagallery', 'item', false, 'id', false);
-        foreach ($files as $file) {
-            $filelist[$file->get_itemid()]['item'] = $file;
-        }
-        $files = $fs->get_area_files($this->get_collection()->context->id, 'mod_mediagallery', 'thumbnail', false, 'id', false);
-        foreach ($files as $file) {
-            $filelist[$file->get_itemid()]['thumbnail'] = $file;
-        }
-        $files = $fs->get_area_files($this->get_collection()->context->id, 'mod_mediagallery', 'lowres', false, 'id', false);
-        foreach ($files as $file) {
-            $filelist[$file->get_itemid()]['lowres'] = $file;
-        }
-
         $items = [];
         if ($records = $DB->get_records_sql($sql, ['galleryid' => $this->record->id])) {
+            // Only this gallery's files, not every file in the collection.
+            $fs = get_file_storage();
+            $filelist = [];
+            foreach (['item', 'thumbnail', 'lowres'] as $filearea) {
+                $files = $fs->get_area_files($this->get_collection()->context->id, 'mod_mediagallery', $filearea,
+                    array_keys($records), 'id', false);
+                foreach ($files as $file) {
+                    $filelist[$file->get_itemid()][$filearea] = $file;
+                }
+            }
+
             $tags = \core_tag_tag::get_items_tags('mod_mediagallery', 'mediagallery_item', array_keys($records));
 
             foreach ($records as $record) {

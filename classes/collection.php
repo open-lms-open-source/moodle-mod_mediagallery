@@ -185,8 +185,9 @@ class collection extends base {
                 GROUP BY asub.id, asm.galleryid, asub.assignment, asub.status, asub.attemptnumber, asub.userid
                 ORDER BY asub.assignment ASC, asub.userid, asub.attemptnumber ASC";
         $params = ['collection' => $this->record->id, 'time' => time()];
+        // Cached even when empty, so galleries without submissions don't repeat the query.
+        $this->submitted = [];
         if ($results = $DB->get_records_sql($sql, $params)) {
-            $this->submitted = [];
             $submissions = [];
             foreach ($results as $result) {
                 if ($result->status == ASSIGN_SUBMISSION_STATUS_REOPENED) {
@@ -303,8 +304,13 @@ class collection extends base {
                 JOIN {mediagallery} mg on (mg.id = g.instanceid)
                 WHERE instanceid $insql";
         $list = [];
+        $collobjects = [];
         foreach ($DB->get_records_sql($sql, $params) as $record) {
-            $gallery = new gallery($record);
+            // Share one collection between its galleries, rather than building it for each.
+            if (!isset($collobjects[$record->instanceid])) {
+                $collobjects[$record->instanceid] = new collection($record->instanceid);
+            }
+            $gallery = new gallery($record, ['collection' => $collobjects[$record->instanceid]]);
             if ($gallery->user_can_view()) {
                 $list[$gallery->id] = $record->label;
             }
@@ -349,8 +355,13 @@ class collection extends base {
                 JOIN {mediagallery} mg on (mg.id = g.instanceid)
                 WHERE instanceid $insql $select";
         $list = [];
+        $collobjects = [];
         foreach ($DB->get_records_sql($sql, $params) as $record) {
-            $gallery = new gallery($record);
+            // Share one collection between its galleries, rather than building it for each.
+            if (!isset($collobjects[$record->instanceid])) {
+                $collobjects[$record->instanceid] = new collection($record->instanceid);
+            }
+            $gallery = new gallery($record, ['collection' => $collobjects[$record->instanceid]]);
             if ($gallery->user_can_edit(null, true)) {
                 $list[$gallery->id] = $record->label;
             }
