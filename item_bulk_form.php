@@ -78,11 +78,23 @@ class mod_mediagallery_item_bulk_form extends moodleform {
      * @return array A list of errors, if any.
      */
     public function validation($data, $files) {
+        global $USER;
+
         $errors = parent::validation($data, $files);
         $info = file_get_draft_area_info($data['content']);
 
         if ($info['filecount'] == 0) {
             $errors['content'] = get_string('required');
+            return $errors;
+        }
+
+        // Check the archive's contents now, so problems are shown on the form rather than after submitting.
+        $draftfiles = get_file_storage()->get_area_files(\context_user::instance($USER->id)->id, 'user', 'draft',
+            $data['content'], 'id DESC', false);
+        try {
+            \mod_mediagallery\item::get_archive_entries($this->_customdata['gallery'], reset($draftfiles));
+        } catch (\moodle_exception $e) {
+            $errors['content'] = $e->getMessage();
         }
         return $errors;
     }

@@ -29,6 +29,12 @@ class item extends base {
     protected $context;
     protected $gallery;
     static protected $table = 'mediagallery_item';
+
+    /** The most media files a single zip archive may add. */
+    const BULK_MAX_FILES = 100;
+
+    /** The most bytes the media files in a single zip archive may take up once extracted (512 MB). */
+    const BULK_MAX_BYTES = 536870912;
     protected $tags = [];
 
     // Related stored files.
@@ -132,31 +138,112 @@ class item extends base {
         return $result;
     }
 
+    /**
+     * Check a zip archive before extracting it, and choose the media files in it that will become items.
+     *
+     * Only image, audio and video files are kept, up to the number of items the gallery has room for.
+     * Archives with too many media files, or whose files are too large once extracted, are refused.
+     *
+     * @param gallery $gallery The gallery the items will be added to.
+     * @param \stored_file $archive The zip archive.
+     * @return \stdClass[] The archive entries to extract, as returned by the zip packer's list_files().
+     * @throws \moodle_exception If the archive can't be read or is over a limit.
+     */
+    public static function get_archive_entries(gallery $gallery, \stored_file $archive) {
+        global $CFG, $DB;
+
+        $entries = $archive->list_files(get_file_packer('application/zip'));
+        if ($entries === false) {
+            throw new \moodle_exception('errorbulkinvalid', 'mediagallery');
+        }
+
+        $collection = $gallery->get_collection();
+        $remaining = PHP_INT_MAX;
+        if ($collection->maxitems != 0) {
+            $remaining = $collection->maxitems - $DB->count_records('mediagallery_item', ['galleryid' => $gallery->id]);
+            if ($remaining <= 0) {
+                throw new \moodle_exception('errortoomanyitems', 'mediagallery', '', $collection->maxitems);
+            }
+        }
+
+        $media = [];
+        foreach ($entries as $entry) {
+            if ($entry->is_directory || $entry->size == 0
+                    || !file_extension_in_typegroup($entry->pathname, ['web_image', 'web_audio', 'web_video'])) {
+                continue;
+            }
+            $media[] = $entry;
+        }
+        if (empty($media)) {
+            throw new \moodle_exception('errorbulknomedia', 'mediagallery');
+        }
+        // Files past the gallery's item limit are left out, as they are for single uploads.
+        $media = array_slice($media, 0, $remaining);
+
+        if (count($media) > self::BULK_MAX_FILES) {
+            throw new \moodle_exception('errorbulktoomanyfiles', 'mediagallery', '',
+                (object) ['count' => count($media), 'max' => self::BULK_MAX_FILES]);
+        }
+
+        $course = get_course($collection->cm->course);
+        $maxbytes = get_user_max_upload_file_size($collection->context, $CFG->maxbytes, $course->maxbytes,
+            $collection->maxbytes);
+        $total = 0;
+        foreach ($media as $entry) {
+            if ($maxbytes != USER_CAN_IGNORE_FILE_SIZE_LIMITS && $maxbytes > 0 && $entry->size > $maxbytes) {
+                throw new \moodle_exception('errorbulkfiletoolarge', 'mediagallery', '', (object) [
+                    'filename' => s($entry->pathname),
+                    'size' => display_size($entry->size),
+                    'max' => display_size($maxbytes),
+                ]);
+            }
+            $total += $entry->size;
+        }
+        if ($total > self::BULK_MAX_BYTES) {
+            throw new \moodle_exception('errorbulktoolarge', 'mediagallery', '',
+                (object) ['size' => display_size($total), 'max' => display_size(self::BULK_MAX_BYTES)]);
+        }
+
+        return $media;
+    }
+
+    /**
+     * Add the media files in a zip archive to a gallery, one item per file.
+     *
+     * @param gallery $gallery
+     * @param \stored_file $storedfile The zip archive. It's deleted once its files are added.
+     * @param \stdClass $formdata Metadata to give every new item.
+     * @throws \moodle_exception If the archive can't be read or is over a limit.
+     */
     public static function create_from_archive(gallery $gallery, \stored_file $storedfile, $formdata = []) {
         global $DB;
         $context = $gallery->get_collection()->context;
 
-        $maxitems = $gallery->get_collection()->maxitems;
-        $count = $DB->count_records('mediagallery_item', ['galleryid' => $gallery->id]);
-        if ($maxitems != 0 && $count >= $maxitems) {
-            return;
-        }
+        $entries = self::get_archive_entries($gallery, $storedfile);
 
-        $fs = get_file_storage();
+        // Extract only the chosen entries, outside file storage, so the rest of the archive is never written anywhere.
+        $tempdir = make_request_directory();
+        $archivepath = $tempdir . '/archive.zip';
+        $storedfile->copy_content_to($archivepath);
+        $extractdir = $tempdir . '/extracted';
+        check_dir_exists($extractdir);
         $packer = get_file_packer('application/zip');
-        $fs->delete_area_files($context->id, 'mod_mediagallery', 'unpacktemp', 0);
-        $storedfile->extract_to_storage($packer, $context->id, 'mod_mediagallery', 'unpacktemp', 0, '/');
-        $itemfiles = $fs->get_area_files($context->id, 'mod_mediagallery', 'unpacktemp', 0);
+        $packer->extract_to_pathname($archivepath, $extractdir, array_column($entries, 'pathname'));
+        unlink($archivepath);
         $storedfile->delete();
 
-        foreach ($itemfiles as $storedfile) {
-            if ($storedfile->get_filesize() == 0 || preg_match('#^/.DS_Store|__MACOSX/#', $storedfile->get_filepath())) {
+        $fs = get_file_storage();
+        $count = $DB->count_records('mediagallery_item', ['galleryid' => $gallery->id]);
+        foreach ($entries as $entry) {
+            $path = $extractdir . '/' . $entry->pathname;
+            // Skip anything that failed to extract or came out larger than the archive said it was.
+            if (!is_file($path) || filesize($path) > $entry->size) {
                 continue;
             }
-            if ($maxitems != 0 && $count >= $maxitems) {
-                break;
+            $filename = clean_param(basename($entry->pathname), PARAM_FILE);
+            if ($filename === '') {
+                continue;
             }
-            $filename = $storedfile->get_filename();
 
             // Create an item.
             $data = new \stdClass();
@@ -180,7 +267,6 @@ class item extends base {
             $data->galleryid = $gallery->id;
             if (!$count) {
                 $data->thumbnail = 1;
-                $count = 0;
             }
             $item = self::create($data);
 
@@ -193,14 +279,12 @@ class item extends base {
                 'filepath' => '/',
                 'filename' => $filename
             ];
-            if (!$fs->get_file($context->id, 'mod_mediagallery', 'item', $item->id, '/', $filename)) {
-                $storedfile = $fs->create_file_from_storedfile($fileinfo, $storedfile);
-            }
+            $fs->create_file_from_pathname($fileinfo, $path);
+            unlink($path);
             $item->generate_image_by_type('lowres');
             $item->generate_image_by_type('thumbnail');
             $count++;
         }
-        $fs->delete_area_files($context->id, 'mod_mediagallery', 'unpacktemp', 0);
     }
 
     /**

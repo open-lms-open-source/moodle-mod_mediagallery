@@ -77,6 +77,12 @@ if ($gallery) {
     $node->make_active();
 }
 
+// Check the limit before anything is saved, so posting the form directly can't get around it.
+$maxitems = $mediagallery->maxitems;
+if (!$item && $maxitems != 0 && $DB->count_records('mediagallery_item', ['galleryid' => $gallery->id]) >= $maxitems) {
+    throw new \moodle_exception('errortoomanyitems', 'mediagallery', '', $maxitems);
+}
+
 $fmoptions = mediagallery_filepicker_options($gallery);
 
 $formclass = $bulk ? 'mod_mediagallery_item_bulk_form' : 'mod_mediagallery_item_form';
@@ -91,7 +97,9 @@ if ($mform->is_cancelled()) {
     if ($bulk) {
         $draftid = file_get_submitted_draft_itemid('content');
         $files = $fs->get_area_files(context_user::instance($USER->id)->id, 'user', 'draft', $draftid, 'id DESC', false);
-        $storedfile = reset($files);
+        if (!$storedfile = reset($files)) {
+            throw new \moodle_exception('errorbulkinvalid', 'mediagallery');
+        }
         \mod_mediagallery\item::create_from_archive($gallery, $storedfile, $data);
     } else {
         $data->description = $data->description['text'];
@@ -165,11 +173,6 @@ if ($mform->is_cancelled()) {
 
     $data->tags = core_tag_tag::get_item_tags_array('mod_mediagallery', 'mediagallery_item', $item->id);
     $mform->set_data($data);
-}
-
-$maxitems = $mediagallery->maxitems;
-if (!$item && $maxitems != 0 && count($gallery->get_items()) >= $maxitems) {
-    throw new \moodle_exception('errortoomanyitems', 'mediagallery', '', $maxitems);
 }
 
 echo $OUTPUT->header();
