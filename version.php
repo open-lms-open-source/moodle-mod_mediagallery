@@ -21,15 +21,15 @@
  * /admin/index.php
  *
  * @package    mod_mediagallery
- * @copyright  2014 NetSpot Pty Ltd
- * @author     Adam Olley <adam.olley@netspot.com.au>
+ * @copyright  2026 Open LMS
+ * @author     Adam Olley <adam.olley@openlms.net>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2026052000;
-$plugin->requires = 2023100900;
+$plugin->version = 2026102800;
+$plugin->requires = 2024100700;
 $plugin->component = 'mod_mediagallery';
 $plugin->maturity = MATURITY_STABLE;
-$plugin->release = '4.3.3';
+$plugin->release = '4.5.0';
