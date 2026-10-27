@@ -376,19 +376,20 @@ class gallery extends base {
         return;
     }
 
+    /**
+     * Reorder this gallery's items.
+     *
+     * @param array $data Item IDs in their new order. IDs of items in other galleries are ignored.
+     * @return bool
+     */
     public function update_sortorder($data) {
         global $DB;
-        $flipped = array_flip($data);
+        $flipped = array_flip(array_map('intval', (array) $data));
         $items = $DB->get_records('mediagallery_item', ['galleryid' => $this->record->id], '', 'id, sortorder');
         foreach ($items as $item) {
-            if (isset($flipped[$item->id]) && $item->sortorder == $flipped[$item->id]) {
-                unset($flipped[$item->id]);
+            if (isset($flipped[$item->id]) && $item->sortorder != $flipped[$item->id]) {
+                $DB->set_field('mediagallery_item', 'sortorder', $flipped[$item->id], ['id' => $item->id]);
             }
-        }
-
-        // TODO: Optimize this.
-        foreach ($flipped as $id => $order) {
-            $DB->set_field('mediagallery_item', 'sortorder', $order, ['id' => $id]);
         }
         return true;
     }
