@@ -178,4 +178,44 @@ class base_test extends \advanced_testcase {
         $this->assertFalse($gallery->user_can_contribute($stuid2));
     }
 
+    public function test_delete_removes_comments() {
+        global $DB;
+        $generator = self::getDataGenerator()->get_plugin_generator('mod_mediagallery');
+        $record = $this->getDataGenerator()->create_module('mediagallery', ['course' => $this->course->id]);
+        $context = \context_module::instance($record->cmid);
+        $othercontext = \context_course::instance($this->course->id);
+
+        self::setUser($this->students[0]);
+        $gallery = $generator->create_gallery(['name' => 'Test gallery', 'instanceid' => $record->id]);
+        $item1 = $generator->create_item(['galleryid' => $gallery->id]);
+        $item2 = $generator->create_item(['galleryid' => $gallery->id]);
+
+        $comment = function($contextid, $commentarea, $itemid, $component = 'mod_mediagallery') use ($DB) {
+            $DB->insert_record('comments', [
+                'contextid' => $contextid,
+                'component' => $component,
+                'commentarea' => $commentarea,
+                'itemid' => $itemid,
+                'content' => 'A comment',
+                'format' => FORMAT_PLAIN,
+                'userid' => $this->students[1]->id,
+                'timecreated' => time(),
+            ]);
+        };
+        $comment($context->id, 'gallery', $gallery->id);
+        $comment($context->id, 'item', $item1->id);
+        $comment($context->id, 'item', $item2->id);
+        // A comment elsewhere that happens to share an item id must survive.
+        $comment($othercontext->id, 'item', $item1->id, 'block_comments');
+
+        $item1->delete();
+        $this->assertFalse($DB->record_exists('comments', ['contextid' => $context->id, 'itemid' => $item1->id,
+            'commentarea' => 'item']));
+        $this->assertTrue($DB->record_exists('comments', ['contextid' => $context->id, 'itemid' => $item2->id]));
+
+        $gallery->delete();
+        $this->assertFalse($DB->record_exists('comments', ['contextid' => $context->id]));
+        $this->assertTrue($DB->record_exists('comments', ['contextid' => $othercontext->id]));
+    }
+
 }

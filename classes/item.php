@@ -229,7 +229,12 @@ class item extends base {
         $fs->delete_area_files($this->get_context()->id, 'mod_mediagallery', 'thumbnail', $this->record->id);
 
         $DB->delete_records('mediagallery_userfeedback', ['itemid' => $this->record->id]);
-        \comment::delete_comments(['commentarea' => 'item', 'itemid' => $this->record->id]);
+        \comment::delete_comments([
+            'contextid' => $this->get_context()->id,
+            'component' => 'mod_mediagallery',
+            'commentarea' => 'item',
+            'itemid' => $this->record->id,
+        ]);
 
         return parent::delete();
     }
@@ -248,6 +253,13 @@ class item extends base {
             $fs->delete_area_files_select($context->id, 'mod_mediagallery', 'item', $insql, $params);
             $fs->delete_area_files_select($context->id, 'mod_mediagallery', 'lowres', $insql, $params);
             $fs->delete_area_files_select($context->id, 'mod_mediagallery', 'thumbnail', $insql, $params);
+
+            $DB->delete_records_select('comments',
+                "contextid = :contextid AND component = :component AND commentarea = :commentarea AND itemid $insql",
+                ['contextid' => $context->id, 'component' => 'mod_mediagallery', 'commentarea' => 'item'] + $params);
+            foreach (array_keys($itemids) as $itemid) {
+                \core_tag_tag::remove_all_item_tags('mod_mediagallery', 'mediagallery_item', $itemid);
+            }
         }
 
         // Bulk delete userfeedback.

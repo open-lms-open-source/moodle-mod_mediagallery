@@ -140,7 +140,12 @@ class gallery extends base {
 
         // Delete all items and then the gallery.
         item::delete_all_by_gallery($this->record->id);
-        \comment::delete_comments(['commentarea' => 'gallery', 'itemid' => $this->record->id]);
+        \comment::delete_comments([
+            'contextid' => $coll->context->id,
+            'component' => 'mod_mediagallery',
+            'commentarea' => 'gallery',
+            'itemid' => $this->record->id,
+        ]);
 
         parent::delete();
 
