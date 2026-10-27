@@ -125,33 +125,94 @@ class provider implements
      * @return contextlist the list of contexts containing user info for the user.
      */
     public static function get_contexts_for_userid(int $userid) : contextlist {
-        // Fetch all mediagallery comments.
-        $sql = "SELECT c.id
-                FROM {context} c
-                JOIN {course_modules} cm ON cm.id = c.instanceid AND c.contextlevel = :contextlevel
-                JOIN {modules} m ON m.id = cm.module AND m.name = 'mediagallery'
-                JOIN {mediagallery} mg ON mg.id = cm.instance
-                LEFT JOIN {mediagallery_gallery} mgg ON mgg.instanceid = mg.id
-                LEFT JOIN {mediagallery_item} mgi ON mgi.galleryid = mgg.id
-                LEFT JOIN {mediagallery_userfeedback} mgu ON mgu.itemid = mgi.id
-                LEFT JOIN {comments} comg ON comg.commentarea = 'gallery' AND comg.itemid = mgg.id
-                LEFT JOIN {comments} comi ON comi.commentarea = 'item' AND comi.itemid = mgi.id
-                WHERE mgg.userid = :userid1 OR mgi.userid = :userid2 OR mgu.userid = :userid3";
+        $contextlist = new contextlist();
 
         $params = [
             'contextlevel' => CONTEXT_MODULE,
-            'userid1' => $userid,
-            'userid2' => $userid,
-            'userid3' => $userid,
+            'modname' => 'mediagallery',
+            'userid' => $userid,
         ];
-        $contextlist = new contextlist();
-        $contextlist->add_from_sql($sql, $params);
+        $from = "FROM {context} c
+                 JOIN {course_modules} cm ON cm.id = c.instanceid AND c.contextlevel = :contextlevel
+                 JOIN {modules} m ON m.id = cm.module AND m.name = :modname
+                 JOIN {mediagallery} mg ON mg.id = cm.instance";
+
+        // Collections the user created.
+        $contextlist->add_from_sql("SELECT c.id $from WHERE mg.userid = :userid", $params);
+
+        // Galleries the user owns.
+        $contextlist->add_from_sql("SELECT c.id $from
+                                      JOIN {mediagallery_gallery} g ON g.instanceid = mg.id
+                                     WHERE g.userid = :userid", $params);
+
+        // Items the user added.
+        $contextlist->add_from_sql("SELECT c.id $from
+                                      JOIN {mediagallery_gallery} g ON g.instanceid = mg.id
+                                      JOIN {mediagallery_item} i ON i.galleryid = g.id
+                                     WHERE i.userid = :userid", $params);
+
+        // Items the user liked or rated.
+        $contextlist->add_from_sql("SELECT c.id $from
+                                      JOIN {mediagallery_gallery} g ON g.instanceid = mg.id
+                                      JOIN {mediagallery_item} i ON i.galleryid = g.id
+                                      JOIN {mediagallery_userfeedback} f ON f.itemid = i.id
+                                     WHERE f.userid = :userid", $params);
+
+        // Comments the user made on galleries and items.
+        $contextlist->add_from_sql("SELECT contextid
+                                      FROM {comments}
+                                     WHERE component = :component AND userid = :userid",
+            ['component' => 'mod_mediagallery', 'userid' => $userid]);
 
         return $contextlist;
     }
 
     /**
+     * Get the list of users who have data within a context.
+     *
+     * @param userlist $userlist The userlist containing the list of users who have data in this context/plugin combination.
+     */
+    public static function get_users_in_context(userlist $userlist) {
+        $context = $userlist->get_context();
+
+        if (!$context instanceof \context_module) {
+            return;
+        }
+        $instanceid = self::get_mediagallery_id_from_context($context);
+        if (empty($instanceid)) {
+            return;
+        }
+        $params = ['instanceid' => $instanceid];
+
+        $userlist->add_from_sql('userid', "SELECT userid FROM {mediagallery} WHERE id = :instanceid", $params);
+
+        $userlist->add_from_sql('userid', "SELECT userid FROM {mediagallery_gallery} WHERE instanceid = :instanceid",
+            $params);
+
+        $sql = "SELECT i.userid
+                  FROM {mediagallery_item} i
+                  JOIN {mediagallery_gallery} g ON g.id = i.galleryid
+                 WHERE g.instanceid = :instanceid";
+        $userlist->add_from_sql('userid', $sql, $params);
+
+        $sql = "SELECT f.userid
+                  FROM {mediagallery_userfeedback} f
+                  JOIN {mediagallery_item} i ON i.id = f.itemid
+                  JOIN {mediagallery_gallery} g ON g.id = i.galleryid
+                 WHERE g.instanceid = :instanceid";
+        $userlist->add_from_sql('userid', $sql, $params);
+
+        \core_comment\privacy\provider::get_users_in_context_from_sql($userlist, 'cg', 'mod_mediagallery', 'gallery',
+            $context->id);
+        \core_comment\privacy\provider::get_users_in_context_from_sql($userlist, 'ci', 'mod_mediagallery', 'item',
+            $context->id);
+    }
+
+    /**
      * Export personal data for the given approved_contextlist. User and context information is contained within the contextlist.
+     *
+     * Comments are exported through the core comment API, which exports the comments of the current user. Data requests
+     * run as the user the request is for.
      *
      * @param approved_contextlist $contextlist a list of contexts approved for export.
      */
@@ -164,165 +225,174 @@ class provider implements
 
         $user = $contextlist->get_user();
 
-        list($contextsql, $contextparams) = $DB->get_in_or_equal($contextlist->get_contextids(), SQL_PARAMS_NAMED);
+        foreach ($contextlist->get_contexts() as $context) {
+            if (!$context instanceof \context_module) {
+                continue;
+            }
+            $instanceid = self::get_mediagallery_id_from_context($context);
+            if (empty($instanceid)) {
+                continue;
+            }
 
-        $sql = "SELECT c.id AS contextid,
-                       mg.id,
-                       cm.id AS cmid
-                FROM {context} c
-                JOIN {course_modules} cm ON cm.id = c.instanceid AND c.contextlevel = :contextlevel
-                JOIN {modules} m ON m.id = cm.module AND m.name = 'mediagallery'
-                JOIN {mediagallery} mg ON mg.id = cm.instance
-                JOIN {mediagallery_gallery} g ON g.instanceid = mg.id
-                LEFT JOIN {mediagallery_item} i ON i.galleryid = g.id
-                LEFT JOIN {mediagallery_userfeedback} u ON u.itemid = i.id AND u.userid = :userid1
-                WHERE c.id {$contextsql} AND (
-                    g.userid = :userid2 OR i.userid = :userid3 OR u.id IS NOT NULL
-                )
-                GROUP BY c.id, mg.id, cm.id";
-
-        $params = [
-            'userid1' => $user->id,
-            'userid2' => $user->id,
-            'userid3' => $user->id,
-            'contextlevel' => CONTEXT_MODULE
-        ] + $contextparams;
-        $collections = $DB->get_recordset_sql($sql, $params);
-
-        $mappings = [];
-
-        foreach ($collections as $collection) {
-            $mappings[$collection->id] = $collection->contextid;
-            $context = \context_module::instance($collection->cmid);
+            $created = $DB->record_exists('mediagallery', ['id' => $instanceid, 'userid' => $user->id]);
+            $exported = static::export_galleries($user->id, $context, $instanceid);
+            if (!$created && !$exported) {
+                continue;
+            }
 
             $data = helper::get_context_data($context, $user);
+            if ($created) {
+                $data->creator_was_you = transform::yesno(true);
+            }
             writer::with_context($context)->export_data([], $data);
             helper::export_context_files($context, $user);
         }
-        $collections->close();
-
-        if (!empty($mappings)) {
-            static::export_gallery_data($user->id, $mappings);
-            static::export_all_items($user->id, $mappings);
-        }
     }
 
-    protected static function export_gallery_data(int $userid, array $mappings) {
+    /**
+     * Export the galleries and items in one collection that hold data about a user.
+     *
+     * That covers galleries the user owns or commented on, and items the user added, liked, rated or commented on.
+     *
+     * @param int $userid
+     * @param \context_module $context The collection's context.
+     * @param int $instanceid The collection's id.
+     * @return bool True if anything was exported.
+     */
+    protected static function export_galleries(int $userid, \context_module $context, int $instanceid): bool {
         global $DB;
-        // Find all galleries the user owns, or has added items to.
-        list($collinsql, $collparams) = $DB->get_in_or_equal(array_keys($mappings), SQL_PARAMS_NAMED);
 
-        $sql = "SELECT g.*
-                FROM {mediagallery} m
-                JOIN {mediagallery_gallery} g ON g.instanceid = m.id
-                LEFT JOIN {mediagallery_item} i ON i.galleryid = g.id
-                LEFT JOIN {mediagallery_userfeedback} u ON u.itemid = i.id AND u.userid = :userid1
-                WHERE m.id {$collinsql} AND (
-                    g.userid = :userid2 OR i.userid = :userid3 OR u.id IS NOT NULL
-                )";
+        $params = ['instanceid' => $instanceid, 'userid' => $userid];
+        $itemfrom = "FROM {mediagallery_item} i
+                     JOIN {mediagallery_gallery} g ON g.id = i.galleryid
+                    WHERE g.instanceid = :instanceid";
 
-        $params = ['userid1' => $userid, 'userid2' => $userid, 'userid3' => $userid] + $collparams;
-        $galleries = $DB->get_recordset_sql($sql, $params);
+        $itemids = array_merge(
+            $DB->get_fieldset_sql("SELECT i.id $itemfrom AND i.userid = :userid", $params),
+            $DB->get_fieldset_sql("SELECT i.id $itemfrom AND i.id IN (
+                                       SELECT itemid FROM {mediagallery_userfeedback} WHERE userid = :userid
+                                   )", $params),
+            static::get_commented_ids($userid, $context, 'item')
+        );
+        $items = $itemids ? $DB->get_records_list('mediagallery_item', 'id', array_unique($itemids), 'id') : [];
+
+        $galleryids = array_merge(
+            $DB->get_fieldset_select('mediagallery_gallery', 'id', 'instanceid = :instanceid AND userid = :userid', $params),
+            array_column($items, 'galleryid'),
+            static::get_commented_ids($userid, $context, 'gallery')
+        );
+        if (empty($galleryids)) {
+            return false;
+        }
+        // Comment ids come from the comments table, so only keep galleries in this collection.
+        $galleries = $DB->get_records_list('mediagallery_gallery', 'id', array_unique($galleryids), 'id');
+        $galleries = array_filter($galleries, fn($gallery) => $gallery->instanceid == $instanceid);
+
+        $feedback = $DB->get_records_list('mediagallery_userfeedback', 'itemid', array_keys($items));
+        $userfeedback = [];
+        foreach ($feedback as $record) {
+            if ($record->userid == $userid) {
+                $userfeedback[$record->itemid] = $record;
+            }
+        }
 
         foreach ($galleries as $gallery) {
-            $context = \context::instance_by_id($mappings[$gallery->instanceid]);
-
-            $gallerydata = (object) [
+            $galleryarea = static::get_gallery_area($gallery);
+            writer::with_context($context)->export_data($galleryarea, (object) [
                 'name' => format_string($gallery->name, true),
                 'creator_was_you' => transform::yesno($gallery->userid == $userid),
-            ];
+            ]);
+            \core_tag\privacy\provider::export_item_tags($userid, $context, $galleryarea, 'mod_mediagallery',
+                'mediagallery_gallery', $gallery->id);
+            \core_comment\privacy\provider::export_comments($context, 'mod_mediagallery', 'gallery', $gallery->id,
+                $galleryarea);
 
-            $galleryarea = static::get_gallery_area($gallery);
-            writer::with_context($context)
-                ->export_data($galleryarea, $gallerydata);
-
-            \core_tag\privacy\provider::export_item_tags($userid, $context, $galleryarea, 'mod_mediagallery', 'gallery',
-                                                        $gallery->id);
+            $itemarea = array_merge($galleryarea, static::get_item_area());
+            $itemdata = [];
+            foreach ($items as $item) {
+                if ($item->galleryid == $gallery->id) {
+                    $itemdata[] = static::export_item_data($userid, $context, $itemarea, $item,
+                        $userfeedback[$item->id] ?? null);
+                }
+            }
+            if ($itemdata) {
+                writer::with_context($context)->export_data($itemarea, (object) $itemdata);
+            }
         }
-        $galleries->close();
-    }
 
-    protected static function export_all_items(int $userid, array $mappings) {
-        global $DB;
-        // Find all galleries the user owns, or has added items to.
-        list($collinsql, $collparams) = $DB->get_in_or_equal(array_keys($mappings), SQL_PARAMS_NAMED);
-
-        $sql = "SELECT g.id AS id,
-                       m.id AS mediagalleryid,
-                       g.name
-                FROM {mediagallery} m
-                JOIN {mediagallery_gallery} g ON g.instanceid = m.id
-                LEFT JOIN {mediagallery_item} i ON i.galleryid = g.id
-                LEFT JOIN {mediagallery_userfeedback} u ON u.itemid = i.id AND u.userid = :userid1
-                WHERE m.id {$collinsql} AND (
-                    g.userid = :userid2 OR i.userid = :userid3 OR u.id IS NOT NULL
-                )
-                GROUP BY m.id, g.id, g.name";
-        $params = ['userid1' => $userid, 'userid2' => $userid, 'userid3' => $userid] + $collparams;
-        $galleries = $DB->get_records_sql($sql, $params);
-        foreach ($galleries as $gallery) {
-            $context = \context::instance_by_id($mappings[$gallery->mediagalleryid]);
-            static::export_all_items_in_gallery($userid, $context, $gallery);
-        }
+        return true;
     }
 
     /**
-     * Store all information about all item that we have detected this user to has uploaded or provided feedback to.
+     * Get the ids of the galleries or items a user commented on in a context.
      *
-     * @param   int         $userid The userid of the user whose data is to be exported.
-     * @param   \context    $context The instance of the mediagallery context.
-     * @param   \stdClass   $gallery The gallery whose data is being exported.
+     * @param int $userid
+     * @param \context $context
+     * @param string $commentarea Either 'gallery' or 'item'.
+     * @return int[]
      */
-    protected static function export_all_items_in_gallery($userid, $context, $gallery) {
+    protected static function get_commented_ids(int $userid, \context $context, string $commentarea): array {
         global $DB;
-        $sql = "SELECT i.*
-                FROM {mediagallery_gallery} g
-                JOIN {mediagallery_item} i ON i.galleryid = g.id
-                LEFT JOIN {mediagallery_userfeedback} u ON u.itemid = i.id AND u.userid = :userid1
-                WHERE g.id = :galleryid AND (
-                    i.userid = :userid2 OR u.id IS NOT NULL
-                )";
-        $params = [
-          'galleryid' => $gallery->id,
-          'userid1' => $userid,
-          'userid2' => $userid,
-        ];
-        $items = $DB->get_records_sql($sql, $params);
-
-        $galleryarea = static::get_gallery_area($gallery);
-        $itemdata = [];
-        foreach ($items as $item) {
-            $itemdata[] = static::export_item_data($userid, $context, $galleryarea, $item);
-        }
-
-        $itemarea = array_merge($galleryarea, static::get_item_area());
-        writer::with_context($context)
-            ->export_data($itemarea, (object)$itemdata);
+        return $DB->get_fieldset_select('comments', 'itemid',
+            'contextid = :contextid AND component = :component AND commentarea = :commentarea AND userid = :userid', [
+                'contextid' => $context->id,
+                'component' => 'mod_mediagallery',
+                'commentarea' => $commentarea,
+                'userid' => $userid,
+            ]);
     }
 
     /**
-     * Export all data in the item.
+     * Export one item's data, files, tags and comments.
      *
-     * @param   int         $userid The userid of the user whose data is to be exported.
-     * @param   \context    $context The instance of the forum context.
-     * @param   array       $galleryarea The subcontext of the gallery.
-     * @param   \stdClass   $item The post structure and all of its children
+     * Content and files are only exported for items the user added. For other items, only the caption and the user's
+     * own like, rating and comments are exported.
+     *
+     * @param int $userid
+     * @param \context $context
+     * @param array $itemarea The subcontext items are exported to.
+     * @param \stdClass $item The item record.
+     * @param \stdClass|null $feedback The user's like or rating of the item, if any.
+     * @return \stdClass The item data.
      */
-    protected static function export_item_data(int $userid, \context $context, $galleryarea, $item) {
+    protected static function export_item_data(int $userid, \context $context, array $itemarea, \stdClass $item,
+            ?\stdClass $feedback): \stdClass {
+        $ownitem = $item->userid == $userid;
         $itemdata = (object) [
             'id' => $item->id,
             'caption' => format_string($item->caption, true),
             'timecreated' => transform::datetime($item->timecreated),
-            'creator_was_you' => transform::yesno($item->userid == $userid),
+            'creator_was_you' => transform::yesno($ownitem),
         ];
 
-        $itemarea = array_merge($galleryarea, static::get_item_area());
-        writer::with_context($context)
-            ->export_area_files($itemarea, 'mod_mediagallery', 'item', $item->id)
-            ->export_area_files($itemarea, 'mod_mediagallery', 'lowres', $item->id)
-            ->export_area_files($itemarea, 'mod_mediagallery', 'thumbnail', $item->id);
+        if ($ownitem) {
+            $itemdata->description = $item->description;
+            foreach (['originalauthor', 'medium', 'publisher', 'broadcaster', 'reference', 'externalurl'] as $field) {
+                $itemdata->$field = $item->$field;
+            }
+            $itemdata->moralrights = transform::yesno($item->moralrights);
+            if (!empty($item->productiondate)) {
+                $itemdata->productiondate = transform::date($item->productiondate);
+            }
 
-        \core_tag\privacy\provider::export_item_tags($userid, $context, $itemarea, 'mod_mediagallery', 'item', $item->id);
+            writer::with_context($context)
+                ->export_area_files($itemarea, 'mod_mediagallery', 'item', $item->id)
+                ->export_area_files($itemarea, 'mod_mediagallery', 'lowres', $item->id)
+                ->export_area_files($itemarea, 'mod_mediagallery', 'thumbnail', $item->id);
+            \core_tag\privacy\provider::export_item_tags($userid, $context, $itemarea, 'mod_mediagallery',
+                'mediagallery_item', $item->id);
+        }
+
+        if ($feedback) {
+            $itemdata->liked_by_you = transform::yesno($feedback->liked);
+            if (!is_null($feedback->rating)) {
+                $itemdata->your_rating = $feedback->rating;
+            }
+        }
+
+        \core_comment\privacy\provider::export_comments($context, 'mod_mediagallery', 'item', $item->id,
+            array_merge($itemarea, [$item->id]));
+
         return $itemdata;
     }
 
@@ -338,7 +408,10 @@ class provider implements
             return;
         }
 
-        $instanceid = $DB->get_field('course_modules', 'instance', ['id' => $context->instanceid], MUST_EXIST);
+        $instanceid = self::get_mediagallery_id_from_context($context);
+        if (empty($instanceid)) {
+            return;
+        }
 
         $DB->delete_records_select('mediagallery_userfeedback',
             "itemid IN (
@@ -375,57 +448,114 @@ class provider implements
      * @param approved_contextlist $contextlist a list of contexts approved for deletion.
      */
     public static function delete_data_for_user(approved_contextlist $contextlist) {
-        global $DB;
-
         if (empty($contextlist->count())) {
             return;
         }
 
         $userid = $contextlist->get_user()->id;
-        $fs = get_file_storage();
-
-        $galleryidsql = "SELECT g.id
-                         FROM {mediagallery_gallery} g
-                         WHERE userid = :userid AND instanceid = :instanceid";
-        $itemidsql = "SELECT i.id
-                      FROM {mediagallery_item} i
-                      WHERE userid = :userid AND galleryid IN (
-                        SELECT id
-                        FROM {mediagallery_gallery}
-                        WHERE instanceid = :instanceid
-                      )";
         foreach ($contextlist->get_contexts() as $context) {
-            if (!$context instanceof \context_module) {
-                continue;
+            if ($context instanceof \context_module) {
+                static::delete_user_data($context, [$userid]);
             }
-            $instanceid = $DB->get_field('course_modules', 'instance', ['id' => $context->instanceid], MUST_EXIST);
-
-            $params = [
-                'userid' => $userid,
-                'instanceid' => $instanceid,
-            ];
-
-            $fs->delete_area_files_select($context->id, 'mod_mediagallery', 'item', "IN ($itemidsql)", $params);
-            $fs->delete_area_files_select($context->id, 'mod_mediagallery', 'lowres', "IN ($itemidsql)", $params);
-            $fs->delete_area_files_select($context->id, 'mod_mediagallery', 'thumbnail', "IN ($itemidsql)", $params);
-
-            \core_tag\privacy\provider::delete_item_tags_select($context, 'mod_mediagallery', 'gallery',
-                "IN ($galleryidsql)", $params);
-            \core_tag\privacy\provider::delete_item_tags_select($context, 'mod_mediagallery', 'item',
-                "IN ($itemidsql)", $params);
-
-            // We delete these last as the deletes above depend on these records.
-
-            $DB->delete_records_select('mediagallery_userfeedback', "itemid IN ($itemidsql)", $params);
-            $DB->delete_records_select('mediagallery_item', "galleryid IN ($galleryidsql)", $params);
-            $DB->delete_records('mediagallery_gallery', $params);
         }
 
         \core_comment\privacy\provider::delete_comments_for_user($contextlist, 'mod_mediagallery', 'gallery');
         \core_comment\privacy\provider::delete_comments_for_user($contextlist, 'mod_mediagallery', 'item');
-
     }
 
+    /**
+     * Delete multiple users within a single context.
+     *
+     * @param approved_userlist $userlist The approved context and user information to delete information for.
+     */
+    public static function delete_data_for_users(approved_userlist $userlist) {
+        $context = $userlist->get_context();
+        if (!$context instanceof \context_module) {
+            return;
+        }
+
+        static::delete_user_data($context, $userlist->get_userids());
+
+        \core_comment\privacy\provider::delete_comments_for_users($userlist, 'mod_mediagallery', 'gallery');
+        \core_comment\privacy\provider::delete_comments_for_users($userlist, 'mod_mediagallery', 'item');
+    }
+
+    /**
+     * Delete the data a set of users hold in one collection.
+     *
+     * This deletes the items the users added and the galleries they own, with each one's files, tags, likes and
+     * comments. Deleting a gallery deletes every item in it, which matches what happens when its owner deletes it.
+     * It also deletes the likes and ratings the users gave, and removes them as the collection's creator. The
+     * comments the users made are deleted by the callers.
+     *
+     * @param \context_module $context The collection's context.
+     * @param int[] $userids
+     */
+    protected static function delete_user_data(\context_module $context, array $userids) {
+        global $DB;
+
+        $instanceid = self::get_mediagallery_id_from_context($context);
+        if (empty($instanceid) || empty($userids)) {
+            return;
+        }
+
+        [$usersql, $userparams] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED, 'mgu');
+        $params = ['instanceid' => $instanceid] + $userparams;
+
+        $galleryids = $DB->get_fieldset_select('mediagallery_gallery', 'id',
+            "instanceid = :instanceid AND userid $usersql", $params);
+
+        $sql = "SELECT i.id
+                  FROM {mediagallery_item} i
+                  JOIN {mediagallery_gallery} g ON g.id = i.galleryid
+                 WHERE g.instanceid = :instanceid AND i.userid $usersql";
+        $itemids = $DB->get_fieldset_sql($sql, $params);
+        if ($galleryids) {
+            [$gallerysql, $galleryparams] = $DB->get_in_or_equal($galleryids, SQL_PARAMS_NAMED, 'mgg');
+            $itemids = array_merge($itemids,
+                $DB->get_fieldset_select('mediagallery_item', 'id', "galleryid $gallerysql", $galleryparams));
+        }
+
+        if ($itemids) {
+            [$itemsql, $itemparams] = $DB->get_in_or_equal(array_unique($itemids), SQL_PARAMS_NAMED, 'mgi');
+            $fs = get_file_storage();
+            foreach (['item', 'lowres', 'thumbnail'] as $filearea) {
+                $fs->delete_area_files_select($context->id, 'mod_mediagallery', $filearea, $itemsql, $itemparams);
+            }
+            \core_tag\privacy\provider::delete_item_tags_select($context, 'mod_mediagallery', 'mediagallery_item',
+                $itemsql, $itemparams);
+            \core_comment\privacy\provider::delete_comments_for_all_users_select($context, 'mod_mediagallery', 'item',
+                $itemsql, $itemparams);
+            $DB->delete_records_select('mediagallery_userfeedback', "itemid $itemsql", $itemparams);
+            $DB->delete_records_select('mediagallery_item', "id $itemsql", $itemparams);
+        }
+
+        if ($galleryids) {
+            \core_tag\privacy\provider::delete_item_tags_select($context, 'mod_mediagallery', 'mediagallery_gallery',
+                $gallerysql, $galleryparams);
+            \core_comment\privacy\provider::delete_comments_for_all_users_select($context, 'mod_mediagallery', 'gallery',
+                $gallerysql, $galleryparams);
+            $DB->delete_records_select('mediagallery_gallery', "id $gallerysql", $galleryparams);
+        }
+
+        // Likes and ratings the users gave on items that remain.
+        $DB->delete_records_select('mediagallery_userfeedback',
+            "userid $usersql AND itemid IN (
+                SELECT i.id
+                  FROM {mediagallery_item} i
+                  JOIN {mediagallery_gallery} g ON g.id = i.galleryid
+                 WHERE g.instanceid = :instanceid
+            )", $params);
+
+        // The collection stays, but no longer records who created it.
+        $DB->set_field_select('mediagallery', 'userid', 0, "id = :instanceid AND userid $usersql", $params);
+    }
+
+    /**
+     * Export all user preferences for the plugin.
+     *
+     * @param int $userid The userid of the user whose data is to be exported.
+     */
     public static function export_user_preferences(int $userid) {
         $pref = get_user_preferences('mod_mediagallery_mediasize', \mod_mediagallery\output\gallery\renderable::MEDIASIZE_MD,
                                     $userid);
@@ -440,97 +570,11 @@ class provider implements
     }
 
     /**
-     * Get the list of users who have data within a context.
+     * Get the mediagallery id for a module context.
      *
-     * @param userlist $userlist The userlist containing the list of users who have data in this context/plugin combination.
-     *
+     * @param \context_module $context
+     * @return int The mediagallery id, or 0 if the context is not a mediagallery.
      */
-    public static function get_users_in_context(userlist $userlist) {
-        $context = $userlist->get_context();
-
-        if (!is_a($context, \context_module::class)) {
-            return;
-        }
-
-        $params = [
-            'instanceid' => $context->instanceid,
-        ];
-
-        $collectionsql = "SELECT userid
-                          FROM {mediagallery}
-                          WHERE id = :instanceid";
-
-        $userlist->add_from_sql('userid', $collectionsql, $params);
-
-        $gallerysql = "SELECT userid
-                       FROM {mediagallery_gallery}
-                       WHERE instanceid = :instanceid";
-
-        $userlist->add_from_sql('userid', $gallerysql, $params);
-
-        $itemsql = "SELECT i.userid
-                    FROM {mediagallery_item} i
-                    JOIN {mediagallery_gallery} g ON i.galleryid = g.id
-                    WHERE g.instanceid = :instanceid";
-
-        $userlist->add_from_sql('userid', $itemsql, $params);
-    }
-
-    /**
-     * Delete multiple users within a single context.
-     *
-     * @param approved_userlist $userlist The approved context and user information to delete information for.
-     */
-    public static function delete_data_for_users(approved_userlist $userlist) {
-        global $DB;
-
-        $context = $userlist->get_context();
-        if ($context->contextlevel != CONTEXT_MODULE) {
-            return;
-        }
-        $instanceid = self::get_mediagallery_id_from_context($context);
-        $userids = $userlist->get_userids();
-
-        if (empty($instanceid)) {
-            return;
-        }
-
-        list($insql, $inparams) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
-
-        $fs = get_file_storage();
-
-        $galleryidsql = "SELECT g.id
-                         FROM {mediagallery_gallery} g
-                         WHERE userid $insql AND instanceid = :instanceid";
-        $itemidsql = "SELECT i.id
-                      FROM {mediagallery_item} i
-                      WHERE userid $insql AND galleryid IN (
-                        SELECT id
-                        FROM {mediagallery_gallery}
-                        WHERE instanceid = :instanceid
-                      )";
-
-        $params = array_merge(['instanceid' => $instanceid], $inparams);
-
-        $fs->delete_area_files_select($context->id, 'mod_mediagallery', 'item', "IN ($itemidsql)", $params);
-        $fs->delete_area_files_select($context->id, 'mod_mediagallery', 'lowres', "IN ($itemidsql)", $params);
-        $fs->delete_area_files_select($context->id, 'mod_mediagallery', 'thumbnail', "IN ($itemidsql)", $params);
-
-        \core_tag\privacy\provider::delete_item_tags_select($context, 'mod_mediagallery', 'gallery',
-            "IN ($galleryidsql)", $params);
-        \core_tag\privacy\provider::delete_item_tags_select($context, 'mod_mediagallery', 'item',
-            "IN ($itemidsql)", $params);
-
-        // We delete these last as the deletes above depend on these records.
-
-        $DB->delete_records_select('mediagallery_userfeedback', "itemid IN ($itemidsql)", $params);
-        $DB->delete_records_select('mediagallery_item', "galleryid IN ($galleryidsql)", $params);
-        $DB->delete_records('mediagallery_gallery', $params);
-
-        \core_comment\privacy\provider::delete_comments_for_users($userlist, 'mod_mediagallery', 'gallery');
-        \core_comment\privacy\provider::delete_comments_for_users($userlist, 'mod_mediagallery', 'item');
-    }
-
     protected static function get_mediagallery_id_from_context(\context_module $context) {
         $cm = get_coursemodule_from_id('mediagallery', $context->instanceid);
         return $cm ? (int) $cm->instance : 0;
