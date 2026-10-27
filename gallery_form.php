@@ -225,17 +225,4 @@ class mod_mediagallery_gallery_form extends moodleform {
         }
         parent::set_data($data);
     }
-
-    /**
-     * Validate form input.
-     *
-     * @param array $data
-     * @param array $files
-     * @return array List of errors, if any.
-     */
-    public function validation($data, $files) {
-        $errors = array();
-        $collection = new \mod_mediagallery\collection($data['m']);
-        return $errors;
-    }
 }
