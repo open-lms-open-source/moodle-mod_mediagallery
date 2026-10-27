@@ -6,8 +6,6 @@ var MEDIABOX = function() {
 
 Y.extend(MEDIABOX, Y.Base, {
     initializer: function() {
-        this.enable();
-        this.build();
         this._sidebarwidth = 300;
         this._navbarheight = 60;
         this.currentitem = null;
@@ -15,9 +13,12 @@ Y.extend(MEDIABOX, Y.Base, {
         this._audioheight = 275;
         this._videowidth = 640;
         this._videoheight = 390;
-        this._fullscreenavail = screenfull.enabled && !Y.one('body').hasClass('ui-mobile-viewport');
+        this._fullscreenavail = document.fullscreenEnabled;
         this._loadingimage = Y.Node.create('<img/>').setAttribute('src', M.util.image_url('loading', 'mod_mediagallery'));
 
+        // Built last, as build() reads the settings above, such as whether to show the fullscreen button.
+        this.enable();
+        this.build();
     },
 
     build: function() {
@@ -181,9 +182,19 @@ Y.extend(MEDIABOX, Y.Base, {
 
         if (this._fullscreenavail) {
             Y.one('#mediabox-sidebar-actions .fullscreen').on('click', function() {
-                screenfull.toggle(_this.mediabox.getDOMNode());
-                _this.setfullscreenimg();
+                if (document.fullscreenElement) {
+                    document.exitFullscreen();
+                } else {
+                    // Rejected if the browser refuses, e.g. without a user gesture. There's nothing to undo then.
+                    _this.mediabox.getDOMNode().requestFullscreen().catch(function() {
+                        return;
+                    });
+                }
                 return false;
+            });
+            // Entering and leaving are asynchronous, and Esc leaves without a click, so follow the browser's events.
+            document.addEventListener('fullscreenchange', function() {
+                _this.setfullscreenimg();
             });
         }
 
@@ -515,7 +526,7 @@ Y.extend(MEDIABOX, Y.Base, {
             return;
         }
         var imgurl = M.util.image_url('fullscreen', 'mod_mediagallery');
-        if (screenfull.isFullscreen) {
+        if (document.fullscreenElement) {
             imgurl = M.util.image_url('fullscreenexit', 'mod_mediagallery');
         }
         Y.one('#mediabox-sidebar-actions .fullscreen').setAttribute('src', imgurl);
@@ -554,8 +565,8 @@ Y.extend(MEDIABOX, Y.Base, {
     },
 
     stop : function() {
-        if (screenfull.isFullscreen) {
-            screenfull.exit();
+        if (document.fullscreenElement) {
+            document.exitFullscreen();
         }
         this.disablenav();
         Y.one('body').removeClass('noscroll mediaboxactive');

@@ -21,11 +21,4 @@
     <version>0.3.0</version>
     <licenseversion></licenseversion>
   </library>
-  <library>
-    <location>js/screenfull.min.js</location>
-    <name>screenfull by Sindre Sorhus - https://github.com/sindresorhus/screenfull.js</name>
-    <license>MIT</license>
-    <version>1.1.1</version>
-    <licenseversion></licenseversion>
-  </library>
 </libraries>

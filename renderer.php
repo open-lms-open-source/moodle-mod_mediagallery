@@ -71,7 +71,6 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
 
         $galleryid = !empty($controller->gallery) ? $controller->gallery->id : 0;
         $this->page->requires->css('/mod/mediagallery/css/fontawesome.min.css?1667793614');
-        $this->page->requires->js('/mod/mediagallery/js/screenfull.min.js');
         $this->page->requires->yui_module('moodle-mod_mediagallery-base', 'M.mod_mediagallery.base.init',
             array(
                 $controller->course->id,

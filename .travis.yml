@@ -19,7 +19,7 @@ php:
 
 env:
  global:
-  - IGNORE_PATHS=jquery/jcarousel,fonts,css,js/screenfull.min.js
+  - IGNORE_PATHS=jquery/jcarousel,fonts,css
   - MOODLE_BRANCH=master
  matrix:
   - DB=pgsql
