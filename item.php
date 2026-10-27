@@ -30,7 +30,8 @@ require_once(dirname(__FILE__).'/locallib.php');
 require_once($CFG->dirroot.'/repository/lib.php');
 
 $g = optional_param('g', 0, PARAM_INT); // The gallery id.
-$i = optional_param('i', 0, PARAM_INT); // An item id.
+$id = optional_param('id', 0, PARAM_INT); // An item id, as submitted by the form.
+$i = optional_param('i', $id, PARAM_INT); // An item id.
 $bulk = optional_param('bulk', false, PARAM_BOOL);
 
 if (!$g && !$i) {
@@ -97,7 +98,10 @@ if ($mform->is_cancelled()) {
         $data->galleryid = $gallery->id;
 
         if (!empty($data->id)) {
-            $item = new \mod_mediagallery\item($data->id);
+            // Only the item loaded and permission checked above may be updated.
+            if (!$item || (int)$data->id !== (int)$item->id) {
+                throw new \moodle_exception('invalidparameter', 'debug');
+            }
             $item->update($data);
         } else {
             $item = \mod_mediagallery\item::create($data);

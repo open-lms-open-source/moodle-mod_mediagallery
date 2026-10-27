@@ -58,6 +58,10 @@ if (!$gallery && !$mediagallery->user_can_add_children()) {
     throw new moodle_exception('errortoomanygalleries', 'mediagallery', '', $maxgalleries);
 }
 
+if ($gallery && !$gallery->user_can_edit()) {
+    throw new \moodle_exception('nopermissions', 'error', '', 'edit gallery');
+}
+
 $pageurl = new moodle_url('/mod/mediagallery/gallery.php', array('m' => $mediagallery->id));
 $PAGE->set_url($pageurl);
 $PAGE->set_title(format_string($mediagallery->name));
@@ -81,10 +85,13 @@ if ($mform->is_cancelled()) {
         $data->contributable = 0;
     }
     if (!empty($data->id)) {
-        $gallery = new \mod_mediagallery\gallery($data->id);
+        // Only the gallery loaded and permission checked above may be updated.
+        if (!$gallery || (int)$data->id !== (int)$gallery->id) {
+            throw new \moodle_exception('invalidparameter', 'debug');
+        }
         $gallery->update($data);
     } else {
-        $data->instanceid = $data->m;
+        $data->instanceid = $mediagallery->id;
         unset($data->m);
         $data->userid = $USER->id;
 
@@ -105,9 +112,6 @@ if ($mform->is_cancelled()) {
 
     redirect(new moodle_url('/mod/mediagallery/view.php', array('g' => $gallery->id, 'editing' => 1)));
 } else if ($gallery) {
-    if (!$gallery->user_can_edit()) {
-        throw new \moodle_exception('nopermissions', 'error', $pageurl, 'edit gallery');
-    }
     $data = $gallery->get_record();
     $data->tags = core_tag_tag::get_item_tags_array('mod_mediagallery', 'mediagallery_gallery', $gallery->id);
     foreach ($gallery->get_display_settings() as $key => $value) {
