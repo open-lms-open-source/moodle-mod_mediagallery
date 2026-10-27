@@ -73,6 +73,21 @@ class restore_mediagallery_activity_task extends restore_activity_task {
     }
 
     /**
+     * Get the name of the mapping that holds the new IDs of the things a comment area's comments are on.
+     *
+     * Comments themselves are backed up and restored by core, in comments.xml.
+     *
+     * @param string $commentarea
+     * @return string
+     */
+    public function get_comment_mapping_itemname($commentarea) {
+        if ($commentarea == 'gallery' || $commentarea == 'item') {
+            return 'mediagallery_' . $commentarea;
+        }
+        return parent::get_comment_mapping_itemname($commentarea);
+    }
+
+    /**
      * Define the restore log rules that will be applied
      * by the {@see \restore_logs_processor} when restoring
      * page logs. It must return one array

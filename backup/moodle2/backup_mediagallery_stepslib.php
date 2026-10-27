@@ -40,7 +40,7 @@ class backup_mediagallery_activity_structure_step extends backup_activity_struct
             'captionposition', 'galleryfocus', 'carousel', 'grid', 'gridrows',
             'gridcolumns', 'enforcedefaults', 'readonlyfrom', 'readonlyto',
             'maxbytes', 'maxitems', 'maxgalleries', 'allowcomments', 'allowlikes',
-            'colltype', 'objectid', 'source', 'mode', 'creator', 'userid',
+            'colltype', 'objectid', 'source', 'mode', 'creator', 'userid', 'agents',
         ));
 
         $userfeedbacks = new backup_nested_element('userfeedback');
@@ -53,7 +53,7 @@ class backup_mediagallery_activity_structure_step extends backup_activity_struct
             'instanceid', 'name', 'userid', 'nameposition', 'exportable', 'galleryview',
             'gridrows', 'gridcolumns', 'visibleinstructor', 'visibleother', 'thumbnail',
             'galleryfocus', 'groupid', 'mode', 'objectid', 'source', 'creator',
-            'contributable',
+            'contributable', 'agents',
         ));
 
         $items = new backup_nested_element('items');
@@ -61,6 +61,7 @@ class backup_mediagallery_activity_structure_step extends backup_activity_struct
             'galleryid', 'userid', 'caption', 'description', 'sortorder', 'display', 'moralrights',
             'originalauthor', 'productiondate', 'medium', 'publisher', 'reference', 'externalurl',
             'timecreated', 'broadcaster', 'objectid', 'source', 'processing_status', 'creator',
+            'agents', 'extpath', 'theme_id', 'copyright_id',
         ));
 
         $ctags = new backup_nested_element('collectiontags');
@@ -136,12 +137,14 @@ class backup_mediagallery_activity_structure_step extends backup_activity_struct
         }
 
         // Define file annotations.
+        $mediagallery->annotate_files('mod_mediagallery', 'intro', null);
         $mediagallery->annotate_files('mod_mediagallery', 'item', null);
         $mediagallery->annotate_files('mod_mediagallery', 'lowres', null);
         $mediagallery->annotate_files('mod_mediagallery', 'thumbnail', null);
 
         $userfeedback->annotate_ids('user', 'userid');
         $gallery->annotate_ids('user', 'userid');
+        $gallery->annotate_ids('group', 'groupid');
         $item->annotate_ids('user', 'userid');
 
         // Return the root element (mediagallery), wrapped into standard activity structure.
