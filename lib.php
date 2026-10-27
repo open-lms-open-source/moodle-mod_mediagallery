@@ -456,7 +456,11 @@ function mediagallery_pluginfile($course, $cm, $context, $filearea, array $args,
         return false;
     }
 
-    send_stored_file($file, 0, 0, $forcedownload, $options); // Download MUST be forced - security!
+    if (!file_mimetype_in_typegroup($file->get_mimetype(), ['web_image', 'web_audio', 'web_video'])) {
+        $forcedownload = true;
+    }
+    header('X-Content-Type-Options: nosniff');
+    send_stored_file($file, 0, 0, $forcedownload, $options);
 }
 
 /**
