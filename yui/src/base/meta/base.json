@@ -9,7 +9,8 @@
         "dd-drop",
         "dd-plugin",
         "moodle-core-notification",
-        "event"
+        "event",
+        "escape"
     ]
   }
 }

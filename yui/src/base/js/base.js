@@ -178,7 +178,7 @@ M.mod_mediagallery.base = {
                 e.preventDefault();
                 // Create the confirm box.
                 var itemdata = this.ancestor("div" + selector).getData();
-                config.question = config.origquestion + itemdata.title + '?';
+                config.question = config.origquestion + Y.Escape.html(itemdata.title) + '?';
                 var confirm = new M.core.confirm(config);
                 // If the user clicks yes.
                 confirm.on('complete-yes', function() {

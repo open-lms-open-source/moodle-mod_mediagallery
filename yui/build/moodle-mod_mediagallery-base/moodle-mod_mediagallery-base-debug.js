@@ -180,7 +180,7 @@ M.mod_mediagallery.base = {
                 e.preventDefault();
                 // Create the confirm box.
                 var itemdata = this.ancestor("div" + selector).getData();
-                config.question = config.origquestion + itemdata.title + '?';
+                config.question = config.origquestion + Y.Escape.html(itemdata.title) + '?';
                 var confirm = new M.core.confirm(config);
                 // If the user clicks yes.
                 confirm.on('complete-yes', function() {
@@ -229,6 +229,7 @@ M.mod_mediagallery.base = {
 
     },
 
+    // The renderer escapes or formats every value in data, so it is inserted as HTML here.
     add_gallery_info_modal : function(courseid, data) {
         var metainfo = Y.Node.create('<div class="metainfo"></div>');
         var userlink = '<a href="' + M.cfg.wwwroot + '/user/view.php?id=' + data.userid;
@@ -257,6 +258,7 @@ M.mod_mediagallery.base = {
         });
     },
 
+    // The renderer escapes or formats every value in data, so it is inserted as HTML here.
     add_item_info_modal : function(data) {
         var metainfo = Y.Node.create('<div class="metainfo"></div>');
 
@@ -938,6 +940,7 @@ M.mod_mediagallery.dragdrop = {
         "dd-drop",
         "dd-plugin",
         "moodle-core-notification",
-        "event"
+        "event",
+        "escape"
     ]
 });

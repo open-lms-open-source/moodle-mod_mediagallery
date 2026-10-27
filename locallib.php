@@ -69,7 +69,7 @@ function mediagallery_get_sample_targets($course, $gallery) {
         if (!$cm->uservisible) {
             continue;
         }
-        $list[$cm->instance] = $cm->name;
+        $list[$cm->instance] = $cm->get_formatted_name();
     }
     return $list;
 }

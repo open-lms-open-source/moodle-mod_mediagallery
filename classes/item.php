@@ -546,13 +546,18 @@ class item extends base {
         $info = $this->get_socialinfo();
         $info->fields = [];
 
+        $options = ['context' => $this->get_context()];
         $data = clone $this->record;
+        foreach (['caption', 'originalauthor', 'medium', 'publisher', 'broadcaster', 'reference'] as $field) {
+            $data->$field = format_string($data->$field ?? '', true, $options);
+        }
+        $data->description = empty($data->description) ? '' : format_text($data->description, FORMAT_HTML, $options);
         $data->timecreatedformatted = '';
         $data->productiondateformatted = '';
         $data->copyrightformatted = '';
         $data->tags = [];
         foreach ($this->get_tags() as $tag) {
-            $data->tags[] = $tag->name;
+            $data->tags[] = $tag->get_display_name();
         }
         if ($data->timecreated > 0) {
             $data->timecreatedformatted = userdate($data->timecreated, get_string('strftimedaydatetime', 'langconfig'));
@@ -575,7 +580,7 @@ class item extends base {
                 'displayname' => get_string('uploader', 'mod_mediagallery'),
                 'name' => 'owner',
                 'link' => $linkurl->out(),
-                'value' => "{$user->firstname} {$user->lastname}",
+                'value' => s("{$user->firstname} {$user->lastname}"),
             ];
         }
 

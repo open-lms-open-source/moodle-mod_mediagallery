@@ -213,10 +213,10 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
         $o .= html_writer::start_tag('div', array('class' => 'controls'));
 
         $this->page->requires->yui_module('moodle-mod_mediagallery-base', 'M.mod_mediagallery.base.add_gallery_info_modal',
-            array($COURSE->id, $gallery->get_metainfo()), null, true);
+            [$COURSE->id, $this->gallery_info_data($gallery)], null, true);
         $url = new moodle_url('/mod/mediagallery/gallery.php', array('g' => $gallery->id, 'action' => 'info'));
         $o .= $this->output->action_icon($url, new pix_icon('i/info', get_string('information', 'mediagallery')), null,
-            array('class' => 'action-icon info'));
+            ['class' => 'action-icon info']);
 
         $actions = $this->gallery_list_item_actions($gallery);
         $o .= $this->action_menu($actions);
@@ -224,6 +224,59 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
         $o .= html_writer::end_tag('div');
         $o .= html_writer::end_tag('div');
         return $o;
+    }
+
+    /**
+     * Build the data shown in a gallery's information dialogue.
+     *
+     * The dialogue inserts these values as HTML, so each one is escaped or formatted here.
+     *
+     * @param gallery $gallery
+     * @return stdClass
+     */
+    protected function gallery_info_data(gallery $gallery) {
+        $metainfo = $gallery->get_metainfo();
+        $options = ['context' => $gallery->get_context()];
+
+        $data = new stdClass();
+        $data->id = (int)$gallery->id;
+        $data->userid = (int)$metainfo->userid;
+        $data->name = format_string($metainfo->name, true, $options);
+        $data->firstname = s($metainfo->firstname ?? '');
+        $data->lastname = s($metainfo->lastname ?? '');
+        $data->groupname = isset($metainfo->groupname) ? format_string($metainfo->groupname, true, $options) : null;
+        return $data;
+    }
+
+    /**
+     * Build the data shown in an item's information dialogue.
+     *
+     * The dialogue inserts these values as HTML, so each one is escaped or formatted here.
+     *
+     * @param item $item
+     * @return stdClass
+     */
+    protected function item_info_data(item $item) {
+        $metainfo = $item->get_metainfo();
+        $options = ['context' => $item->get_context()];
+
+        $data = new stdClass();
+        $data->id = (int)$item->id;
+        foreach (['caption', 'originalauthor', 'medium', 'publisher', 'broadcaster', 'reference'] as $field) {
+            $data->$field = format_string($metainfo->$field ?? '', true, $options);
+        }
+        $data->description = empty($metainfo->description) ? '' : format_text($metainfo->description, FORMAT_HTML, $options);
+        $data->firstname = s($metainfo->firstname ?? '');
+        $data->lastname = s($metainfo->lastname ?? '');
+        // Username and group stay null when absent, so the dialogue hides them.
+        $data->username = isset($metainfo->username) ? s($metainfo->username) : null;
+        $data->groupname = isset($metainfo->groupname) ? format_string($metainfo->groupname, true, $options) : null;
+        $data->moralrights = (int)$metainfo->moralrights;
+        $data->timecreatedformatted = $metainfo->timecreatedformatted;
+        $data->productiondateformatted = $metainfo->productiondateformatted;
+        $data->copyrightformatted = $metainfo->copyrightformatted;
+        $data->tags = $this->tag_list($metainfo->tags, '', 'item-tags');
+        return $data;
     }
 
     /**
@@ -603,13 +656,11 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
 
         $o .= html_writer::start_tag('div', array('class' => 'controls'));
 
-        $metainfo = $item->get_metainfo();
-        $metainfo->tags = $this->tag_list($metainfo->tags, '', 'item-tags');
         $this->page->requires->yui_module('moodle-mod_mediagallery-base', 'M.mod_mediagallery.base.add_item_info_modal',
-            array($metainfo), null, true);
+            [$this->item_info_data($item)], null, true);
         $url = new moodle_url('/mod/mediagallery/item.php', array('i' => $item->id, 'action' => 'info'));
         $o .= $this->output->action_icon($url, new pix_icon('i/info', get_string('information', 'mediagallery')), null,
-            array('class' => 'action-icon info'));
+            ['class' => 'action-icon info']);
 
         $actions = $this->item_editing_actions_list($item, $gallery);
         $o .= $this->action_menu($actions);
@@ -823,10 +874,8 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
 
             $o .= html_writer::tag('div', $itemframe, array('class' => 'item grid_item', 'data-id' => $item->id,
                 'data-title' => $item->caption, 'id' => 'gallery_item_'.$item->id));
-            $metainfo = $item->get_metainfo();
-            $metainfo->tags = $this->tag_list($metainfo->tags, '', 'item-tags');
             $this->page->requires->yui_module('moodle-mod_mediagallery-base', 'M.mod_mediagallery.base.add_item_info_modal',
-                array($metainfo), null, true);
+                [$this->item_info_data($item)], null, true);
 
             $column++;
         }
