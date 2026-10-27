@@ -119,10 +119,10 @@ switch($requestmethod) {
             }
             $object->update_sortorder($data);
         } else if ($action == 'like' || $action == 'unlike') {
-            if ($class !== 'item' || !$canview) {
+            // can_like() checks the collection allows likes, as well as the capability.
+            if ($class !== 'item' || !$canview || !$itemgallery->can_like()) {
                 throw new moodle_exception('nopermissions', 'error', '', $action);
             }
-            require_capability('mod/mediagallery:like', $context);
             $count = $object->$action();
             $info = new stdClass();
             $info->likes = $count;

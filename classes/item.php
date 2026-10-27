@@ -906,7 +906,9 @@ class item extends base {
     public function like() {
         global $DB, $USER;
 
-        if (!has_capability('mod/mediagallery:like', $this->get_context())) {
+        // Loads the gallery, if this item was made without one.
+        $this->get_context();
+        if (!$this->gallery->can_like()) {
             return false;
         }
 
@@ -975,7 +977,9 @@ class item extends base {
     public function unlike() {
         global $DB;
 
-        if (!has_capability('mod/mediagallery:like', $this->get_context())) {
+        // Loads the gallery, if this item was made without one.
+        $this->get_context();
+        if (!$this->gallery->can_like()) {
             return false;
         }
 
