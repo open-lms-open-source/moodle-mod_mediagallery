@@ -420,13 +420,14 @@ class collection extends base {
     /**
      * is_read_only
      *
-     * Returns true if this collection is readonly for the current user.
+     * Returns true if this collection is readonly for a user.
      * Users with the mod/mediagallery:manage cap can always edit the collection.
      *
+     * @param int $userid The user to check. If null then the current user is checked.
      * @return bool true if read only for this user.
      */
-    public function is_read_only() {
-        if (has_capability('mod/mediagallery:manage', $this->context)) {
+    public function is_read_only($userid = null) {
+        if (has_capability('mod/mediagallery:manage', $this->context, $userid)) {
             return false;
         }
 

@@ -902,7 +902,15 @@ class item extends base {
             $userid = $USER->id;
         }
 
-        if ($userid == $this->record->userid || has_capability('mod/mediagallery:manage', $this->get_context(), $userid)) {
+        if (has_capability('mod/mediagallery:manage', $this->get_context(), $userid)) {
+            return true;
+        }
+
+        if ($this->gallery->is_locked($userid)) {
+            return false;
+        }
+
+        if ($userid == $this->record->userid) {
             return true;
         }
 
@@ -928,10 +936,7 @@ class item extends base {
             $userid = $USER->id;
         }
 
-        if ($this->user_can_edit($userid)) {
-            return true;
-        }
-        return has_capability('mod/mediagallery:manage', $this->get_context(), $userid);
+        return $this->user_can_edit($userid);
     }
 
     public function thebox_processed() {

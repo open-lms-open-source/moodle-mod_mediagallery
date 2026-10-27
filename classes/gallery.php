@@ -424,7 +424,7 @@ class gallery extends base {
             $userid = $USER->id;
         }
 
-        if ($this->get_collection()->is_read_only()) {
+        if ($this->get_collection()->is_read_only($userid)) {
             return false;
         }
 
@@ -446,12 +446,12 @@ class gallery extends base {
 
         $coll = $this->get_collection();
 
-        if (!$ownercheck && ($coll->is_read_only() || $this->submitted_for_grading())) {
-            return false;
-        }
-
         if (is_null($userid)) {
             $userid = $USER->id;
+        }
+
+        if (!$ownercheck && $this->is_locked($userid)) {
+            return false;
         }
 
         if ($userid == $this->record->userid || has_capability('mod/mediagallery:manage', $this->get_context(), $userid)) {
@@ -483,11 +483,27 @@ class gallery extends base {
             $userid = $USER->id;
         }
 
-        $theboxowner = $this->get_collection()->mode == 'thebox' && $this->get_collection()->is_thebox_creator_or_agent($userid);
-        if ($this->user_can_edit($userid, true) || $theboxowner) {
+        if (has_capability('mod/mediagallery:manage', $this->get_context(), $userid)) {
             return true;
         }
-        return has_capability('mod/mediagallery:manage', $this->get_context(), $userid);
+
+        // Submitted work and read-only collections must stay intact for grading.
+        if ($this->is_locked($userid)) {
+            return false;
+        }
+
+        $theboxowner = $this->get_collection()->mode == 'thebox' && $this->get_collection()->is_thebox_creator_or_agent($userid);
+        return $this->user_can_edit($userid) || $theboxowner;
+    }
+
+    /**
+     * Is this gallery closed to changes by a user, because the collection is read only or the gallery was submitted?
+     *
+     * @param int $userid
+     * @return bool
+     */
+    public function is_locked($userid) {
+        return $this->get_collection()->is_read_only($userid) || $this->submitted_for_grading();
     }
 
     public function user_can_view($userid = null) {
