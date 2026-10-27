@@ -26,11 +26,18 @@ class imagehelper {
      * @return bool true if there's enough memory to load the image, false otherwise.
      */
     public static function memory_check($path) {
-        $limit = @ini_get('memory_limit');
-        $limit = get_real_size($limit);
+        if (!$size = @getimagesize($path)) {
+            return false;
+        }
+        list($x, $y) = $size;
+
+        $limit = get_real_size(@ini_get('memory_limit'));
+        if ($limit <= 0) {
+            // No memory limit.
+            return true;
+        }
         $current = memory_get_usage();
 
-        list($x, $y) = @getimagesize($path);
         $need = $x * $y * 3 * 1.7; // Bytes needed when uncompressed.
 
         if ($need < $limit - $current) {

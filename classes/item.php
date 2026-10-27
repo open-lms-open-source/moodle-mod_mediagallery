@@ -374,7 +374,7 @@ class item extends base {
         if ($type == 'item') {
             return $originalfile;
         }
-        if (!$force && ($newfile = $this->get_stored_file_by_type($type))) {
+        if (!$force && ($newfile = $this->find_stored_file($type))) {
             return $newfile;
         }
 
@@ -396,16 +396,15 @@ class item extends base {
             $h = 940;
         }
 
-        ob_start();
-        if (!$resized = $this->get_image_resized($originalfile, $w, $h, 0, 0, $type != 'lowres')) {
-            // File is smaller than lowres, so don't bother.
+        if (!$resized = $this->get_image_resized($originalfile, $h, $w, 0, 0, $type != 'lowres')) {
             return false;
         }
+        ob_start();
         imagepng($resized);
         $newfiledata = ob_get_clean();
         $fs = get_file_storage();
         $fs->delete_area_files($this->get_context()->id, 'mod_mediagallery', $type, $this->record->id);
-        return $fs->create_file_from_string($fileinfo, $newfiledata);
+        return $this->$type = $fs->create_file_from_string($fileinfo, $newfiledata);
     }
 
     private function get_image_resized(?\stored_file $file = null, $height = 250, $width = 250, $offsetx = 0, $offsety = 0,
@@ -418,19 +417,41 @@ class item extends base {
 
         require_once($CFG->libdir.'/gdlib.php');
 
+        if (!$tempfile = $file->copy_content_to_temp()) {
+            return false;
+        }
         $oldmemlimit = @ini_get('memory_limit');
         raise_memory_limit(MEMORY_EXTRA);
+        try {
+            return $this->resize_image_file($tempfile, $file->get_mimetype(), $height, $width, $offsetx, $offsety, $crop);
+        } finally {
+            @unlink($tempfile);
+            reduce_memory_limit($oldmemlimit);
+        }
+    }
 
-        $tempfile = $file->copy_content_to_temp();
-
+    /**
+     * Resize an image file, rotating it upright if its EXIF data says to.
+     *
+     * @param string $tempfile Path to the image.
+     * @param string $mimetype
+     * @param int $height
+     * @param int $width
+     * @param int $offsetx
+     * @param int $offsety
+     * @param bool $crop
+     * @return \GdImage|false The resized image, or false if it couldn't be read or is too large to load.
+     */
+    private function resize_image_file($tempfile, $mimetype, $height, $width, $offsetx, $offsety, $crop) {
         if (!imagehelper::memory_check($tempfile)) {
             return false;
         }
 
-        $image = imagecreatefromstring(file_get_contents($tempfile));
+        if (!$image = @imagecreatefromstring(file_get_contents($tempfile))) {
+            return false;
+        }
 
         // Func exif_read_data is only supported for jpeg/tiff images.
-        $mimetype = $file->get_mimetype();
         $isjpegortiff = $mimetype == 'image/jpeg' || $mimetype == 'image/tiff';
 
         if ($isjpegortiff && function_exists('exif_read_data') && ($exif = exif_read_data($tempfile))) {
@@ -531,10 +552,7 @@ class item extends base {
         }
 
         $resized = imagecreatetruecolor($width, $height);
-        imagecopybicubic($resized, $image, 0, 0, $srcx, $srcy, $width, $height, $srcw, $srch);
-
-        unset($image);
-        reduce_memory_limit($oldmemlimit);
+        imagecopyresampled($resized, $image, 0, 0, $srcx, $srcy, $width, $height, $srcw, $srch);
 
         return $resized;
     }
@@ -591,17 +609,25 @@ class item extends base {
         if (!is_null($this->$property)) {
             return $this->$property;
         }
-        $fs = get_file_storage();
-        $files = $fs->get_area_files($this->get_context()->id, 'mod_mediagallery', $type, $this->record->id, 'id', false);
 
-        if (empty($files)) {
-            $file = null;
-            if ($type != 'item') {
-                $file = $this->generate_image_by_type($type, true);
-            }
-            return $this->$property = $file;
+        $file = $this->find_stored_file($type);
+        if (!$file && $type != 'item') {
+            // If this fails, callers use the original. The failure is kept so it isn't retried in this request.
+            $file = $this->generate_image_by_type($type, true);
         }
-        return $this->$property = current($files);
+        return $this->$property = $file;
+    }
+
+    /**
+     * Get the file in one of this item's file areas, without making it if it's missing.
+     *
+     * @param string $type The file area: item, lowres or thumbnail.
+     * @return \stored_file|false
+     */
+    private function find_stored_file($type) {
+        $files = get_file_storage()->get_area_files($this->get_context()->id, 'mod_mediagallery', $type,
+            $this->record->id, 'id', false);
+        return reset($files);
     }
 
     public function get_metainfo() {
@@ -733,6 +759,7 @@ class item extends base {
             if (!$file = $this->get_stored_file_by_type()) {
                 return null;
             }
+            $type = 'item';
         }
         if (!file_mimetype_in_typegroup($file->get_mimetype(), 'web_image')) {
             // If its not an image, we want to display a moodle filetype icon, so we need to use the item path.
