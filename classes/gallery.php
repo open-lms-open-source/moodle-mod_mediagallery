@@ -159,36 +159,48 @@ class gallery extends base {
      * @return void
      */
     public function download_items(array $list = []) {
-        global $CFG, $DB;
+        global $CFG;
 
         // More efficient to load this here.
         require_once($CFG->libdir.'/filelib.php');
 
-        $filesforzipping = [];
-
-        $fs = get_file_storage();
-        $filename = clean_filename('mediagallery-export-'.$this->record->name.'.zip');
-
-        $files = $fs->get_area_files($this->get_collection()->context->id, 'mod_mediagallery', 'item', false, 'id', false);
-        $items = $this->get_items();
-        $keyed = array_flip($list);
-        foreach ($files as $file) {
-            $selected = isset($keyed[$file->get_itemid()]) || empty($list);
-            if ($selected && isset($items[$file->get_itemid()])) {
-                $filesforzipping[$file->get_filename()] = $file;
-            }
-        }
-
+        $filesforzipping = $this->get_files_for_download($list);
         if (empty($filesforzipping)) {
             return;
         }
 
-        $tempzip = tempnam($CFG->tempdir . '/', 'mediagallery_');
+        $filename = clean_filename('mediagallery-export-'.$this->record->name.'.zip');
+        $tempzip = make_request_directory() . '/export.zip';
         $zipper = new \zip_packer();
         $zipper->archive_to_pathname($filesforzipping, $tempzip);
 
         // Send file and delete after sending.
         send_temp_file($tempzip, $filename);
+    }
+
+    /**
+     * Get the files to put in a download, keyed by their name in the zip.
+     *
+     * Files keep their own names, unless another item's file already has that name. Then the
+     * item ID is added to the front, so neither file is lost.
+     *
+     * @param array $list List of item id's to download. Empty array means all files.
+     * @return \stored_file[]
+     */
+    public function get_files_for_download(array $list = []) {
+        $keyed = array_flip($list);
+        $files = [];
+        foreach ($this->get_items() as $itemid => $item) {
+            if ((!empty($list) && !isset($keyed[$itemid])) || !$file = $item->get_file()) {
+                continue;
+            }
+            $name = $file->get_filename();
+            if (isset($files[$name])) {
+                $name = "{$itemid}-{$name}";
+            }
+            $files[$name] = $file;
+        }
+        return $files;
     }
 
     public function get_collection() {
