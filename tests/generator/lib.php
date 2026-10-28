@@ -40,7 +40,7 @@ class mod_mediagallery_generator extends testing_module_generator {
      * @param array $options (mostly course_module properties)
      * @return stdClass activity record with extra cmid field
      */
-    public function create_instance($record = null, array $options = null) {
+    public function create_instance($record = null, ?array $options = null) {
         global $CFG;
         require_once("$CFG->dirroot/mod/mediagallery/lib.php");
         require_once("$CFG->dirroot/mod/mediagallery/locallib.php");

@@ -47,6 +47,9 @@ final class access_test extends \advanced_testcase {
         parent::setUp();
         $this->resetAfterTest();
         require_once($CFG->dirroot . '/mod/mediagallery/lib.php');
+        // Enrolling users sends welcome messages. Sending one by email sets up the page's theme, after which
+        // mediagallery_pluginfile() can't set the page's course, so keep them from being sent.
+        $this->redirectMessages();
 
         $this->course = $this->getDataGenerator()->create_course();
         $this->teacher = $this->getDataGenerator()->create_and_enrol($this->course, 'editingteacher');
