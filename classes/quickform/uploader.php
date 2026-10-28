@@ -72,6 +72,7 @@ class MoodleQuickForm_uploader extends MoodleQuickForm_filepicker {
         $args->maxbytes = 0;
         $args->context = $PAGE->context;
         $args->buttonname = $elname.'choose';
+        $args->elementid = $id;
         $args->elementname = $elname;
 
         // We can only tell the filepicker that we want FILE_REFERENCE repos
