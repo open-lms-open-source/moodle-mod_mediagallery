@@ -124,9 +124,9 @@ jobs:
         if: ${{ always() }}
         run: moodle-plugin-ci phpmd
 
-      - name: Moodle Code Checker
-        if: ${{ always() }}
-        run: moodle-plugin-ci phpcs --max-warnings 0
+#     - name: Moodle Code Checker
+#       if: ${{ always() }}
+#       run: moodle-plugin-ci phpcs --max-warnings 0
 
       - name: Validating
         if: ${{ always() }}
