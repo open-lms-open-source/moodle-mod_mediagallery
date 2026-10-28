@@ -465,12 +465,14 @@ function mod_mediagallery_get_tagged_collections($tag, $exclusivemode = false, $
         }
         $modinfo = get_fast_modinfo($builder->get_course($courseid));
         // Set accessibility of this item and all other items in the same course.
-        $builder->walk(function ($taggeditem) use ($courseid, $modinfo, $builder, $item) {
-            $accessible = false;
-            if (($cm = $modinfo->get_cm($taggeditem->cmid)) && $cm->uservisible) {
-                $accessible = true;
+        $builder->walk(function ($taggeditem) use ($courseid, $modinfo, $builder) {
+            if ($taggeditem->courseid == $courseid) {
+                $accessible = false;
+                if (($cm = $modinfo->get_cm($taggeditem->cmid)) && $cm->uservisible) {
+                    $accessible = true;
+                }
+                $builder->set_accessible($taggeditem, $accessible);
             }
-            $builder->set_accessible($item, $accessible);
         });
     }
 
@@ -574,13 +576,15 @@ function mod_mediagallery_get_tagged_galleries($tag, $exclusivemode = false, $fr
         }
         $modinfo = get_fast_modinfo($builder->get_course($courseid));
         // Set accessibility of this item and all other items in the same course.
-        $builder->walk(function ($taggeditem) use ($courseid, $modinfo, $builder, $item) {
-            $accessible = false;
-            if (($cm = $modinfo->get_cm($taggeditem->cmid)) && $cm->uservisible) {
-                $gallery = new \mod_mediagallery\gallery($item);
-                $accessible = $gallery->user_can_view();
+        $builder->walk(function ($taggeditem) use ($courseid, $modinfo, $builder) {
+            if ($taggeditem->courseid == $courseid) {
+                $accessible = false;
+                if (($cm = $modinfo->get_cm($taggeditem->cmid)) && $cm->uservisible) {
+                    $gallery = new \mod_mediagallery\gallery($taggeditem);
+                    $accessible = $gallery->user_can_view();
+                }
+                $builder->set_accessible($taggeditem, $accessible);
             }
-            $builder->set_accessible($item, $accessible);
         });
     }
 
@@ -638,7 +642,7 @@ function mod_mediagallery_get_tagged_items($tag, $exclusivemode = false, $fromct
 
     // Build the SQL query.
     $ctxselect = context_helper::get_preload_record_columns_sql('ctx');
-    $query = "SELECT mg.*, mg.id as galleryid, mi.id, mi.caption,
+    $query = "SELECT mi.id, mi.caption, mi.galleryid,
                     cm.id AS cmid, c.id AS courseid, c.shortname, c.fullname, $ctxselect
                 FROM {mediagallery_item} mi
                 JOIN {mediagallery_gallery} mg ON mg.id = mi.galleryid
@@ -685,13 +689,15 @@ function mod_mediagallery_get_tagged_items($tag, $exclusivemode = false, $fromct
         }
         $modinfo = get_fast_modinfo($builder->get_course($courseid));
         // Set accessibility of this item and all other items in the same course.
-        $builder->walk(function ($taggeditem) use ($courseid, $modinfo, $builder, $item) {
-            $accessible = false;
-            if (($cm = $modinfo->get_cm($taggeditem->cmid)) && $cm->uservisible) {
-                $gallery = new \mod_mediagallery\gallery($item);
-                $accessible = $gallery->user_can_view();
+        $builder->walk(function ($taggeditem) use ($courseid, $modinfo, $builder) {
+            if ($taggeditem->courseid == $courseid) {
+                $accessible = false;
+                if (($cm = $modinfo->get_cm($taggeditem->cmid)) && $cm->uservisible) {
+                    $gallery = new \mod_mediagallery\gallery($taggeditem->galleryid);
+                    $accessible = $gallery->user_can_view();
+                }
+                $builder->set_accessible($taggeditem, $accessible);
             }
-            $builder->set_accessible($item, $accessible);
         });
     }
 
