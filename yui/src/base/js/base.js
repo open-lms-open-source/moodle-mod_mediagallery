@@ -164,32 +164,32 @@ M.mod_mediagallery.base = {
         if (type === 'item') {
             selector = '.item';
         }
-        var config = {
-            title : M.str.mod_mediagallery["confirm" + type + "delete"],
-            origquestion : M.str.mod_mediagallery["delete" + type] + ' ',
-            yesLabel : M.str.moodle.yes,
-            noLabel : M.str.moodle.cancel,
-            closeButtonTitle : M.str.moodle.cancel
-        };
+        var title = M.str.mod_mediagallery["confirm" + type + "delete"];
 
         Y.all(selector + ' .controls .delete').each(function() {
             this._confirmationListener = this._confirmationListener || this.on('click', function(e) {
                 // Prevent the default event (submit) from firing.
                 e.preventDefault();
-                // Create the confirm box.
-                var itemdata = this.ancestor("div" + selector).getData();
-                config.question = config.origquestion + Y.Escape.html(itemdata.title) + '?';
-                var confirm = new M.core.confirm(config);
-                // If the user clicks yes.
-                confirm.on('complete-yes', function() {
-                    // Detach the listener for the confirm box so it doesn't fire again.
-                    this._confirmationListener.detach();
-                    // Simulate the original cancel button click.
-                    itemdata["class"] = type;
-                    M.mod_mediagallery.base.delete_object(itemdata, selector);
-                }, this);
-                // Show the confirm box.
-                confirm.show();
+                var node = this;
+                var itemdata = node.ancestor("div" + selector).getData();
+                var question = M.str.mod_mediagallery["delete" + type] + ' ' + Y.Escape.html(itemdata.title) + '?';
+                // The YUI confirm dialogue (M.core.confirm) is gone from newer Moodle releases, so use core/notification.
+                require(['core/notification'], function(Notification) {
+                    Notification.deleteCancelPromise(title, question, M.util.get_string('delete', 'moodle'),
+                            {triggerElement: node.getDOMNode()})
+                        .then(function() {
+                            // Detach the listener so it doesn't fire again.
+                            node._confirmationListener.detach();
+                            itemdata["class"] = type;
+                            itemdata.action = 'delete';
+                            M.mod_mediagallery.base.delete_object(itemdata, selector);
+                            return;
+                        })
+                        .catch(function() {
+                            // Cancelled.
+                            return;
+                        });
+                });
             }, this);
         });
     },

@@ -99,6 +99,7 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
         $this->page->requires->strings_for_js($jsstrs, 'mod_mediagallery');
         $this->page->requires->strings_for_js(array(
             'move', 'add', 'description', 'no', 'yes', 'group', 'fullnameuser', 'username', 'next', 'previous', 'submit',
+            'delete',
         ), 'moodle');
         $this->page->requires->string_for_js('thisdirection', 'core_langconfig');
 
