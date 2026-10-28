@@ -42,14 +42,14 @@ class behat_mod_mediagallery extends behat_base {
 
     /**
      * Adds a gallery to the mediagallery specified by it's name with the provided table data.
-     * The step begins from the mediagallery's course page.
+     * The step can begin from any page, as it goes to the mediagallery itself.
      *
      * @Given /^I add a new gallery to "(?P<mediagallery_name_string>(?:[^"]|\\")*)" media gallery with:$/
      * @param string $name
      * @param TableNode $table
      */
     public function i_add_a_gallery_to_mediagallery_with($name, TableNode $table) {
-        $this->execute('behat_general::click_link', [$this->escape($name)]);
+        $this->execute('behat_navigation::i_am_on_page_instance', [$this->escape($name), 'mediagallery activity']);
         $this->execute('behat_general::click_link', [get_string('addagallery', 'mediagallery')]);
         $this->execute('behat_forms::i_set_the_following_fields_to_these_values', $table);
         $this->execute('behat_forms::press_button', get_string('savechanges'));

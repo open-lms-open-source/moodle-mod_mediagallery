@@ -23,15 +23,16 @@ Feature: Users can tag items, galleries and collections
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I follow "Contributed collection"
-    And I click on "Edit settings" "link"
+    And I navigate to "Settings" in current page administration
     And I set the field "Tags" to "tag1,tag2"
     And I press "Save and display"
-    Then I should see "tag1, tag2"
-    When I click on "Edit settings" "link"
+    Then I should see "tag1" in the ".gallery-tags" "css_element"
+    And I should see "tag2" in the ".gallery-tags" "css_element"
+    When I navigate to "Settings" in current page administration
     And I set the field "Tags" to "tag2"
     And I press "Save and display"
-    Then I should see "tag2"
-    And I should not see "tag1"
+    Then I should see "tag2" in the ".gallery-tags" "css_element"
+    And I should not see "tag1" in the ".gallery-tags" "css_element"
 
   Scenario: Add and remove tags for a gallery
     Given I log in as "student1"
@@ -42,13 +43,15 @@ Feature: Users can tag items, galleries and collections
     And I follow "Edit gallery settings"
     And I set the field "Tags" to "tag3, tag4, tag5"
     And I press "Save changes"
-    Then I should see "tag3, tag4, tag5"
+    Then I should see "tag3" in the ".gallery-tags" "css_element"
+    And I should see "tag4" in the ".gallery-tags" "css_element"
+    And I should see "tag5" in the ".gallery-tags" "css_element"
     When I follow "Edit gallery settings"
     And I set the field "Tags" to "tag3, tag5"
     And I press "Save changes"
-    Then I should see "tag3"
-    And I should see "tag5"
-    And I should not see "tag4"
+    Then I should see "tag3" in the ".gallery-tags" "css_element"
+    And I should see "tag5" in the ".gallery-tags" "css_element"
+    And I should not see "tag4" in the ".gallery-tags" "css_element"
 
   Scenario: Add and remove tags for an item
     Given I log in as "student1"

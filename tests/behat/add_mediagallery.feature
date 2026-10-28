@@ -23,12 +23,12 @@ Feature: Add mediagallery activities and galleries
       | mediagallery | Assignment collection    | Test mediacollection description | C1     | mediagallery2 | 0         | assignment   |
       | mediagallery | Peer reviewed collection | Test mediacollection description | C1     | mediagallery2 | 0         | peerreviewed |
 
-  @javascript
+  @javascript @_file_upload
   Scenario: Add a mediagallery and a standard gallery
     Given I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I turn editing mode on
-    And I add a "Media collection" to section "1" and I fill the form with:
+    And I add a "mediagallery" activity to course "Course 1" section "1" and I fill the form with:
       | Media collection name | Test mg name |
       | Description | Test mg description |
     When I add a new gallery to "Test mg name" media gallery with:

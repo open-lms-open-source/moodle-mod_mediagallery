@@ -20,7 +20,7 @@ Feature: Social interactions with items
       | activity     | name                | intro                         | course | idnumber      | groupmode |
       | mediagallery | Test mg groups name | Test mediagallery description | C1     | mediagallery1 | 0         |
 
-  @javascript
+  @javascript @_file_upload
   Scenario: Liking an item
     When I log in as "student1"
     And I am on "Course 1" course homepage
