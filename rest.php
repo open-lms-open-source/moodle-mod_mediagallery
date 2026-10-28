@@ -30,13 +30,30 @@ require_once($CFG->dirroot.'/mod/mediagallery/locallib.php');
 
 $class = required_param('class', PARAM_ALPHA);
 $m = required_param('m', PARAM_INT);
-$id = optional_param('id', 0, PARAM_INT);
-$action = optional_param('action', null, PARAM_ALPHAEXT);
+$id = required_param('id', PARAM_INT);
+$action = required_param('action', PARAM_ALPHAEXT);
 $data = optional_param_array('data', null, PARAM_RAW);
 
 $validclasses = ['item', 'gallery', 'collection'];
-if (!in_array($class, $validclasses, true)) {
+if (!in_array($class, $validclasses, true) || $id <= 0) {
     throw new moodle_exception('invalidparameter', 'debug');
+}
+
+// Each action belongs to one of the branches below: reading, changing, or deleting the object.
+$actiontypes = [
+    'socialinfo' => 'GET',
+    'get_sample_targets' => 'GET',
+    'embed' => 'GET',
+    'metainfo' => 'GET',
+    'sortorder' => 'POST',
+    'like' => 'POST',
+    'unlike' => 'POST',
+    'sample' => 'POST',
+    'remove' => 'DELETE',
+    'delete' => 'DELETE',
+];
+if (!isset($actiontypes[$action])) {
+    throw new moodle_exception('invalidaction', 'error');
 }
 
 $PAGE->set_url('/mod/mediagallery/rest.php', ['id' => $id, 'class' => $class, 'm' => $m]);
@@ -48,42 +65,35 @@ $cm = get_coursemodule_from_instance('mediagallery', $mediagallery->id, $course-
 require_login($course, false, $cm);
 require_sesskey();
 
-$requestmethod = $_SERVER['REQUEST_METHOD'];
-
 echo $OUTPUT->header();
 
 $classname = "\\mod_mediagallery\\{$class}";
+$object = new $classname($id);
 
-if (!empty($id)) {
-    $object = new $classname($id);
-
-    $belongs = false;
-    if ($class === 'collection') {
-        $belongs = ((int)$object->id === (int)$m);
-    } else if ($class === 'gallery') {
-        $belongs = ((int)$object->instanceid === (int)$m);
-    } else if ($class === 'item') {
-        $belongs = $DB->record_exists('mediagallery_gallery',
-            ['id' => $object->galleryid, 'instanceid' => $m]);
-    }
-    if (!$belongs) {
-        throw new moodle_exception('nopermissions', 'error', '', 'access ' . $class);
-    }
+$belongs = false;
+if ($class === 'collection') {
+    $belongs = ((int)$object->id === (int)$m);
+} else if ($class === 'gallery') {
+    $belongs = ((int)$object->instanceid === (int)$m);
+} else if ($class === 'item') {
+    $belongs = $DB->record_exists('mediagallery_gallery',
+        ['id' => $object->galleryid, 'instanceid' => $m]);
+}
+if (!$belongs) {
+    throw new moodle_exception('nopermissions', 'error', '', 'access ' . $class);
 }
 
 $context = context_module::instance($cm->id);
 
 $canview = true;
-if (!empty($id)) {
-    if ($class === 'gallery') {
-        $canview = $object->user_can_view();
-    } else if ($class === 'item') {
-        $itemgallery = new \mod_mediagallery\gallery($object->galleryid);
-        $canview = $itemgallery->user_can_view();
-    }
+if ($class === 'gallery') {
+    $canview = $object->user_can_view();
+} else if ($class === 'item') {
+    $itemgallery = new \mod_mediagallery\gallery($object->galleryid);
+    $canview = $itemgallery->user_can_view();
 }
 
-switch($requestmethod) {
+switch ($actiontypes[$action]) {
     case 'GET':
         if (in_array($action, ['socialinfo', 'embed', 'metainfo', 'get_sample_targets'], true) && !$canview) {
             throw new moodle_exception('nopermissions', 'error', '', "view $class");
