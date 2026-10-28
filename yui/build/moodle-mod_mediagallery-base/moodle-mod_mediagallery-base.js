@@ -677,29 +677,70 @@ M.mod_mediagallery.base = {
     },
 
     setup_sample_link : function() {
-        var config = {
-            title : M.str.mod_mediagallery.addsamplegallery,
-            question : '<img src="' + M.util.image_url('i/loading_small') + '" title="Processing..." />',
-            yesLabel : M.str.moodle.add,
-            noLabel : M.str.moodle.cancel,
-            closeButtonTitle : M.str.moodle.cancel
-        };
+        if (!Y.one('#mg_sample')) {
+            return;
+        }
+        Y.one('#mg_sample').on('click', function(e) {
+            e.preventDefault();
+            var trigger = e.currentTarget.getDOMNode();
 
-        if (Y.one('#mg_sample')) {
-            Y.one('#mg_sample').on('click', function(e) {
-                e.preventDefault();
+            // Fetch the collections the gallery can be copied to, then ask which one.
+            var ioconfig = {
+                method: 'GET',
+                data: {
+                    sesskey : M.cfg.sesskey,
+                    m : M.mod_mediagallery.base.mid,
+                    "class" : 'gallery',
+                    id : M.mod_mediagallery.base.gallery,
+                    action : 'get_sample_targets'
+                },
+                on: {
+                    success: function(tid, response) {
+                        var targets;
+                        try {
+                            targets = Y.JSON.parse(response.responseText);
+                        } catch (ex) {
+                            new M.core.ajaxException();
+                            return;
+                        }
+                        if (targets.error) {
+                            new M.core.ajaxException(targets);
+                            return;
+                        }
+                        M.mod_mediagallery.base.show_sample_dialogue(targets, trigger);
+                    },
+                    failure : function() {
+                        new M.core.ajaxException();
+                    }
+                }
+            };
+            Y.io(M.mod_mediagallery.base.uri, ioconfig);
+        });
+    },
 
-                // Create the confirm box.
-                var confirm = new M.core.confirm(config);
+    show_sample_dialogue : function(targets, trigger) {
+        var options = '';
+        Y.Object.each(targets, function(name, id) {
+            // Names come from the server already formatted with format_string().
+            options += '<option value="' + parseInt(id, 10) + '">' + name + '</option>';
+        });
+        var body = '<div class="sample_target_wrapper"><label for="sample_target">' + M.str.mod_mediagallery.mediagallery +
+            ':</label> <select id="sample_target">' + options + '</select></div>';
 
+        // The YUI confirm dialogue (M.core.confirm) is gone from newer Moodle releases, so use core/notification.
+        // saveCancel's callback runs while the dialogue is still open, so the choice can be read from it.
+        require(['core/notification'], function(Notification) {
+            Notification.saveCancel(M.str.mod_mediagallery.addsamplegallery, body, M.str.moodle.add, function() {
+                var target = document.getElementById('sample_target').value;
                 var ioconfig = {
-                    method: 'GET',
+                    method: 'POST',
                     data: {
                         sesskey : M.cfg.sesskey,
                         m : M.mod_mediagallery.base.mid,
                         "class" : 'gallery',
                         id : M.mod_mediagallery.base.gallery,
-                        action : 'get_sample_targets'
+                        action : 'sample',
+                        "data[]" : target
                     },
                     on: {
                         success: function(tid, response) {
@@ -708,63 +749,21 @@ M.mod_mediagallery.base = {
                                 if (responsetext.error) {
                                     new M.core.ajaxException(responsetext);
                                 }
-                            } catch (e) {
+                            } catch (ex) {
                                 new M.core.ajaxException();
                             }
-                            var node = Y.Node.create(
-                                '<div class="sample_target_wrapper"><span>' + M.str.mod_mediagallery.mediagallery + ':</span></div>'
-                            );
-                            var select = Y.Node.create('<select id="sample_target"/>');
-                            node.append(select);
-                            Y.Object.each(responsetext, function(v, k) {
-                                Y.Node.create('<option value="' + k + '">' + v + '</option>').appendTo(select);
-                            });
-                            confirm.bodyNode.one('.confirmation-message').setHTML(node);
                         },
-                        failure : function(tid, response) {
+                        failure : function() {
+                            new M.core.ajaxException();
                         }
-                    },
-                    context: this,
-                    sync: true
+                    }
                 };
                 Y.io(M.mod_mediagallery.base.uri, ioconfig);
-
-                // If the user clicks add.
-                confirm.on('complete-yes', function() {
-                    var target = Y.one('#sample_target').get('value');
-                    var ioconfig = {
-                        method: 'POST',
-                        data: {
-                            sesskey : M.cfg.sesskey,
-                            m : M.mod_mediagallery.base.mid,
-                            "class" : 'gallery',
-                            id : M.mod_mediagallery.base.gallery,
-                            action : 'sample',
-                            "data[]" : target
-                        },
-                        on: {
-                            success: function(tid, response) {
-                                try {
-                                    var responsetext = Y.JSON.parse(response.responseText);
-                                    if (responsetext.error) {
-                                        new M.core.ajaxException(responsetext);
-                                    }
-                                } catch (e) {
-                                    new M.core.ajaxException();
-                                }
-                            },
-                            failure : function() {
-                            }
-                        },
-                        context: this,
-                        sync: true
-                    };
-                    Y.io(M.mod_mediagallery.base.uri, ioconfig);
-                }, this);
-                // Show the confirm box.
-                confirm.show();
-            });
-        }
+            }, function() {
+                // Cancelled.
+                return;
+            }, {triggerElement: trigger});
+        });
     },
 
     watch_resize: function() {
