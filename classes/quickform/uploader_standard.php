@@ -52,6 +52,7 @@ class MoodleQuickForm_uploader_standard extends MoodleQuickForm_filepicker {
         $args->maxbytes = $this->_options['maxbytes'];
         $args->context = $PAGE->context;
         $args->buttonname = $elname.'choose';
+        $args->elementid = $id;
         $args->elementname = $elname;
         $args->disable_types = array('thebox');
 
