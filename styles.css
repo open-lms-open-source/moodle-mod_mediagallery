@@ -91,6 +91,39 @@
 
 .path-mod-mediagallery .item .controls .move {
     cursor: pointer;
+    width: 16px;
+    height: 16px;
+}
+
+/* Item cards when editing: the title shares a row with the controls, and is shortened to make room for them. */
+.path-mod-mediagallery .gallery_items.editing .item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.path-mod-mediagallery .gallery_items.editing .item .gthumbnail {
+    flex: 0 0 calc(100% - 10px);
+}
+
+.path-mod-mediagallery .gallery_items.editing .item .title {
+    float: none;
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: none;
+}
+
+.path-mod-mediagallery .gallery_items.editing .item .title h6 {
+    width: auto;
+}
+
+.path-mod-mediagallery .gallery_items.editing .item .controls {
+    float: none;
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    margin-left: 4px;
+    margin-bottom: 0;
 }
 
 .path-mod-mediagallery .gallery_items .controls .moodle-actionmenu,
