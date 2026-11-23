@@ -129,6 +129,7 @@ if ($gallery) {
 
 $PAGE->set_url($pageurl);
 require_login($course, true, $cm);
+require_capability('mod/mediagallery:view', $context);
 
 if ($gallery && $mediagallery->colltype != "single") {
     $navnode = $PAGE->navigation->find($cm->id, navigation_node::TYPE_ACTIVITY);
