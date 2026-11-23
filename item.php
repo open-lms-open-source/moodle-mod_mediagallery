@@ -92,7 +92,7 @@ $mform = new $formclass(null,
 $fs = get_file_storage();
 
 if ($mform->is_cancelled()) {
-    redirect(new moodle_url('/mod/mediagallery/view.php', array('g' => $gallery->id, 'editing' => 1)));
+    redirect(new moodle_url('/mod/mediagallery/view.php', array('g' => $gallery->id, 'editing' => 1, 'sesskey' => sesskey())));
 } else if ($data = $mform->get_data()) {
     if ($bulk) {
         $draftid = file_get_submitted_draft_itemid('content');
@@ -147,7 +147,7 @@ if ($mform->is_cancelled()) {
         }
     }
 
-    redirect(new moodle_url('/mod/mediagallery/view.php', array('g' => $gallery->id, 'editing' => 1)));
+    redirect(new moodle_url('/mod/mediagallery/view.php', array('g' => $gallery->id, 'editing' => 1, 'sesskey' => sesskey())));
 } else if ($item) {
     $data = $item->get_record();
 

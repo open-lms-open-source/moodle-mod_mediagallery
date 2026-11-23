@@ -103,16 +103,8 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
         ), 'moodle');
         $this->page->requires->string_for_js('thisdirection', 'core_langconfig');
 
-        $canedit = $controller->gallery && $controller->gallery->user_can_contribute();
-        if ($controller->gallery && $canedit) {
-            if (!$controller->options['editing']) {
-                $url = new moodle_url('/mod/mediagallery/view.php', array('g' => $controller->gallery->id, 'editing' => 1));
-                $this->page->set_button($this->output->single_button($url, get_string('turneditingon', 'core', 'get')));
-            } else {
-                $url = new moodle_url('/mod/mediagallery/view.php', array('g' => $controller->gallery->id));
-                $this->page->set_button($this->output->single_button($url, get_string('turneditingoff', 'core', 'get')));
-                $this->page->requires->yui_module('moodle-mod_mediagallery-dragdrop', 'M.mod_mediagallery.dragdrop.init');
-            }
+        if ($controller->gallery && $controller->options['editing']) {
+            $this->page->requires->yui_module('moodle-mod_mediagallery-dragdrop', 'M.mod_mediagallery.dragdrop.init');
         }
         return $this->output->header();
     }
@@ -289,7 +281,8 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
         $actions = array();
 
         if ($gallery->user_can_edit()) {
-            $url = new moodle_url('/mod/mediagallery/view.php', array('g' => $gallery->id, 'editing' => 1));
+            $url = new moodle_url('/mod/mediagallery/view.php', array('g' => $gallery->id, 'editing' => 1,
+                'sesskey' => sesskey()));
             $actions['edit'] = $this->iconlink(get_string('editgallery', 'mediagallery'), $url, 'pencil-square-o', '', true);
         }
 

@@ -108,18 +108,21 @@ if ($mediagallery->was_deleted()) {
 }
 
 $PAGE->set_cm($cm, $course);
-$canedit = $gallery && $gallery->user_can_contribute();
-if ($mediagallery->is_read_only() || !$canedit) {
-    $options['editing'] = false;
-}
+$canedit = $gallery && $gallery->user_can_contribute() && !$mediagallery->is_read_only();
+if ($canedit) {
+    // Users who can contribute to this gallery get the core edit mode toggle.
+    $PAGE->set_other_editing_capability('mod/mediagallery:view');
 
+    // Internal links/redirects (e.g. after saving a gallery or item) pass editing=1 to switch edit mode on.
+    $sesskey = optional_param('sesskey', '', PARAM_RAW);
+    if ($editing && $sesskey !== '' && confirm_sesskey($sesskey)) {
+        $USER->editing = 1;
+    }
+}
+$options['editing'] = $canedit && $PAGE->user_is_editing();
 
 if ($gallery) {
     $pageurl = new moodle_url('/mod/mediagallery/view.php', array('g' => $g, 'page' => $page));
-
-    if ($options['editing']) {
-        $pageurl->param('editing', true);
-    }
 } else {
     $pageurl = new moodle_url('/mod/mediagallery/view.php', array('id' => $cm->id));
 }
@@ -132,9 +135,7 @@ if ($gallery && $mediagallery->colltype != "single") {
     if (empty($navnode)) {
         $navnode = $PAGE->navbar;
     }
-    $navurl = clone $pageurl;
-    $navurl->remove_params('editing');
-    $node = $navnode->add(format_string($gallery->name), $navurl);
+    $node = $navnode->add(format_string($gallery->name), $pageurl);
     $node->make_active();
 
 }

@@ -213,6 +213,7 @@ $string['mediagallery:comment'] = 'Comment on a media collection gallery or item
 $string['mediagallery:grade'] = 'Grade media gallery';
 $string['mediagallery:like'] = 'Ability to like items in a media collection';
 $string['mediagallery:manage'] = 'Manage an instance of Media collection';
+$string['mediagallery:view'] = 'View Media collection';
 $string['mediagallery:viewall'] = 'Ability to view all galleries in a Media collection';
 
 $string['mediagalleryfieldset'] = 'Custom example fieldset';

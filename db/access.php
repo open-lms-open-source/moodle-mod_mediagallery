@@ -27,6 +27,15 @@ defined('MOODLE_INTERNAL') || die();
 
 $capabilities = array(
 
+    'mod/mediagallery:view' => [
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [
+            'guest' => CAP_ALLOW,
+            'user' => CAP_ALLOW,
+        ],
+    ],
+
     'mod/mediagallery:addinstance' => array(
         'riskbitmask' => RISK_XSS,
 

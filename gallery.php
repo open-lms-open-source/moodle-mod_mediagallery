@@ -79,7 +79,7 @@ if (has_capability('moodle/site:accessallgroups', $context) && $groupmode != NOG
 $mform = new mod_mediagallery_gallery_form(null, array('mediagallery' => $mediagallery,
     'groups' => $groups, 'groupmode' => $groupmode, 'context' => $context, 'gallery' => $gallery));
 if ($mform->is_cancelled()) {
-    redirect(new moodle_url('/mod/mediagallery/view.php', array('m' => $mediagallery->id, 'editing' => 1)));
+    redirect(new moodle_url('/mod/mediagallery/view.php', array('m' => $mediagallery->id, 'editing' => 1, 'sesskey' => sesskey())));
 } else if ($data = $mform->get_data()) {
     if (!isset($data->contributable) || $mediagallery->colltype == 'instructor') {
         $data->contributable = 0;
@@ -110,7 +110,7 @@ if ($mform->is_cancelled()) {
     }
     core_tag_tag::set_item_tags('mod_mediagallery', 'mediagallery_gallery', $gallery->id, $context, $data->tags);
 
-    redirect(new moodle_url('/mod/mediagallery/view.php', array('g' => $gallery->id, 'editing' => 1)));
+    redirect(new moodle_url('/mod/mediagallery/view.php', array('g' => $gallery->id, 'editing' => 1, 'sesskey' => sesskey())));
 } else if ($gallery) {
     $data = $gallery->get_record();
     $data->tags = core_tag_tag::get_item_tags_array('mod_mediagallery', 'mediagallery_gallery', $gallery->id);

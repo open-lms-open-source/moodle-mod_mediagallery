@@ -44,7 +44,7 @@ if (!$gallery->user_can_edit(null, true)) {
     throw new moodle_exception('nopermissions', 'error', '', 'export gallery');
 }
 
-$galleryurl = new moodle_url('/mod/mediagallery/view.php', array('g' => $g, 'editing' => 1));
+$galleryurl = new moodle_url('/mod/mediagallery/view.php', array('g' => $g, 'editing' => 1, 'sesskey' => sesskey()));
 $pageurl = new moodle_url('/mod/mediagallery/export.php', array('g' => $g));
 $PAGE->set_url($pageurl);
 $PAGE->set_title(format_string($mediagallery->name));
@@ -61,7 +61,7 @@ $node->make_active();
 
 $mform = new \mod_mediagallery\export_form(null, array('gallery' => $gallery));
 if ($mform->is_cancelled()) {
-    redirect(new moodle_url('/mod/mediagallery/view.php', array('g' => $gallery->id, 'editing' => 1)));
+    redirect(new moodle_url('/mod/mediagallery/view.php', array('g' => $gallery->id, 'editing' => 1, 'sesskey' => sesskey())));
 } else if ($data = $mform->get_data()) {
     $list = array();
 
