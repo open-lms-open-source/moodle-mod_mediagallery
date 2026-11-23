@@ -42,7 +42,7 @@ Feature: Add mediagallery activities and galleries
     And I press "Save changes"
     Then I should see "The moodle logo"
     And ".gallery_items .item" "css_element" should exist
-    And I follow "View gallery"
+    And I turn editing mode off
     Then I should see "Gallery focus"
     And I should not see "Other files"
     And I click on "Video" "option" in the ".focus_selector select" "css_element"
@@ -62,7 +62,7 @@ Feature: Add mediagallery activities and galleries
     And I press "Save changes"
     Then I should see "Some video"
     And ".gallery_items .item" "css_element" should exist
-    And I follow "View gallery"
+    And I turn editing mode off
     Then I should not see "Gallery focus"
 
   Scenario: Student cannot add a gallery to an instructor collection

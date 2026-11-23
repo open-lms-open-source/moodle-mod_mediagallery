@@ -574,7 +574,6 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
     protected function gallery_editing_actions_list($gallery) {
         $additemurl = new moodle_url('/mod/mediagallery/item.php', array('g' => $gallery->id));
         $addbulkitemurl = new moodle_url('/mod/mediagallery/item.php', array('g' => $gallery->id, 'bulk' => 1));
-        $viewurl = new moodle_url('/mod/mediagallery/view.php', array('g' => $gallery->id));
         $editurl = new moodle_url('/mod/mediagallery/gallery.php', array('g' => $gallery->id));
         $exporturl = new moodle_url('/mod/mediagallery/export.php', array('g' => $gallery->id));
         $actions = array();
@@ -588,7 +587,6 @@ class mod_mediagallery_renderer extends plugin_renderer_base {
         } else {
             $actions['maxitems'] = html_writer::span(get_string('maxitemsreached', 'mediagallery'));
         }
-        $actions['view'] = $this->iconlink(get_string('viewgallery', 'mediagallery'), $viewurl, 'eye');
         if ($gallery->user_can_edit()) {
             $actions['edit'] = $this->iconlink(get_string('editgallerysettings', 'mediagallery'), $editurl, 'pencil-square-o');
         }

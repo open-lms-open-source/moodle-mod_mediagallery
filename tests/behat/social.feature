@@ -30,7 +30,7 @@ Feature: Social interactions with items
     And I should see "Gallery1"
     And I add a new item to "Gallery1" gallery uploading "mod/mediagallery/tests/fixtures/moodle-logo.jpg" with:
       | Caption | Test item |
-    And I follow "View gallery"
+    And I turn editing mode off
     And I click on ".jcarousel a[title=\"Test item\"]" "css_element"
     And I wait "2" seconds
     And I click on "#mediabox a.like" "css_element"

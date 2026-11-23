@@ -338,7 +338,6 @@ $string['typeimage'] = 'Image';
 $string['typevideo'] = 'Video';
 $string['unlike'] = 'Unlike';
 $string['uploader'] = 'Uploader';
-$string['viewgallery'] = 'View gallery';
 $string['visibleinstructor'] = 'Visible to instructors only after';
 $string['visibleinstructor_help'] = 'Define the gallery as visible to course instructors after the specified date. This can be useful for allowing instructors to access before all other users. Course managers with appropriate permissions will always be able to see the gallery.';
 $string['visibleother'] = 'Visible to everyone in the course after';
